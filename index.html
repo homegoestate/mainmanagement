@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宏國/易丞地政 - 專業報價單系統</title>
+    <style>
+        :root {
+            --primary-color: #c8102e; /* 宏國紅 */
+            --secondary-color: #005a87; /* 易丞藍 */
+            --gray-text: #555;
+            --border-color: #ddd;
+        }
+
+        body {
+            font-family: "Microsoft JhengHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0; /* 移除外距以適應滿版 */
+            display: flex;
+            height: 100vh;
+            box-sizing: border-box;
+            overflow: hidden; /* 防止雙重捲軸 */
+        }
+
+        /* --- 左側控制面板 (響應式調整) --- */
+        .control-panel {
+            width: 400px; /* 固定寬度，避免過寬 */
+            flex-shrink: 0;
+            background: white;
+            padding: 25px;
+            border-right: 1px solid #ddd;
+            overflow-y: auto; /* 內容過多時可捲動 */
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        .control-panel h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            color: var(--secondary-color);
+            font-weight: bold;
+            margin: 20px 0 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+            color: #333;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        .btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .btn:hover { background-color: #004466; }
+
+        .btn-green { background-color: #28a745; margin-top: 5px;}
+        .btn-green:hover { background-color: #218838; }
+        
+        .btn-red { background-color: #dc3545; width: auto; padding: 5px 10px; margin-top: 0; font-size: 12px;}
+        
+        .item-row {
+            display: grid;
+            grid-template-columns: 2fr 0.8fr 1fr auto; /* 調整欄位比例 */
+            gap: 5px;
+            margin-bottom: 8px;
+            align-items: center;
+            background: #f9f9f9;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        /* --- 右側預覽區 (A4 紙張模擬) --- */
+        .preview-container {
+            flex: 1;
+            background: #525659;
+            padding: 40px;
+            overflow-y: auto; /* 讓右側可以獨立捲動 */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* 讓 A4 紙張從上面開始 */
+        }
+
+        .a4-page {
+            background: white;
+            width: 210mm;
+            min-height: 297mm; /* 保持 A4 高度 */
+            padding: 15mm 20mm;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            position: relative;
+            box-sizing: border-box;
+            /* 讓內容撐開時保持白底 */
+            height: auto; 
+        }
+
+        /* --- 報價單內樣式 --- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 15px;
+        }
+
+        .logos {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .logos img {
+            height: 65px;
+            object-fit: contain;
+        }
+
+        .company-info {
+            text-align: right;
+            font-size: 12px;
+            color: var(--gray-text);
+            line-height: 1.4;
+        }
+
+        .company-info h1 {
+            margin: 0 0 5px 0;
+            color: #333;
+            font-size: 16px; 
+            font-weight: 800;
+        }
+
+        .quote-title {
+            text-align: center;
+            font-size: 26px;
+            font-weight: bold;
+            margin: 15px 0 25px 0;
+            letter-spacing: 3px;
+            color: #222;
+        }
+
+        .info-grid {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+
+        .client-info, .meta-info {
+            width: 48%;
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 2px;
+        }
+
+        .info-label {
+            width: 85px;
+            font-weight: bold;
+            color: #444;
+            font-size: 14px;
+        }
+
+        .info-value {
+            flex: 1;
+            color: #000;
+            font-size: 14px;
+        }
+
+        /* 表格樣式 */
+        table.quote-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table.quote-table th {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 8px 10px;
+            text-align: left;
+            font-size: 14px;
+            border: 1px solid var(--secondary-color);
+        }
+
+        table.quote-table td {
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        .totals-section {
+            width: 50%;
+            margin-left: auto;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 10px;
+            font-size: 14px;
+        }
+
+        .total-row.final {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            border-top: 2px solid #333;
+            border-bottom: 1px solid #333;
+            font-size: 16px;
+            margin-top: 10px;
+            padding: 10px;
+        }
+
+        .notes-section {
+            margin-top: 30px;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-left: 5px solid var(--primary-color);
+            background-color: #fffbfc;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap; /* 保留換行 */
+            text-align: left; /* 強制靠左 */
+            color: #333;
+        }
+
+        .signature-section {
+            margin-top: 60px;
+            display: flex;
+            justify-content: space-between;
+            page-break-inside: avoid;
+        }
+
+        .sig-box {
+            width: 40%;
+            border-top: 1px solid #333;
+            padding-top: 10px;
+            text-align: center;
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* --- 響應式媒體查詢 (Mobile/Tablet) --- */
+        @media screen and (max-width: 900px) {
+            body {
+                flex-direction: column; /* 改為垂直排列 */
+                height: auto;
+                overflow: auto;
+            }
+
+            .control-panel {
+                width: 100%;
+                max-width: none;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+                padding: 20px;
+            }
+
+            .preview-container {
+                width: 100%;
+                padding: 10px;
+                background: #e0e0e0;
+            }
+
+            .a4-page {
+                width: 100%;
+                min-height: auto;
+                padding: 10mm;
+            }
+        }
+
+        /* --- 列印控制 --- */
+        @media print {
+            body { background: white; padding: 0; display: block; height: auto; overflow: visible; }
+            .control-panel { display: none; }
+            .preview-container { background: white; padding: 0; display: block; width: 100%; }
+            .a4-page { 
+                width: 100%; 
+                box-shadow: none; 
+                padding: 0; 
+                margin: 0; 
+                border: none;
+            }
+            @page { margin: 15mm; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="control-panel">
+        <h2>🛠️ 報價單設定</h2>
+        
+        <div class="section-title">基本資訊</div>
+        <div class="form-group">
+            <label>報價單號 / 主題</label>
+            <input type="text" id="inputSubject" value="聽心苑~大樓戶別實價登錄更正" oninput="updatePreview()">
+        </div>
+        <div class="form-group">
+            <label>報價日期</label>
+            <input type="date" id="inputDate" oninput="updatePreview()">
+        </div>
+        <div class="form-group">
+            <label>有效期限</label>
+            <input type="date" id="inputValidDate" oninput="updatePreview()">
+        </div>
+
+        <div class="section-title">我方資訊 (公司)</div>
+        <div class="form-group">
+            <label>公司地址</label>
+            <input type="text" id="inputCompanyAddress" value="台南市北區文賢路1080巷11號" oninput="updatePreview()">
+        </div>
+        <div class="form-group">
+            <label>聯絡人 / 職稱</label>
+            <input type="text" id="inputContact" value="楊翊 地政士" oninput="updatePreview()">
+        </div>
+        <div class="form-group">
+            <label>聯絡電話</label>
+            <input type="text" id="inputPhone" value="0912-584-498" oninput="updatePreview()">
+        </div>
+
+        <div class="section-title">客戶資訊</div>
+        <div class="form-group">
+            <label>客戶名稱 (抬頭)</label>
+            <input type="text" id="inputClient" value="長築興業有限公司" oninput="updatePreview()">
+        </div>
+        <div class="form-group">
+            <label>客戶地址</label>
+            <input type="text" id="inputClientAddress" value="" placeholder="請輸入客戶地址" oninput="updatePreview()">
+        </div>
+
+        <div class="section-title">報價項目</div>
+        <div id="itemsContainer">
+            </div>
+        <button class="btn btn-green" onclick="addItem()">+ 新增項目</button>
+
+        <div class="section-title">金額與條款</div>
+        <div class="form-group">
+            <label>折扣金額 (元)</label>
+            <input type="number" id="inputDiscount" value="100000" oninput="calculateTotal()">
+        </div>
+
+        <div class="form-group">
+            <label>備註條款</label>
+            <textarea id="inputNotes" rows="6" oninput="updatePreview()">此提案包括下述條件:
+1. 該報價不含政府單位所收取之稅金，由建設公司負擔之費用，並配合建設公司分批交屋時請款。
+2. 原始報價18萬4000元，合作廠商專案報價折扣後總計10萬元整。
+3. 匯款資訊：(請在此輸入銀行帳號)</textarea>
+        </div>
+
+        <button class="btn" onclick="window.print()">🖨️ 列印 / 存成 PDF</button>
+    </div>
+
+    <div class="preview-container">
+        <div class="a4-page">
+            
+            <div class="header">
+                <div class="logos">
+                    <img src="宏國地政封面.jpg" alt="宏國地政" onerror="this.style.display='none'; document.getElementById('logo-text-hg').style.display='block'">
+                    <img src="未命名2.png" alt="易丞地政" onerror="this.style.display='none'; document.getElementById('logo-text-yc').style.display='block'">
+                    
+                    <div id="logo-text-hg" style="display:none; font-weight:bold; color:#c8102e; font-size:20px;">HG 宏國地政</div>
+                    <div id="logo-text-yc" style="display:none; font-weight:bold; color:#005a87; font-size:20px; margin-left:10px;">易丞地政士事務所</div>
+                </div>
+                <div class="company-info">
+                    <h1>宏國地政士事務所 | 易丞地政士事務所</h1>
+                    <div id="displayCompanyAddress">台南市北區文賢路1080巷11號</div>
+                    <div>TEL: 06-258-2589 | FAX: 06-250-3839</div>
+                    <div>E-MAIL: homegoestate@gmail.com</div>
+                </div>
+            </div>
+
+            <div class="quote-title">報 價 單 (QUOTATION)</div>
+
+            <div class="info-grid">
+                <div class="client-info">
+                    <div class="info-row">
+                        <div class="info-label">客戶名稱：</div>
+                        <div class="info-value" id="displayClient"></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">客戶地址：</div>
+                        <div class="info-value" id="displayClientAddress"></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">專案名稱：</div>
+                        <div class="info-value" id="displaySubject"></div>
+                    </div>
+                </div>
+                <div class="meta-info">
+                    <div class="info-row">
+                        <div class="info-label">報價日期：</div>
+                        <div class="info-value" id="displayDate"></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">有效期限：</div>
+                        <div class="info-value" id="displayValidDate"></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">聯絡窗口：</div>
+                        <div class="info-value"><span id="displayContact"></span> (<span id="displayPhone"></span>)</div>
+                    </div>
+                </div>
+            </div>
+
+            <table class="quote-table">
+                <thead>
+                    <tr>
+                        <th style="width: 45%">項目 / 描述</th>
+                        <th class="text-center" style="width: 10%">數量</th>
+                        <th class="text-right" style="width: 20%">單價</th>
+                        <th class="text-right" style="width: 25%">金額</th>
+                    </tr>
+                </thead>
+                <tbody id="displayItems">
+                    </tbody>
+            </table>
+
+            <div class="totals-section">
+                <div class="total-row">
+                    <span>小計 (Subtotal):</span>
+                    <span id="displaySubtotal">NT$0</span>
+                </div>
+                <div class="total-row">
+                    <span>稅金 (Tax 0%):</span>
+                    <span>NT$0</span>
+                </div>
+                <div class="total-row" style="color: var(--primary-color);">
+                    <span>折扣 (Discount):</span>
+                    <span id="displayDiscount">-NT$0</span>
+                </div>
+                <div class="total-row final">
+                    <span>總計 (Total):</span>
+                    <span id="displayTotal">NT$0</span>
+                </div>
+            </div>
+
+            <div class="notes-section">
+                <strong>備註事項：</strong><br>
+                <span id="displayNotes"></span>
+            </div>
+
+            <div class="signature-section">
+                <div class="sig-box">
+                    客戶簽署 (Acceptance)
+                    <br><br><br>
+                </div>
+                <div class="sig-box">
+                    公司授權代表 (Authorized)
+                    <br><br><br>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // 初始化日期
+        document.getElementById('inputDate').valueAsDate = new Date();
+        let d = new Date();
+        let lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+        document.getElementById('inputValidDate').valueAsDate = lastDay;
+
+        // 初始項目資料
+        let items = [
+            { desc: '聽心苑~大樓戶別實價登錄更正', qty: 50, price: 4000 }
+        ];
+
+        function renderInputItems() {
+            const container = document.getElementById('itemsContainer');
+            container.innerHTML = '';
+            items.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'item-row';
+                div.innerHTML = `
+                    <input type="text" placeholder="品項" value="${item.desc}" oninput="updateItem(${index}, 'desc', this.value)">
+                    <input type="number" placeholder="數" value="${item.qty}" oninput="updateItem(${index}, 'qty', this.value)">
+                    <input type="number" placeholder="單價" value="${item.price}" oninput="updateItem(${index}, 'price', this.value)">
+                    <button class="btn btn-red" onclick="removeItem(${index})">X</button>
+                `;
+                container.appendChild(div);
+            });
+            updatePreview();
+        }
+
+        function addItem() {
+            items.push({ desc: '', qty: 1, price: 0 });
+            renderInputItems();
+        }
+
+        function removeItem(index) {
+            items.splice(index, 1);
+            renderInputItems();
+        }
+
+        function updateItem(index, field, value) {
+            if (field === 'qty' || field === 'price') {
+                items[index][field] = parseFloat(value) || 0;
+            } else {
+                items[index][field] = value;
+            }
+            calculateTotal();
+        }
+
+        function formatMoney(amount) {
+            return 'NT$' + amount.toFixed(0).replace(/\d(?=(\d{3})+$)/g, '$&,');
+        }
+
+        function calculateTotal() {
+            let subtotal = 0;
+            const tbody = document.getElementById('displayItems');
+            tbody.innerHTML = '';
+
+            items.forEach(item => {
+                const amount = item.qty * item.price;
+                subtotal += amount;
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.desc}</td>
+                        <td class="text-center">${item.qty}</td>
+                        <td class="text-right">${formatMoney(item.price)}</td>
+                        <td class="text-right">${formatMoney(amount)}</td>
+                    </tr>
+                `;
+            });
+
+            const discount = parseFloat(document.getElementById('inputDiscount').value) || 0;
+            const total = subtotal - discount;
+
+            document.getElementById('displaySubtotal').innerText = formatMoney(subtotal);
+            document.getElementById('displayDiscount').innerText = '-' + formatMoney(discount);
+            document.getElementById('displayTotal').innerText = formatMoney(total);
+        }
+
+        function updatePreview() {
+            document.getElementById('displaySubject').innerText = document.getElementById('inputSubject').value;
+            document.getElementById('displayClient').innerText = document.getElementById('inputClient').value;
+            document.getElementById('displayClientAddress').innerText = document.getElementById('inputClientAddress').value;
+            document.getElementById('displayDate').innerText = document.getElementById('inputDate').value;
+            document.getElementById('displayValidDate').innerText = document.getElementById('inputValidDate').value;
+            document.getElementById('displayNotes').innerText = document.getElementById('inputNotes').value;
+            document.getElementById('displayContact').innerText = document.getElementById('inputContact').value;
+            document.getElementById('displayPhone').innerText = document.getElementById('inputPhone').value;
+            document.getElementById('displayCompanyAddress').innerText = document.getElementById('inputCompanyAddress').value;
+            
+            calculateTotal();
+        }
+
+        // 啟動
+        renderInputItems();
+    </script>
+</body>
+</html>
