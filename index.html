@@ -45,7 +45,6 @@
 
         .auth-box h2 { color: var(--primary-color); margin-bottom: 20px; }
 
-        /* 表單樣式 */
         .input-group { margin: 10px 0; text-align: left; }
         .input-group label { font-size: 12px; color: #666; }
         
@@ -78,11 +77,10 @@
             margin-top: 10px;
             transition: 0.3s;
         }
-
         .btn-primary { background-color: var(--accent-color); color: white; }
-        .btn-primary:hover { background-color: #2980b9; }
         .btn-secondary { background-color: #95a5a6; color: white; }
         .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-warning { background-color: var(--warning-color); color: white; }
 
         .switch-link {
             margin-top: 15px;
@@ -90,6 +88,18 @@
             color: #7f8c8d;
             cursor: pointer;
             text-decoration: underline;
+        }
+
+        /* 警告訊息 */
+        .alert-box {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 13px;
+            margin-bottom: 15px;
+            border: 1px solid #ffeeba;
+            text-align: left;
         }
 
         /* 儀表板樣式 */
@@ -159,7 +169,6 @@
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background-color: var(--primary-color); color: white; }
-
         .status-pending { color: orange; font-weight: bold; }
         .status-approved { color: green; font-weight: bold; }
 
@@ -193,25 +202,32 @@
             
             <div class="checkbox-group">
                 <input type="checkbox" id="keep-login"> 
-                <label for="keep-login" style="cursor:pointer; font-size:14px; color:#333;">保持登入 (下次自動進入)</label>
+                <label for="keep-login" style="cursor:pointer; font-size:14px; color:#333;">保持登入</label>
             </div>
 
             <button type="submit" class="btn btn-primary">登入</button>
+            
+            <button type="button" class="btn btn-warning" style="margin-top:15px; font-size:14px;" onclick="quickApprove()">管理員現場開通 (輸入8888)</button>
+
             <div class="switch-link" onclick="showRegister()">還沒有帳號？申請綁定</div>
-            <div class="switch-link" onclick="showAdminAuth()">管理員登入</div>
+            <div class="switch-link" onclick="showAdminAuth()">進入完整後台 (管理員專用)</div>
         </form>
 
         <div id="register-form" class="auth-box" style="display: none;">
             <h2>申請帳號綁定</h2>
-            <p style="font-size:12px; color:red;">註冊後需等待管理員核准</p>
+            <div class="alert-box">
+                注意：此系統為單機綁定。<br>
+                申請後，請將此裝置拿給管理員輸入密碼開通，否則無法登入。
+            </div>
             <input type="text" id="reg-user" placeholder="設定使用者名稱" autocomplete="username">
             <input type="password" id="reg-pass" placeholder="設定密碼" autocomplete="new-password">
             <button class="btn btn-secondary" onclick="handleRegister()">送出申請</button>
+            <button class="btn btn-danger" onclick="clearPending()" style="margin-top:10px; font-size:14px;">清除舊申請 (名稱重複請點此)</button>
             <div class="switch-link" onclick="showLogin()">返回登入</div>
         </div>
 
         <div id="admin-auth-form" class="auth-box" style="display: none;">
-            <h2>管理員驗證</h2>
+            <h2>管理員後台驗證</h2>
             <input type="password" id="admin-pass-input" placeholder="請輸入管理員密碼">
             <button class="btn btn-danger" onclick="handleAdminLogin()">進入管理後台</button>
             <div class="switch-link" onclick="showLogin()">返回員工登入</div>
@@ -239,22 +255,21 @@
             <iframe id="content-frame" src=""></iframe>
             
             <div id="admin-panel">
-                <h2>管理員控制台</h2>
-                <p>員工需自行申請帳號，請在此處核准、修改密碼或刪除。</p>
-
+                <h2>本機帳號管理</h2>
+                <div class="alert-box" style="border-color: #bee5eb; background-color: #d1ecf1; color: #0c5460;">
+                    提示：此列表僅顯示曾經使用過「這台電腦/手機」註冊的員工。
+                </div>
                 <div class="admin-section">
-                    <h3>👥 員工帳號管理</h3>
+                    <h3>👥 員工帳號列表</h3>
                     <table id="user-table">
                         <thead>
                             <tr>
                                 <th>使用者名稱</th>
-                                <th>密碼</th>
                                 <th>狀態</th>
                                 <th>操作</th>
                             </tr>
                         </thead>
-                        <tbody id="user-table-body">
-                            </tbody>
+                        <tbody id="user-table-body"></tbody>
                     </table>
                 </div>
             </div>
@@ -262,7 +277,6 @@
     </div>
 
     <script>
-        // === 系統配置 ===
         const ADMIN_PASS = "8888";
         const SITES = [
             "https://homegoestate.github.io/-Employee-management/",
@@ -272,22 +286,19 @@
             "https://homegoestate.github.io/quotation/"
         ];
 
-        // === 初始化：檢查是否有「保持登入」 ===
         window.onload = function() {
             const savedUser = localStorage.getItem('hg_auto_login_user');
             if (savedUser) {
-                // 驗證該用戶是否還存在且被核准
                 let users = getUsers();
                 let validUser = users.find(u => u.username === savedUser && u.approved);
                 if (validUser) {
                     enterDashboard(savedUser, false);
                 } else {
-                    localStorage.removeItem('hg_auto_login_user'); // 用戶無效，清除紀錄
+                    localStorage.removeItem('hg_auto_login_user');
                 }
             }
         };
 
-        // === 資料庫模擬 (LocalStorage) ===
         function getUsers() {
             const users = localStorage.getItem('hg_users');
             return users ? JSON.parse(users) : [];
@@ -297,7 +308,7 @@
             localStorage.setItem('hg_users', JSON.stringify(users));
         }
 
-        // === 頁面切換邏輯 ===
+        // === 頁面切換 ===
         function showLogin() {
             document.getElementById('auth-section').style.display = 'flex';
             document.getElementById('login-form').style.display = 'block';
@@ -314,35 +325,81 @@
             document.getElementById('admin-auth-form').style.display = 'block';
         }
 
-        // === 註冊功能 (員工自己輸入) ===
+        // === 註冊功能 ===
         function handleRegister() {
-            const user = document.getElementById('reg-user').value;
-            const pass = document.getElementById('reg-pass').value;
+            const user = document.getElementById('reg-user').value.trim();
+            const pass = document.getElementById('reg-pass').value.trim();
 
             if(!user || !pass) { alert("請輸入完整資訊"); return; }
 
             let users = getUsers();
             if(users.find(u => u.username === user)) {
-                alert("此使用者名稱已被使用");
+                alert("此名稱已存在此裝置中。若要重新申請，請點擊下方紅色按鈕「清除舊申請」。");
                 return;
             }
 
             users.push({ username: user, password: pass, approved: false });
             saveUsers(users);
-            alert("申請已送出！請等待管理員核准後方可登入。");
+            alert("✅ 申請成功！\n\n請將此裝置交給管理員，在登入畫面點擊「管理員現場開通」，輸入 8888 即可啟用。");
             
-            // 清空欄位並返回
             document.getElementById('reg-user').value = "";
             document.getElementById('reg-pass').value = "";
             showLogin();
         }
 
-        // === 登入功能 (表單提交) ===
+        // === 清除舊申請 (解決重複名稱問題) ===
+        function clearPending() {
+            const userToDelete = prompt("請輸入要清除的「使用者名稱」：");
+            if(!userToDelete) return;
+
+            let users = getUsers();
+            const index = users.findIndex(u => u.username === userToDelete);
+
+            if(index !== -1) {
+                // 為了安全，如果該帳號已經核准，需要密碼才能刪，若未核准直接刪
+                if(users[index].approved) {
+                    alert("此帳號已核准，請從管理員後台刪除。");
+                } else {
+                    users.splice(index, 1);
+                    saveUsers(users);
+                    alert(`已清除申請紀錄：${userToDelete}，您可以重新註冊了。`);
+                }
+            } else {
+                alert("找不到此使用者名稱。");
+            }
+        }
+
+        // === 現場快速開通 (新功能) ===
+        function quickApprove() {
+            const pass = prompt("請管理員輸入密碼 (8888) 以開通此裝置上的待審帳號：");
+            if (pass === ADMIN_PASS) {
+                let users = getUsers();
+                let approvedCount = 0;
+                
+                // 將所有未核准的變更為核准
+                users.forEach(u => {
+                    if(!u.approved) {
+                        u.approved = true;
+                        approvedCount++;
+                    }
+                });
+
+                if(approvedCount > 0) {
+                    saveUsers(users);
+                    alert(`✅ 驗證成功！已開通 ${approvedCount} 個帳號。\n員工現在可以登入了。`);
+                } else {
+                    alert("目前此裝置沒有等待審核的帳號。");
+                }
+            } else if (pass !== null) {
+                alert("密碼錯誤！");
+            }
+        }
+
+        // === 登入功能 ===
         function handleLogin(event) {
-            event.preventDefault(); // 防止頁面刷新
-            
-            const user = document.getElementById('login-user').value;
-            const pass = document.getElementById('login-pass').value;
+            event.preventDefault();
+            const user = document.getElementById('login-user').value.trim();
+            const pass = document.getElementById('login-pass').value.trim();
             const keepLogin = document.getElementById('keep-login').checked;
             
             let users = getUsers();
@@ -350,35 +407,29 @@
 
             if (targetUser) {
                 if (targetUser.approved) {
-                    // 如果勾選保持登入，儲存用戶名
-                    if(keepLogin) {
-                        localStorage.setItem('hg_auto_login_user', user);
-                    }
+                    if(keepLogin) localStorage.setItem('hg_auto_login_user', user);
                     enterDashboard(targetUser.username, false);
                 } else {
-                    alert("您的帳號尚未被核准，請稍候或聯繫管理員。");
+                    alert("⚠️ 帳號尚未開通！\n請點擊下方的黃色按鈕「管理員現場開通」，並請管理員輸入密碼。");
                 }
             } else {
-                alert("帳號或密碼錯誤");
+                alert("帳號或密碼錯誤 (或此帳號不在這台裝置上)");
             }
         }
 
-        // === 管理員登入 ===
         function handleAdminLogin() {
             const pass = document.getElementById('admin-pass-input').value;
             if (pass === ADMIN_PASS) {
                 enterDashboard("Administrator", true);
             } else {
-                alert("管理員密碼錯誤");
+                alert("密碼錯誤");
             }
         }
 
-        // === 進入系統 ===
         function enterDashboard(username, isAdmin) {
             document.getElementById('auth-section').style.display = 'none';
             document.getElementById('dashboard-section').style.display = 'flex';
             document.getElementById('display-username').innerText = username;
-            
             loadPage(0, document.querySelector('.nav-links li a'));
 
             if(isAdmin) {
@@ -387,23 +438,19 @@
             }
         }
 
-        // === 載入 iframe ===
         function loadPage(index, element) {
             document.getElementById('admin-panel').style.display = 'none';
             document.getElementById('content-frame').style.display = 'block';
             document.getElementById('content-frame').src = SITES[index];
-            
             if(element) {
                 document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
                 element.classList.add('active');
             }
         }
 
-        // === 管理員面板邏輯 ===
         function showAdminPanel(element) {
             document.getElementById('content-frame').style.display = 'none';
             document.getElementById('admin-panel').style.display = 'block';
-            
             if(element) {
                 document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
                 element.classList.add('active');
@@ -411,26 +458,20 @@
             renderUserTable();
         }
 
-        // === 管理員：渲染列表 ===
         function renderUserTable() {
             const users = getUsers();
             const tbody = document.getElementById('user-table-body');
             tbody.innerHTML = '';
-
             users.forEach((u, index) => {
                 const tr = document.createElement('tr');
                 const statusHtml = u.approved 
                     ? `<span class="status-approved">已核准</span>` 
                     : `<span class="status-pending">等待中</span>`;
-                
-                // 核准/停用按鈕
                 const approveBtn = u.approved
                     ? `<button class="action-btn btn-delete" onclick="toggleApprove(${index})">停用</button>`
                     : `<button class="action-btn btn-approve" onclick="toggleApprove(${index})">核准</button>`;
-
                 tr.innerHTML = `
                     <td>${u.username}</td>
-                    <td>******</td> 
                     <td>${statusHtml}</td>
                     <td>
                         ${approveBtn}
@@ -442,7 +483,6 @@
             });
         }
 
-        // === 管理員操作功能 ===
         function toggleApprove(index) {
             let users = getUsers();
             users[index].approved = !users[index].approved;
@@ -451,7 +491,7 @@
         }
 
         function deleteUser(index) {
-            if(confirm("確定要刪除此使用者嗎？")) {
+            if(confirm("確定要刪除嗎？")) {
                 let users = getUsers();
                 users.splice(index, 1);
                 saveUsers(users);
@@ -461,7 +501,7 @@
 
         function resetPassword(index) {
             let users = getUsers();
-            let newPass = prompt(`請輸入使用者 ${users[index].username} 的新密碼：`);
+            let newPass = prompt(`重設 ${users[index].username} 的密碼：`);
             if(newPass) {
                 users[index].password = newPass;
                 saveUsers(users);
@@ -470,18 +510,17 @@
         }
 
         function logout() {
-            localStorage.removeItem('hg_auto_login_user'); // 登出時清除自動登入
+            localStorage.removeItem('hg_auto_login_user');
             location.reload();
         }
 
-        // === 安全防護 (基本) ===
+        // 安全防護
         document.addEventListener('contextmenu', event => event.preventDefault());
         document.onkeydown = function(e) {
             if(e.keyCode == 123) return false;
             if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
             if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
         }
-
     </script>
 </body>
 </html>
