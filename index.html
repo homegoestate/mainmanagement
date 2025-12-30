@@ -10,6 +10,8 @@
             --secondary-color: #34495e;
             --accent-color: #3498db;
             --text-light: #ecf0f1;
+            --danger-color: #e74c3c;
+            --success-color: #27ae60;
         }
 
         body {
@@ -19,7 +21,7 @@
             background-color: #f4f4f4;
             height: 100vh;
             overflow: hidden;
-            user-select: none; /* 禁止選取文字 */
+            user-select: none;
         }
 
         /* 登入與註冊容器 */
@@ -40,19 +42,30 @@
             text-align: center;
         }
 
-        .auth-box h2 {
-            color: var(--primary-color);
-            margin-bottom: 20px;
-        }
+        .auth-box h2 { color: var(--primary-color); margin-bottom: 20px; }
 
-        .auth-box input {
+        /* 為了讓瀏覽器識別 FaceID，表單樣式調整 */
+        .input-group { margin: 10px 0; text-align: left; }
+        .input-group label { font-size: 12px; color: #666; }
+        
+        .auth-box input[type="text"], 
+        .auth-box input[type="password"] {
             width: 100%;
             padding: 10px;
-            margin: 10px 0;
+            margin-top: 5px;
             border: 1px solid #ddd;
             border-radius: 5px;
             box-sizing: border-box;
         }
+
+        .checkbox-group {
+            text-align: left;
+            margin: 10px 0;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-group input { margin-right: 5px; }
 
         .btn {
             width: 100%;
@@ -68,7 +81,8 @@
         .btn-primary { background-color: var(--accent-color); color: white; }
         .btn-primary:hover { background-color: #2980b9; }
         .btn-secondary { background-color: #95a5a6; color: white; }
-        .btn-danger { background-color: #e74c3c; color: white; }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-success { background-color: var(--success-color); color: white; }
 
         .switch-link {
             margin-top: 15px;
@@ -79,11 +93,7 @@
         }
 
         /* 儀表板樣式 */
-        #dashboard-container {
-            display: none; /* 預設隱藏 */
-            height: 100vh;
-            display: flex;
-        }
+        #dashboard-container { display: none; height: 100vh; display: flex; }
 
         .sidebar {
             width: 250px;
@@ -102,17 +112,8 @@
             font-size: 1.2em;
         }
 
-        .nav-links {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            flex-grow: 1;
-        }
-
-        .nav-links li {
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
+        .nav-links { list-style: none; padding: 0; margin: 0; flex-grow: 1; }
+        .nav-links li { border-bottom: 1px solid rgba(255,255,255,0.1); }
         .nav-links li a {
             display: block;
             padding: 15px 20px;
@@ -120,10 +121,7 @@
             text-decoration: none;
             transition: 0.3s;
         }
-
-        .nav-links li a:hover, .nav-links li a.active {
-            background-color: var(--accent-color);
-        }
+        .nav-links li a:hover, .nav-links li a.active { background-color: var(--accent-color); }
 
         .user-info {
             padding: 15px;
@@ -138,11 +136,7 @@
             position: relative;
         }
 
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
+        iframe { width: 100%; height: 100%; border: none; }
 
         /* 管理員面板 */
         #admin-panel {
@@ -151,14 +145,36 @@
             background: white;
             height: 100%;
             overflow-y: auto;
+            box-sizing: border-box;
         }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        .admin-section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background: #f9f9f9;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background-color: var(--primary-color); color: white; }
 
         .status-pending { color: orange; font-weight: bold; }
         .status-approved { color: green; font-weight: bold; }
+
+        .action-btn {
+            padding: 5px 10px;
+            font-size: 12px;
+            margin-right: 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 3px;
+            color: white;
+        }
+        .btn-approve { background-color: var(--accent-color); }
+        .btn-delete { background-color: var(--danger-color); }
+        .btn-reset { background-color: #f39c12; }
 
     </style>
 </head>
@@ -166,14 +182,24 @@
 
     <div id="auth-section" class="auth-container">
         
-        <div id="login-form" class="auth-box">
+        <form id="login-form" class="auth-box" onsubmit="handleLogin(event)">
             <h2>員工登入</h2>
-            <input type="text" id="login-user" placeholder="使用者名稱">
-            <input type="password" id="login-pass" placeholder="密碼">
-            <button class="btn btn-primary" onclick="handleLogin()">登入</button>
+            <div class="input-group">
+                <input type="text" id="login-user" name="username" placeholder="使用者名稱" autocomplete="username" required>
+            </div>
+            <div class="input-group">
+                <input type="password" id="login-pass" name="password" placeholder="密碼" autocomplete="current-password" required>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="keep-login"> 
+                <label for="keep-login" style="cursor:pointer; font-size:14px; color:#333;">保持登入 (下次自動進入)</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">登入</button>
             <div class="switch-link" onclick="showRegister()">還沒有帳號？申請綁定</div>
             <div class="switch-link" onclick="showAdminAuth()">管理員登入</div>
-        </div>
+        </form>
 
         <div id="register-form" class="auth-box" style="display: none;">
             <h2>申請帳號綁定</h2>
@@ -213,19 +239,32 @@
             <iframe id="content-frame" src=""></iframe>
             
             <div id="admin-panel">
-                <h2>帳號核准管理</h2>
-                <p>只有狀態為 "Approved" 的員工才能登入。</p>
-                <table id="user-table">
-                    <thead>
-                        <tr>
-                            <th>使用者名稱</th>
-                            <th>狀態</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="user-table-body">
-                        </tbody>
-                </table>
+                <h2>管理員控制台</h2>
+
+                <div class="admin-section">
+                    <h3>➕ 手動新增員工</h3>
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="new-user-name" placeholder="使用者名稱" style="padding:8px;">
+                        <input type="text" id="new-user-pass" placeholder="預設密碼" style="padding:8px;">
+                        <button class="btn btn-success" style="width:auto; margin:0;" onclick="adminAddUser()">新增並核准</button>
+                    </div>
+                </div>
+
+                <div class="admin-section">
+                    <h3>👥 員工帳號管理</h3>
+                    <table id="user-table">
+                        <thead>
+                            <tr>
+                                <th>使用者名稱</th>
+                                <th>密碼</th>
+                                <th>狀態</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-table-body">
+                            </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -241,6 +280,21 @@
             "https://homegoestate.github.io/quotation/"
         ];
 
+        // === 初始化：檢查是否有「保持登入」 ===
+        window.onload = function() {
+            const savedUser = localStorage.getItem('hg_auto_login_user');
+            if (savedUser) {
+                // 驗證該用戶是否還存在且被核准
+                let users = getUsers();
+                let validUser = users.find(u => u.username === savedUser && u.approved);
+                if (validUser) {
+                    enterDashboard(savedUser, false);
+                } else {
+                    localStorage.removeItem('hg_auto_login_user'); // 用戶無效，清除紀錄
+                }
+            }
+        };
+
         // === 資料庫模擬 (LocalStorage) ===
         function getUsers() {
             const users = localStorage.getItem('hg_users');
@@ -253,9 +307,11 @@
 
         // === 頁面切換邏輯 ===
         function showLogin() {
+            document.getElementById('auth-section').style.display = 'flex';
             document.getElementById('login-form').style.display = 'block';
             document.getElementById('register-form').style.display = 'none';
             document.getElementById('admin-auth-form').style.display = 'none';
+            document.getElementById('dashboard-section').style.display = 'none';
         }
         function showRegister() {
             document.getElementById('login-form').style.display = 'none';
@@ -279,23 +335,29 @@
                 return;
             }
 
-            // 新用戶預設 approved: false
             users.push({ username: user, password: pass, approved: false });
             saveUsers(users);
             alert("申請已送出！請通知管理員核准後方可登入。");
             showLogin();
         }
 
-        // === 登入功能 ===
-        function handleLogin() {
+        // === 登入功能 (表單提交) ===
+        function handleLogin(event) {
+            event.preventDefault(); // 防止頁面刷新
+            
             const user = document.getElementById('login-user').value;
             const pass = document.getElementById('login-pass').value;
+            const keepLogin = document.getElementById('keep-login').checked;
+            
             let users = getUsers();
-
             const targetUser = users.find(u => u.username === user && u.password === pass);
 
             if (targetUser) {
                 if (targetUser.approved) {
+                    // 如果勾選保持登入，儲存用戶名
+                    if(keepLogin) {
+                        localStorage.setItem('hg_auto_login_user', user);
+                    }
                     enterDashboard(targetUser.username, false);
                 } else {
                     alert("您的帳號尚未被核准，請稍候或聯繫管理員。");
@@ -318,25 +380,23 @@
         // === 進入系統 ===
         function enterDashboard(username, isAdmin) {
             document.getElementById('auth-section').style.display = 'none';
-            document.getElementById('dashboard-section').style.display = 'flex'; // Fix: reset to flex
+            document.getElementById('dashboard-section').style.display = 'flex';
             document.getElementById('display-username').innerText = username;
             
-            // 預設載入第一個頁面
             loadPage(0, document.querySelector('.nav-links li a'));
 
             if(isAdmin) {
                 document.getElementById('admin-link').style.display = 'block';
-                showAdminPanel(null); // 管理員預設看後台
+                showAdminPanel(null);
             }
         }
 
-        // === 載入 iframe 頁面 ===
+        // === 載入 iframe ===
         function loadPage(index, element) {
             document.getElementById('admin-panel').style.display = 'none';
             document.getElementById('content-frame').style.display = 'block';
             document.getElementById('content-frame').src = SITES[index];
             
-            // 更新 Active 狀態
             if(element) {
                 document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
                 element.classList.add('active');
@@ -355,6 +415,29 @@
             renderUserTable();
         }
 
+        // === 管理員：新增員工 ===
+        function adminAddUser() {
+            const name = document.getElementById('new-user-name').value;
+            const pass = document.getElementById('new-user-pass').value;
+            
+            if(!name || !pass) { alert("請輸入帳號與密碼"); return; }
+            
+            let users = getUsers();
+            if(users.find(u => u.username === name)) {
+                alert("帳號已存在");
+                return;
+            }
+
+            // 管理員新增的預設為 Approved
+            users.push({ username: name, password: pass, approved: true });
+            saveUsers(users);
+            
+            document.getElementById('new-user-name').value = "";
+            document.getElementById('new-user-pass').value = "";
+            renderUserTable();
+        }
+
+        // === 管理員：渲染列表 ===
         function renderUserTable() {
             const users = getUsers();
             const tbody = document.getElementById('user-table-body');
@@ -362,21 +445,30 @@
 
             users.forEach((u, index) => {
                 const tr = document.createElement('tr');
-                const statusClass = u.approved ? 'status-approved' : 'status-pending';
-                const statusText = u.approved ? '已核准 (Approved)' : '等待中 (Pending)';
-                const actionBtn = u.approved 
-                    ? `<button class="btn btn-danger" style="width:auto; padding:5px 10px;" onclick="toggleApprove(${index})">停用</button>` 
-                    : `<button class="btn btn-primary" style="width:auto; padding:5px 10px;" onclick="toggleApprove(${index})">核准</button>`;
+                const statusHtml = u.approved 
+                    ? `<span class="status-approved">已核准</span>` 
+                    : `<span class="status-pending">等待中</span>`;
+                
+                // 核准/停用按鈕
+                const approveBtn = u.approved
+                    ? `<button class="action-btn btn-delete" onclick="toggleApprove(${index})">停用</button>`
+                    : `<button class="action-btn btn-approve" onclick="toggleApprove(${index})">核准</button>`;
 
                 tr.innerHTML = `
                     <td>${u.username}</td>
-                    <td class="${statusClass}">${statusText}</td>
-                    <td>${actionBtn} <button class="btn btn-secondary" style="width:auto; padding:5px 10px;" onclick="deleteUser(${index})">刪除</button></td>
+                    <td>******</td> 
+                    <td>${statusHtml}</td>
+                    <td>
+                        ${approveBtn}
+                        <button class="action-btn btn-reset" onclick="resetPassword(${index})">改密碼</button>
+                        <button class="action-btn btn-delete" onclick="deleteUser(${index})">刪除</button>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
+        // === 管理員操作功能 ===
         function toggleApprove(index) {
             let users = getUsers();
             users[index].approved = !users[index].approved;
@@ -393,21 +485,27 @@
             }
         }
 
+        function resetPassword(index) {
+            let users = getUsers();
+            let newPass = prompt(`請輸入使用者 ${users[index].username} 的新密碼：`);
+            if(newPass) {
+                users[index].password = newPass;
+                saveUsers(users);
+                alert("密碼已更新");
+            }
+        }
+
         function logout() {
+            localStorage.removeItem('hg_auto_login_user'); // 登出時清除自動登入
             location.reload();
         }
 
-        // === 安全防護 (防竊取) ===
-        // 禁止右鍵
+        // === 安全防護 (基本) ===
         document.addEventListener('contextmenu', event => event.preventDefault());
-
-        // 禁止常見開發者工具快捷鍵
         document.onkeydown = function(e) {
-            if(e.keyCode == 123) { return false; } // F12
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { return false; } // Ctrl+Shift+I
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) { return false; } // Ctrl+Shift+C
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { return false; } // Ctrl+Shift+J
-            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { return false; } // Ctrl+U
+            if(e.keyCode == 123) return false;
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
+            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
         }
 
     </script>
