@@ -12,6 +12,7 @@
             --text-light: #ecf0f1;
             --danger-color: #e74c3c;
             --success-color: #27ae60;
+            --warning-color: #f39c12;
         }
 
         body {
@@ -44,7 +45,7 @@
 
         .auth-box h2 { color: var(--primary-color); margin-bottom: 20px; }
 
-        /* 為了讓瀏覽器識別 FaceID，表單樣式調整 */
+        /* 表單樣式 */
         .input-group { margin: 10px 0; text-align: left; }
         .input-group label { font-size: 12px; color: #666; }
         
@@ -82,7 +83,6 @@
         .btn-primary:hover { background-color: #2980b9; }
         .btn-secondary { background-color: #95a5a6; color: white; }
         .btn-danger { background-color: var(--danger-color); color: white; }
-        .btn-success { background-color: var(--success-color); color: white; }
 
         .switch-link {
             margin-top: 15px;
@@ -164,17 +164,17 @@
         .status-approved { color: green; font-weight: bold; }
 
         .action-btn {
-            padding: 5px 10px;
-            font-size: 12px;
+            padding: 6px 12px;
+            font-size: 13px;
             margin-right: 5px;
             cursor: pointer;
             border: none;
             border-radius: 3px;
             color: white;
         }
-        .btn-approve { background-color: var(--accent-color); }
+        .btn-approve { background-color: var(--success-color); }
         .btn-delete { background-color: var(--danger-color); }
-        .btn-reset { background-color: #f39c12; }
+        .btn-reset { background-color: var(--warning-color); color: #fff; }
 
     </style>
 </head>
@@ -204,8 +204,8 @@
         <div id="register-form" class="auth-box" style="display: none;">
             <h2>申請帳號綁定</h2>
             <p style="font-size:12px; color:red;">註冊後需等待管理員核准</p>
-            <input type="text" id="reg-user" placeholder="設定使用者名稱">
-            <input type="password" id="reg-pass" placeholder="設定密碼">
+            <input type="text" id="reg-user" placeholder="設定使用者名稱" autocomplete="username">
+            <input type="password" id="reg-pass" placeholder="設定密碼" autocomplete="new-password">
             <button class="btn btn-secondary" onclick="handleRegister()">送出申請</button>
             <div class="switch-link" onclick="showLogin()">返回登入</div>
         </div>
@@ -240,15 +240,7 @@
             
             <div id="admin-panel">
                 <h2>管理員控制台</h2>
-
-                <div class="admin-section">
-                    <h3>➕ 手動新增員工</h3>
-                    <div style="display:flex; gap:10px;">
-                        <input type="text" id="new-user-name" placeholder="使用者名稱" style="padding:8px;">
-                        <input type="text" id="new-user-pass" placeholder="預設密碼" style="padding:8px;">
-                        <button class="btn btn-success" style="width:auto; margin:0;" onclick="adminAddUser()">新增並核准</button>
-                    </div>
-                </div>
+                <p>員工需自行申請帳號，請在此處核准、修改密碼或刪除。</p>
 
                 <div class="admin-section">
                     <h3>👥 員工帳號管理</h3>
@@ -322,7 +314,7 @@
             document.getElementById('admin-auth-form').style.display = 'block';
         }
 
-        // === 註冊功能 ===
+        // === 註冊功能 (員工自己輸入) ===
         function handleRegister() {
             const user = document.getElementById('reg-user').value;
             const pass = document.getElementById('reg-pass').value;
@@ -337,7 +329,11 @@
 
             users.push({ username: user, password: pass, approved: false });
             saveUsers(users);
-            alert("申請已送出！請通知管理員核准後方可登入。");
+            alert("申請已送出！請等待管理員核准後方可登入。");
+            
+            // 清空欄位並返回
+            document.getElementById('reg-user').value = "";
+            document.getElementById('reg-pass').value = "";
             showLogin();
         }
 
@@ -412,28 +408,6 @@
                 document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
                 element.classList.add('active');
             }
-            renderUserTable();
-        }
-
-        // === 管理員：新增員工 ===
-        function adminAddUser() {
-            const name = document.getElementById('new-user-name').value;
-            const pass = document.getElementById('new-user-pass').value;
-            
-            if(!name || !pass) { alert("請輸入帳號與密碼"); return; }
-            
-            let users = getUsers();
-            if(users.find(u => u.username === name)) {
-                alert("帳號已存在");
-                return;
-            }
-
-            // 管理員新增的預設為 Approved
-            users.push({ username: name, password: pass, approved: true });
-            saveUsers(users);
-            
-            document.getElementById('new-user-name').value = "";
-            document.getElementById('new-user-pass').value = "";
             renderUserTable();
         }
 
