@@ -2,254 +2,152 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HomeGo Estate - 裝置綁定安全登入系統</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HomeGo Estate - 雲端中控系統</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* === 樣式設定 === */
         :root {
             --primary-color: #2c3e50;
             --secondary-color: #34495e;
             --accent-color: #3498db;
             --text-light: #ecf0f1;
             --danger-color: #e74c3c;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
+            --sidebar-width: 250px;
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            height: 100vh;
-            overflow: hidden;
-            user-select: none;
-        }
-
-        /* 登入與註冊容器 */
-        .auth-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        }
-
-        .auth-box {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            width: 350px;
-            text-align: center;
-            position: relative;
-        }
-
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; height: 100vh; overflow: hidden; user-select: none; }
+        
+        /* 登入區塊 */
+        .auth-container { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); padding: 20px; }
+        .auth-box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center; }
         .auth-box h2 { color: var(--primary-color); margin-bottom: 20px; }
-
+        
+        /* 輸入框樣式 */
         .input-group { margin: 15px 0; text-align: left; }
         .input-group label { font-size: 13px; color: #555; font-weight: bold; display: block; margin-bottom: 5px;}
-        
         .auth-box input[type="text"], 
         .auth-box input[type="password"],
-        .auth-box input[type="number"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            font-size: 16px;
+        .auth-box input[type="number"] { 
+            width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; 
         }
 
+        /* [修正] 保持登入勾選框排版 */
         .checkbox-group {
-            text-align: left;
+            display: flex;
+            align-items: center; /* 垂直置中 */
+            justify-content: flex-start; /* 靠左對齊 */
             margin: 15px 0;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
+            gap: 8px; /* 框與文字的間距 */
         }
-        .checkbox-group input { margin-right: 5px; }
-
-        .btn {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 5px;
+        .checkbox-group input[type="checkbox"] {
+            width: 20px; /* 固定寬度，避免被拉伸 */
+            height: 20px;
+            margin: 0;
             cursor: pointer;
-            font-size: 16px;
-            margin-top: 15px;
-            transition: 0.3s;
-            font-weight: bold;
         }
-
-        .btn-primary { background-color: var(--accent-color); color: white; }
-        .btn-primary:hover { background-color: #2980b9; }
-        .btn-secondary { background-color: #95a5a6; color: white; }
-        .btn-danger { background-color: var(--danger-color); color: white; }
-        .btn-warning { background-color: var(--warning-color); color: white; }
-
-        .switch-link {
-            margin-top: 20px;
-            font-size: 14px;
-            color: #7f8c8d;
+        .checkbox-group label {
+            font-size: 15px;
+            color: #333;
             cursor: pointer;
-            text-decoration: underline;
+            margin: 0;
         }
 
-        /* 警告與提示 */
-        .alert-box {
-            background-color: #e8f4f8;
-            color: #2c3e50;
-            padding: 12px;
-            border-radius: 5px;
-            font-size: 13px;
-            margin-bottom: 15px;
-            border-left: 4px solid var(--accent-color);
-            text-align: left;
-            line-height: 1.5;
-        }
-
-        /* 儀表板樣式 */
-        #dashboard-container { display: none; height: 100vh; display: flex; }
-
-        .sidebar {
-            width: 250px;
-            background-color: var(--primary-color);
-            color: var(--text-light);
-            display: flex;
-            flex-direction: column;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-        }
-
-        .sidebar-header {
-            padding: 20px;
-            text-align: center;
-            background-color: var(--secondary-color);
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-
-        .nav-links { list-style: none; padding: 0; margin: 0; flex-grow: 1; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 15px; font-weight: bold; color: white; transition: 0.3s; }
+        .btn-primary { background-color: var(--accent-color); }
+        .btn-secondary { background-color: #95a5a6; }
+        .btn-danger { background-color: var(--danger-color); }
+        .switch-link { margin-top: 20px; font-size: 14px; color: #7f8c8d; cursor: pointer; text-decoration: underline; }
+        .alert-box { background-color: #e8f4f8; color: #2c3e50; padding: 12px; border-radius: 5px; font-size: 13px; margin-bottom: 15px; border-left: 4px solid var(--accent-color); text-align: left; }
+        
+        /* 儀表板與側邊欄 */
+        #dashboard-section { display: none; height: 100vh; position: relative; overflow: hidden; }
+        .menu-toggle-btn { display: none; position: absolute; top: 15px; left: 15px; z-index: 2000; background: var(--primary-color); color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; }
+        .sidebar { width: var(--sidebar-width); background-color: var(--primary-color); color: var(--text-light); display: flex; flex-direction: column; z-index: 1500; transition: transform 0.3s ease; }
+        .sidebar-header { padding: 20px; text-align: center; background-color: var(--secondary-color); font-weight: bold; }
+        .nav-links { list-style: none; padding: 0; margin: 0; flex-grow: 1; overflow-y: auto; }
         .nav-links li { border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .nav-links li a {
-            display: block;
-            padding: 15px 20px;
-            color: var(--text-light);
-            text-decoration: none;
-            transition: 0.3s;
-        }
-        .nav-links li a:hover, .nav-links li a.active { background-color: var(--accent-color); }
-
-        .user-info {
-            padding: 15px;
-            background-color: var(--secondary-color);
-            text-align: center;
-            font-size: 0.9em;
-        }
-
-        .main-content {
-            flex-grow: 1;
-            background-color: white;
-            position: relative;
-        }
-
+        .nav-links li a { display: block; padding: 15px 20px; color: var(--text-light); text-decoration: none; }
+        .nav-links li a.active { background-color: var(--accent-color); }
+        .user-info { padding: 15px; background-color: var(--secondary-color); text-align: center; font-size: 0.9em; }
+        .main-content { flex-grow: 1; background-color: white; position: relative; width: 100%; }
         iframe { width: 100%; height: 100%; border: none; }
 
-        /* 管理員面板 */
-        #admin-panel {
-            display: none;
-            padding: 20px;
-            background: white;
-            height: 100%;
-            overflow-y: auto;
-            box-sizing: border-box;
-        }
-        
-        .admin-section {
-            border: 1px solid #ddd;
-            padding: 25px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            background: #fdfdfd;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        
-        .code-display {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--danger-color);
-            background: #eee;
-            padding: 10px;
-            margin-top: 10px;
-            display: inline-block;
-            letter-spacing: 2px;
-            border-radius: 5px;
+        @media (max-width: 768px) {
+            .menu-toggle-btn { display: block; }
+            .sidebar { position: absolute; height: 100%; left: 0; top: 0; transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1400; }
+            .sidebar-overlay.active { display: block; }
         }
 
+        /* 後台表格 */
+        #admin-panel { display: none; padding: 20px; background: white; height: 100%; overflow-y: auto; }
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 500px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: var(--primary-color); color: white; }
+        .device-badge { padding: 3px 8px; border-radius: 12px; font-size: 12px; color: white; }
+        .bg-desktop { background-color: #3498db; }
+        .bg-mobile { background-color: #e67e22; }
+        .bg-tablet { background-color: #9b59b6; }
+        .admin-section { border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 20px; background: #fdfdfd; }
+        .code-display { font-size: 20px; font-weight: bold; color: var(--danger-color); background: #eee; padding: 10px; display: inline-block; letter-spacing: 2px; }
+        #loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index: 9999; display:flex; justify-content:center; align-items:center; color: var(--primary-color); font-weight:bold; }
     </style>
 </head>
 <body>
 
+    <div id="loading-overlay" style="display:none;">連線雲端資料庫中...</div>
+
     <div id="auth-section" class="auth-container">
-        
-        <form id="login-form" class="auth-box" onsubmit="handleLogin(event)">
-            <h2>🔐 員工安全登入</h2>
-            <div class="alert-box">
-                本系統已啟用裝置綁定。<br>
-                未經綁定的電腦/手機無法登入。
-            </div>
+        <div id="login-form" class="auth-box">
+            <h2>🔐 員工安全登入 (雲端版)</h2>
+            <div class="alert-box">本系統已連線至雲端資料庫。</div>
             <div class="input-group">
                 <label>使用者名稱</label>
-                <input type="text" id="login-user" name="username" placeholder="輸入帳號" autocomplete="username" required>
+                <input type="text" id="login-user" placeholder="輸入帳號" autocomplete="username">
             </div>
             <div class="input-group">
                 <label>密碼</label>
-                <input type="password" id="login-pass" name="password" placeholder="輸入密碼" autocomplete="current-password" required>
+                <input type="password" id="login-pass" placeholder="輸入密碼" autocomplete="current-password">
             </div>
             
             <div class="checkbox-group">
                 <input type="checkbox" id="keep-login"> 
-                <label for="keep-login" style="cursor:pointer;">保持登入 (FaceID/自動記憶)</label>
+                <label for="keep-login">保持登入</label>
             </div>
 
-            <button type="submit" class="btn btn-primary">登入</button>
+            <button id="btnLogin" class="btn btn-primary">登入</button>
             <div class="switch-link" onclick="showRegister()">新員工？註冊並綁定此裝置</div>
-            <div class="switch-link" onclick="showAdminAuth()">管理員後台 (產生開通碼)</div>
-        </form>
+            <div class="switch-link" onclick="showAdminAuth()">管理員後台</div>
+        </div>
 
         <div id="register-form" class="auth-box" style="display: none;">
             <h2>📱 註冊並綁定裝置</h2>
-            <div class="alert-box">
-                步驟 1：設定您的帳號密碼。<br>
-                步驟 2：輸入管理員提供的開通碼。
-            </div>
+            <div class="alert-box">請輸入管理員提供的開通碼。</div>
+            <div class="input-group"><input type="text" id="reg-user" placeholder="設定使用者名稱" autocomplete="username"></div>
+            <div class="input-group"><input type="password" id="reg-pass" placeholder="設定密碼" autocomplete="new-password"></div>
             <div class="input-group">
-                <input type="text" id="reg-user" placeholder="設定使用者名稱" autocomplete="username">
+                <label style="color:var(--danger-color);">裝置開通碼</label>
+                <input type="number" id="reg-code" placeholder="請輸入6位數代碼">
             </div>
-            <div class="input-group">
-                <input type="password" id="reg-pass" placeholder="設定密碼" autocomplete="new-password">
-            </div>
-            
-            <hr style="border:0; border-top:1px dashed #ccc; margin:15px 0;">
-            
-            <div class="input-group">
-                <label style="color:var(--danger-color);">裝置開通碼 (請向管理員索取)</label>
-                <input type="number" id="reg-code" placeholder="例如：123456" style="border:2px solid var(--danger-color);">
-            </div>
-
-            <button class="btn btn-secondary" onclick="handleRegister()">驗證綁定並註冊</button>
-            <div class="switch-link" onclick="showLogin()">返回登入</div>
+            <button id="btnRegister" class="btn btn-secondary">驗證綁定並註冊</button>
+            <div class="switch-link" onclick="showLogin()">返回</div>
         </div>
 
         <div id="admin-auth-form" class="auth-box" style="display: none;">
             <h2>管理員驗證</h2>
-            <input type="password" id="admin-pass-input" placeholder="請輸入管理員密碼">
-            <button class="btn btn-danger" onclick="handleAdminLogin()">進入管理後台</button>
-            <div class="switch-link" onclick="showLogin()">返回員工登入</div>
+            <input type="password" id="admin-pass-input" placeholder="管理員密碼">
+            <button id="btnAdminLogin" class="btn btn-danger">進入後台</button>
+            <div class="switch-link" onclick="showLogin()">返回</div>
         </div>
     </div>
 
-    <div id="dashboard-section" style="display: none; height: 100vh;">
-        <div class="sidebar">
+    <div id="dashboard-section">
+        <button class="menu-toggle-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i> 選單</button>
+        <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+        <div class="sidebar" id="sidebar">
             <div class="sidebar-header">HomeGo Estate</div>
             <ul class="nav-links">
                 <li><a href="#" onclick="loadPage(0, this)" class="active">員工管理</a></li>
@@ -261,57 +159,68 @@
             </ul>
             <div class="user-info">
                 歡迎, <span id="display-username">User</span><br>
-                <button class="btn btn-danger" style="padding:5px; margin-top:10px; font-size:12px;" onclick="logout()">登出</button>
+                <button class="btn btn-danger" style="padding:5px; margin-top:10px; font-size:12px;" onclick="window.logout()">登出</button>
             </div>
         </div>
 
         <div class="main-content">
             <iframe id="content-frame" src=""></iframe>
-            
             <div id="admin-panel">
-                <h2>🔐 管理員控制台</h2>
-                <div class="alert-box">
-                    因為系統是單機防護，您不需要走到員工旁邊。<br>
-                    只要在此處輸入員工想要註冊的「使用者名稱」，系統會算出一組「開通碼」。<br>
-                    將此號碼傳給員工，他們輸入後即可綁定該手機/電腦。
-                </div>
-
+                <h2 style="padding-top:40px;">🔐 雲端管理員控制台</h2>
+                
                 <div class="admin-section" style="border-left: 5px solid var(--danger-color);">
-                    <h3>🚀 裝置開通碼產生器</h3>
-                    <p>員工欲註冊的帳號名稱：</p>
-                    <div style="display:flex; gap:10px; align-items:center;">
-                        <input type="text" id="admin-generate-name" placeholder="輸入員工帳號 (例如: HomeGo01)" style="padding:10px; font-size:16px;">
-                        <button class="btn btn-danger" style="width:auto; margin:0;" onclick="generateCode()">產生開通碼</button>
-                    </div>
-                    <div id="generated-code-area" style="display:none; margin-top:15px;">
-                        請將此號碼給該員工：<br>
-                        <span id="display-code" class="code-display">000000</span>
-                    </div>
+                    <h3>🚫 離職黑名單狀態</h3>
+                    <p>請修改程式碼中的 <code>BANNED_USERS</code> 來封鎖。</p>
+                    <div id="banned-list-display" style="color:red; font-weight:bold;">目前封鎖名單：無</div>
                 </div>
 
                 <div class="admin-section">
-                    <h3>👥 本機帳號管理 (僅顯示這台電腦的資料)</h3>
-                    <table id="user-table">
-                        <thead>
-                            <tr>
-                                <th>使用者名稱</th>
-                                <th>密碼</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="user-table-body"></tbody>
-                    </table>
+                    <h3>🚀 開通碼產生器</h3>
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="admin-generate-name" placeholder="員工帳號" style="padding:10px; flex:1;">
+                        <button class="btn btn-danger" style="width:auto; margin:0;" onclick="generateCode()">產生</button>
+                    </div>
+                    <div id="generated-code-area" style="display:none; margin-top:10px;">開通碼：<span id="display-code" class="code-display"></span></div>
+                </div>
+
+                <div class="admin-section">
+                    <h3>👥 雲端使用者列表 (即時同步)</h3>
+                    <div class="table-responsive">
+                        <table id="user-table">
+                            <thead><tr><th>使用者</th><th>最新登入裝置</th><th>授權裝置數</th><th>操作</th></tr></thead>
+                            <tbody id="user-table-body"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        // === 系統配置 ===
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+        import { getDatabase, ref, set, get, child, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // === 您的 Firebase 設定 ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyCSOS-36oQ6hTyhtD2vrez3QGvPdvwMOIw",
+            authDomain: "mainmanagement-1f3d2.firebaseapp.com",
+            databaseURL: "https://mainmanagement-1f3d2-default-rtdb.firebaseio.com",
+            projectId: "mainmanagement-1f3d2",
+            storageBucket: "mainmanagement-1f3d2.firebasestorage.app",
+            messagingSenderId: "916729301354",
+            appId: "1:916729301354:web:11d81d965c2127b0a17d13",
+            measurementId: "G-NQ6YKGEJE9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getDatabase(app);
+
+        // === 全域設定 ===
         const ADMIN_PASS = "8888";
-        // 特殊加密金鑰 (讓開通碼變得很難被猜到)
         const SECRET_SALT = 9527; 
-        
+        const BANNED_USERS = []; 
         const SITES = [
             "https://homegoestate.github.io/-Employee-management/",
             "https://homegoestate.github.io/case/",
@@ -320,227 +229,259 @@
             "https://homegoestate.github.io/quotation/"
         ];
 
-        // === 初始化：檢查是否有「保持登入」 ===
-        window.onload = function() {
-            // 檢查是否已綁定登入狀態
-            const autoLoginUser = localStorage.getItem('hg_current_session');
-            if (autoLoginUser) {
-                // 再次驗證裝置是否有綁定標記 (雙重驗證)
-                if (isDeviceBound(autoLoginUser)) {
-                    enterDashboard(autoLoginUser, false);
-                } else {
-                    localStorage.removeItem('hg_current_session'); // 裝置未綁定，踢出
-                }
-            }
-        };
-
-        // === 核心邏輯：開通碼演算法 ===
-        // 這是一個將字串轉為數字的簡單雜湊函數，確保同樣的名字永遠產生同樣的碼
-        function calculateActivationCode(username) {
-            let hash = 0;
-            let cleanName = username.trim();
-            for (let i = 0; i < cleanName.length; i++) {
-                hash = cleanName.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            // 加上鹽值並取絕對值，最後取後6位數
-            let code = Math.abs(hash * SECRET_SALT) % 1000000;
-            // 補零至6位數
-            return code.toString().padStart(6, '0');
+        // === 裝置指紋識別 (Device ID) ===
+        let myDeviceId = localStorage.getItem('hg_cloud_did');
+        if (!myDeviceId) {
+            myDeviceId = 'DID-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            localStorage.setItem('hg_cloud_did', myDeviceId);
         }
 
-        // === 資料庫模擬 (LocalStorage) ===
-        function getUsers() {
-            const users = localStorage.getItem('hg_users');
-            return users ? JSON.parse(users) : [];
+        // === 工具函式 ===
+        function showLoading(show) {
+            document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
         }
 
-        function saveUsers(users) {
-            localStorage.setItem('hg_users', JSON.stringify(users));
+        function getDeviceType() {
+            const ua = navigator.userAgent;
+            if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) return "tablet";
+            if (/Mobile|Android|iP(hone|od)|IEMobile/.test(ua)) return "mobile";
+            return "desktop";
         }
 
-        // === 綁定檢查 ===
-        function isDeviceBound(username) {
-            // 檢查瀏覽器中是否有這個使用者的專屬綁定標記
-            return localStorage.getItem('hg_bind_' + username) === 'true';
+        function getDeviceLabel(type) {
+            if(type === 'mobile') return '<span class="device-badge bg-mobile"><i class="fas fa-mobile-alt"></i> 手機</span>';
+            if(type === 'tablet') return '<span class="device-badge bg-tablet"><i class="fas fa-tablet-alt"></i> 平板</span>';
+            return '<span class="device-badge bg-desktop"><i class="fas fa-desktop"></i> 電腦</span>';
         }
 
-        // === 頁面切換 ===
-        function showLogin() {
-            document.getElementById('auth-section').style.display = 'flex';
-            document.getElementById('login-form').style.display = 'block';
-            document.getElementById('register-form').style.display = 'none';
-            document.getElementById('admin-auth-form').style.display = 'none';
-            document.getElementById('dashboard-section').style.display = 'none';
-            
-            // 清空輸入框避免混淆
-            document.getElementById('login-user').value = '';
-            document.getElementById('login-pass').value = '';
+        window.calculateActivationCode = (username) => {
+            let hash = 0, name = username.trim();
+            for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+            return (Math.abs(hash * SECRET_SALT) % 1000000).toString().padStart(6, '0');
         }
-        function showRegister() {
+
+        // === UI 切換 ===
+        window.showRegister = () => {
             document.getElementById('login-form').style.display = 'none';
             document.getElementById('register-form').style.display = 'block';
         }
-        function showAdminAuth() {
+        window.showLogin = () => {
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('admin-auth-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+        }
+        window.showAdminAuth = () => {
             document.getElementById('login-form').style.display = 'none';
             document.getElementById('admin-auth-form').style.display = 'block';
         }
 
-        // === 註冊與綁定邏輯 (最重要) ===
-        function handleRegister() {
+        // === 註冊流程 ===
+        document.getElementById('btnRegister').addEventListener('click', async () => {
             const user = document.getElementById('reg-user').value.trim();
             const pass = document.getElementById('reg-pass').value.trim();
             const inputCode = document.getElementById('reg-code').value.trim();
 
-            if(!user || !pass || !inputCode) { alert("請輸入完整資訊 (含開通碼)"); return; }
+            if(BANNED_USERS.includes(user)) return alert("此帳號已被公司停用。");
+            if(!user || !pass || !inputCode) return alert("請輸入完整資訊");
+            if (inputCode !== window.calculateActivationCode(user)) return alert("❌ 開通碼錯誤，請洽管理員。");
 
-            // 1. 檢查開通碼是否正確
-            const correctCode = calculateActivationCode(user);
-            if (inputCode !== correctCode) {
-                alert("❌ 開通碼錯誤！\n請確認您輸入的使用者名稱是否與管理員產生時一致。\n此裝置無法綁定。");
-                return;
+            showLoading(true);
+            try {
+                const userRef = ref(db, 'users/' + user);
+                const snapshot = await get(userRef);
+                const deviceType = getDeviceType();
+
+                if (snapshot.exists()) {
+                    if(!confirm("帳號已存在，要為此帳號綁定這台新裝置嗎？")) {
+                        showLoading(false); return;
+                    }
+                    const userData = snapshot.val();
+                    let devices = userData.authorizedDevices || [];
+                    
+                    if(!devices.includes(myDeviceId)) {
+                        devices.push(myDeviceId);
+                        await update(userRef, { 
+                            password: pass, 
+                            authorizedDevices: devices,
+                            lastDeviceType: deviceType // 更新裝置類型
+                        });
+                        alert("✅ 新裝置綁定成功！");
+                    } else {
+                        alert("⚠️ 此裝置已經綁定過了。");
+                    }
+                } else {
+                    await set(userRef, {
+                        password: pass,
+                        lastDeviceType: deviceType, // 紀錄初始裝置
+                        authorizedDevices: [myDeviceId]
+                    });
+                    alert("✅ 註冊並綁定成功！");
+                }
+                window.showLogin();
+            } catch (error) {
+                console.error(error);
+                alert("連線錯誤：" + error.message);
             }
+            showLoading(false);
+        });
 
-            // 2. 檢查帳號是否重複 (本機)
-            let users = getUsers();
-            // 如果此帳號已存在，我們更新密碼並重新綁定 (視為重設)
-            const existingIndex = users.findIndex(u => u.username === user);
-            
-            if (existingIndex !== -1) {
-                if(!confirm("此帳號已存在本機，要更新密碼並重新綁定嗎？")) return;
-                users[existingIndex].password = pass;
-            } else {
-                users.push({ username: user, password: pass });
-            }
-
-            // 3. 儲存資料
-            saveUsers(users);
-
-            // 4. 寫入「裝置綁定標記」
-            localStorage.setItem('hg_bind_' + user, 'true');
-
-            alert("✅ 裝置綁定成功！\n此瀏覽器已獲得授權，您可以登入了。");
-            showLogin();
-        }
-
-        // === 登入功能 ===
-        function handleLogin(event) {
-            event.preventDefault();
+        // === 登入流程 (含裝置狀態更新) ===
+        document.getElementById('btnLogin').addEventListener('click', async (e) => {
+            e.preventDefault();
             const user = document.getElementById('login-user').value.trim();
             const pass = document.getElementById('login-pass').value.trim();
-            const keepLogin = document.getElementById('keep-login').checked;
-            
-            let users = getUsers();
-            const targetUser = users.find(u => u.username === user && u.password === pass);
+            const keep = document.getElementById('keep-login').checked;
 
-            if (targetUser) {
-                // 檢查此裝置是否擁有該帳號的綁定標記
-                if (isDeviceBound(user)) {
-                    if(keepLogin) {
-                        localStorage.setItem('hg_current_session', user);
+            if (BANNED_USERS.includes(user)) return alert("您的帳號已被公司停用。");
+            if (!user || !pass) return alert("請輸入帳號密碼");
+
+            showLoading(true);
+            try {
+                const snapshot = await get(ref(db, 'users/' + user));
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    if (data.password === pass) {
+                        const devices = data.authorizedDevices || [];
+                        if (devices.includes(myDeviceId)) {
+                            // 登入成功
+                            if(keep) localStorage.setItem('hg_cloud_session', user);
+                            
+                            // [新增] 更新該使用者的「最後登入裝置」
+                            const currentDeviceType = getDeviceType();
+                            await update(ref(db, 'users/' + user), {
+                                lastDeviceType: currentDeviceType
+                            });
+
+                            window.enterDashboard(user, false);
+                        } else {
+                            alert("⛔ 登入失敗：此裝置未經授權 (未綁定)。");
+                        }
+                    } else {
+                        alert("❌ 密碼錯誤");
                     }
-                    enterDashboard(targetUser.username, false);
                 } else {
-                    alert("⛔ 登入失敗：未授權裝置\n\n即使密碼正確，此帳號未綁定這台電腦/手機。\n請進行「註冊並綁定」流程輸入開通碼。");
+                    alert("❌ 帳號不存在");
                 }
-            } else {
-                alert("❌ 帳號或密碼錯誤");
+            } catch (error) {
+                console.error(error);
+                alert("登入錯誤");
             }
-        }
+            showLoading(false);
+        });
 
-        // === 管理員後台 ===
-        function handleAdminLogin() {
-            const pass = document.getElementById('admin-pass-input').value;
-            if (pass === ADMIN_PASS) {
-                enterDashboard("Administrator", true);
+        document.getElementById('btnAdminLogin').addEventListener('click', () => {
+            if (document.getElementById('admin-pass-input').value === ADMIN_PASS) {
+                window.enterDashboard("Administrator", true);
             } else {
                 alert("密碼錯誤");
             }
-        }
+        });
 
-        // === 產生開通碼 (管理員用) ===
-        function generateCode() {
-            const name = document.getElementById('admin-generate-name').value.trim();
-            if(!name) { alert("請輸入員工帳號名稱"); return; }
-
-            const code = calculateActivationCode(name);
-            document.getElementById('generated-code-area').style.display = 'block';
-            document.getElementById('display-code').innerText = code;
-        }
-
-        // === 進入主畫面 ===
-        function enterDashboard(username, isAdmin) {
+        window.enterDashboard = (user, isAdmin) => {
             document.getElementById('auth-section').style.display = 'none';
             document.getElementById('dashboard-section').style.display = 'flex';
-            document.getElementById('display-username').innerText = username;
-            
+            document.getElementById('display-username').innerText = user;
+
             if(isAdmin) {
                 document.getElementById('admin-link').style.display = 'block';
-                showAdminPanel(document.getElementById('admin-link').querySelector('a'));
+                window.showAdminPanel(document.getElementById('admin-link').querySelector('a'));
             } else {
                 document.getElementById('admin-link').style.display = 'none';
-                loadPage(0, document.querySelector('.nav-links li a'));
+                window.loadPage(0, document.querySelector('.nav-links li a'));
             }
         }
 
-        function loadPage(index, element) {
+        window.loadPage = (idx, el) => {
             document.getElementById('admin-panel').style.display = 'none';
             document.getElementById('content-frame').style.display = 'block';
-            document.getElementById('content-frame').src = SITES[index];
-            if(element) {
+            document.getElementById('content-frame').src = SITES[idx];
+            if(el) {
                 document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-                element.classList.add('active');
+                el.classList.add('active');
             }
+            if(window.innerWidth <= 768) window.toggleSidebar();
         }
 
-        function showAdminPanel(element) {
-            document.getElementById('content-frame').style.display = 'none';
-            document.getElementById('admin-panel').style.display = 'block';
-            if(element) {
-                document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-                element.classList.add('active');
-            }
-            renderUserTable();
+        window.toggleSidebar = () => {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
         }
 
-        function renderUserTable() {
-            const users = getUsers();
-            const tbody = document.getElementById('user-table-body');
-            tbody.innerHTML = '';
-            users.forEach((u, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${u.username}</td>
-                    <td>${u.password}</td> 
-                    <td><button class="btn btn-danger" style="width:auto; padding:5px 10px;" onclick="deleteUser(${index})">刪除</button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function deleteUser(index) {
-            if(confirm("確定要刪除此帳號嗎？(該使用者下次登入將失效)")) {
-                let users = getUsers();
-                // 同時移除綁定標記
-                localStorage.removeItem('hg_bind_' + users[index].username);
-                users.splice(index, 1);
-                saveUsers(users);
-                renderUserTable();
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem('hg_current_session'); // 登出時只清除 Session，不清除綁定
+        window.logout = () => {
+            localStorage.removeItem('hg_cloud_session');
             location.reload();
         }
 
-        // 安全防護
-        document.addEventListener('contextmenu', event => event.preventDefault());
-        document.onkeydown = function(e) {
-            if(e.keyCode == 123) return false;
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
-            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
+        // === 管理後台 (即時監聽) ===
+        window.showAdminPanel = (el) => {
+            document.getElementById('content-frame').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'block';
+            if(el) {
+                document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+                el.classList.add('active');
+            }
+            
+            const usersRef = ref(db, 'users');
+            onValue(usersRef, (snapshot) => {
+                const tbody = document.getElementById('user-table-body');
+                tbody.innerHTML = '';
+                if(snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const uid = childSnapshot.key;
+                        const uData = childSnapshot.val();
+                        const deviceCount = uData.authorizedDevices ? uData.authorizedDevices.length : 0;
+                        // 讀取 lastDeviceType (如果沒有則預設 desktop)
+                        const devLabel = getDeviceLabel(uData.lastDeviceType || 'desktop');
+                        
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${uid}</td>
+                                <td>${devLabel}</td>
+                                <td>${deviceCount} 台</td>
+                                <td><button class="btn btn-danger" style="width:auto; padding:5px; font-size:12px;" onclick="window.deleteCloudUser('${uid}')">刪除帳號</button></td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4">目前無使用者資料</td></tr>';
+                }
+            });
         }
 
+        window.deleteCloudUser = async (uid) => {
+            if(confirm(`確定要從雲端刪除使用者 ${uid} 嗎？\n該使用者將無法再登入，所有綁定裝置也會失效。`)) {
+                try {
+                    await remove(ref(db, 'users/' + uid));
+                    alert("已刪除");
+                } catch(e) {
+                    alert("刪除失敗: " + e.message);
+                }
+            }
+        }
+
+        window.generateCode = () => {
+            const name = document.getElementById('admin-generate-name').value.trim();
+            if(!name) return alert("請輸入帳號");
+            document.getElementById('generated-code-area').style.display = 'block';
+            document.getElementById('display-code').innerText = window.calculateActivationCode(name);
+        }
+
+        window.onload = async () => {
+            const banDisplay = document.getElementById('banned-list-display');
+            if(BANNED_USERS.length > 0) banDisplay.innerHTML = "目前封鎖名單：" + BANNED_USERS.join(", ");
+
+            const savedUser = localStorage.getItem('hg_cloud_session');
+            if (savedUser) {
+                if (BANNED_USERS.includes(savedUser)) {
+                    alert("您的帳號已被停用");
+                    window.logout();
+                } else {
+                    window.enterDashboard(savedUser, false);
+                }
+            }
+        }
+        
+        window.toggleSidebar = toggleSidebar;
     </script>
 </body>
 </html>
