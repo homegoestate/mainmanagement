@@ -102,6 +102,27 @@
             text-align: left;
         }
 
+        /* 自定義彈出視窗 (Modal) */
+        .modal-overlay {
+            display: none; /* 預設隱藏 */
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-box {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
         /* 儀表板樣式 */
         #dashboard-container { display: none; height: 100vh; display: flex; }
 
@@ -207,7 +228,7 @@
 
             <button type="submit" class="btn btn-primary">登入</button>
             
-            <button type="button" class="btn btn-warning" style="margin-top:15px; font-size:14px;" onclick="quickApprove()">管理員現場開通 (輸入8888)</button>
+            <button type="button" class="btn btn-warning" style="margin-top:15px; font-size:14px;" onclick="openAuthModal()">管理員現場開通</button>
 
             <div class="switch-link" onclick="showRegister()">還沒有帳號？申請綁定</div>
             <div class="switch-link" onclick="showAdminAuth()">進入完整後台 (管理員專用)</div>
@@ -231,6 +252,18 @@
             <input type="password" id="admin-pass-input" placeholder="請輸入管理員密碼">
             <button class="btn btn-danger" onclick="handleAdminLogin()">進入管理後台</button>
             <div class="switch-link" onclick="showLogin()">返回員工登入</div>
+        </div>
+    </div>
+
+    <div id="auth-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>🔐 管理員驗證</h3>
+            <p style="font-size:14px; color:#666;">請輸入密碼以開通此裝置</p>
+            <input type="password" id="modal-pass-input" placeholder="密碼" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:5px;">
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-secondary" onclick="closeAuthModal()">取消</button>
+                <button class="btn btn-primary" onclick="submitAuth()">確認</button>
+            </div>
         </div>
     </div>
 
@@ -340,14 +373,14 @@
 
             users.push({ username: user, password: pass, approved: false });
             saveUsers(users);
-            alert("✅ 申請成功！\n\n請將此裝置交給管理員，在登入畫面點擊「管理員現場開通」，輸入 8888 即可啟用。");
+            alert("✅ 申請成功！\n\n請將此裝置交給管理員，在登入畫面點擊「管理員現場開通」，輸入密碼啟用。");
             
             document.getElementById('reg-user').value = "";
             document.getElementById('reg-pass').value = "";
             showLogin();
         }
 
-        // === 清除舊申請 (解決重複名稱問題) ===
+        // === 清除舊申請 ===
         function clearPending() {
             const userToDelete = prompt("請輸入要清除的「使用者名稱」：");
             if(!userToDelete) return;
@@ -356,7 +389,6 @@
             const index = users.findIndex(u => u.username === userToDelete);
 
             if(index !== -1) {
-                // 為了安全，如果該帳號已經核准，需要密碼才能刪，若未核准直接刪
                 if(users[index].approved) {
                     alert("此帳號已核准，請從管理員後台刪除。");
                 } else {
@@ -369,14 +401,24 @@
             }
         }
 
-        // === 現場快速開通 (新功能) ===
-        function quickApprove() {
-            const pass = prompt("請管理員輸入密碼 (8888) 以開通此裝置上的待審帳號：");
+        // === 現場快速開通 (新版：使用 Modal 隱藏密碼) ===
+        function openAuthModal() {
+            document.getElementById('auth-modal').style.display = 'flex';
+            document.getElementById('modal-pass-input').value = '';
+            document.getElementById('modal-pass-input').focus();
+        }
+
+        function closeAuthModal() {
+            document.getElementById('auth-modal').style.display = 'none';
+        }
+
+        function submitAuth() {
+            const pass = document.getElementById('modal-pass-input').value;
+            
             if (pass === ADMIN_PASS) {
                 let users = getUsers();
                 let approvedCount = 0;
                 
-                // 將所有未核准的變更為核准
                 users.forEach(u => {
                     if(!u.approved) {
                         u.approved = true;
@@ -390,10 +432,19 @@
                 } else {
                     alert("目前此裝置沒有等待審核的帳號。");
                 }
-            } else if (pass !== null) {
-                alert("密碼錯誤！");
+                closeAuthModal();
+            } else {
+                alert("❌ 密碼錯誤");
+                document.getElementById('modal-pass-input').value = '';
             }
         }
+
+        // 監聽 Modal 的 Enter 鍵
+        document.getElementById('modal-pass-input').addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+                submitAuth();
+            }
+        });
 
         // === 登入功能 ===
         function handleLogin(event) {
