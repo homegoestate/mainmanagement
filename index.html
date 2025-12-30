@@ -6,7 +6,7 @@
     <title>HomeGo Estate - 雲端中控系統</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* === 樣式設定 === */
+        /* === 樣式設定 (保持不變) === */
         :root {
             --primary-color: #2c3e50;
             --secondary-color: #34495e;
@@ -17,12 +17,10 @@
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; height: 100vh; overflow: hidden; user-select: none; }
         
-        /* 登入區塊 */
         .auth-container { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); padding: 20px; }
         .auth-box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center; }
         .auth-box h2 { color: var(--primary-color); margin-bottom: 20px; }
         
-        /* 輸入框樣式 */
         .input-group { margin: 15px 0; text-align: left; }
         .input-group label { font-size: 13px; color: #555; font-weight: bold; display: block; margin-bottom: 5px;}
         .auth-box input[type="text"], 
@@ -31,26 +29,9 @@
             width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; 
         }
 
-        /* 保持登入勾選框排版修正 */
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            margin: 15px 0;
-            gap: 8px;
-        }
-        .checkbox-group input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            margin: 0;
-            cursor: pointer;
-        }
-        .checkbox-group label {
-            font-size: 15px;
-            color: #333;
-            cursor: pointer;
-            margin: 0;
-        }
+        .checkbox-group { display: flex; align-items: center; justify-content: flex-start; margin: 15px 0; gap: 8px; }
+        .checkbox-group input[type="checkbox"] { width: 20px; height: 20px; margin: 0; cursor: pointer; }
+        .checkbox-group label { font-size: 15px; color: #333; cursor: pointer; margin: 0; }
 
         .btn { width: 100%; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 15px; font-weight: bold; color: white; transition: 0.3s; }
         .btn-primary { background-color: var(--accent-color); }
@@ -59,7 +40,6 @@
         .switch-link { margin-top: 20px; font-size: 14px; color: #7f8c8d; cursor: pointer; text-decoration: underline; }
         .alert-box { background-color: #e8f4f8; color: #2c3e50; padding: 12px; border-radius: 5px; font-size: 13px; margin-bottom: 15px; border-left: 4px solid var(--accent-color); text-align: left; }
         
-        /* 儀表板與側邊欄 */
         #dashboard-section { display: none; height: 100vh; position: relative; overflow: hidden; }
         .menu-toggle-btn { display: none; position: absolute; top: 15px; left: 15px; z-index: 2000; background: var(--primary-color); color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; }
         .sidebar { width: var(--sidebar-width); background-color: var(--primary-color); color: var(--text-light); display: flex; flex-direction: column; z-index: 1500; transition: transform 0.3s ease; }
@@ -80,7 +60,6 @@
             .sidebar-overlay.active { display: block; }
         }
 
-        /* 後台表格 */
         #admin-panel { display: none; padding: 20px; background: white; height: 100%; overflow-y: auto; }
         .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 500px; }
@@ -124,7 +103,7 @@
 
         <div id="register-form" class="auth-box" style="display: none;">
             <h2>📱 註冊並綁定裝置</h2>
-            <div class="alert-box">請輸入管理員提供的開通碼。</div>
+            <div class="alert-box">請輸入管理員提供的開通碼。<br>(同帳號可重複綁定多台裝置)</div>
             <div class="input-group"><input type="text" id="reg-user" placeholder="設定使用者名稱" autocomplete="username"></div>
             <div class="input-group"><input type="password" id="reg-pass" placeholder="設定密碼" autocomplete="new-password"></div>
             <div class="input-group">
@@ -229,10 +208,11 @@
             "https://homegoestate.github.io/case-procedure/",
             "https://homegoestate.github.io/receipts/",
             "https://homegoestate.github.io/quotation/",
-            "https://homegoestate.github.io/AI-question-assistant/" // 新增的 AI 連結 (Index 5)
+            "https://homegoestate.github.io/AI-question-assistant/"
         ];
 
         // === 裝置指紋識別 (Device ID) ===
+        // 每個瀏覽器第一次打開會生成一個 ID 存在 localStorage
         let myDeviceId = localStorage.getItem('hg_cloud_did');
         if (!myDeviceId) {
             myDeviceId = 'DID-' + Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -278,7 +258,7 @@
             document.getElementById('admin-auth-form').style.display = 'block';
         }
 
-        // === 註冊流程 ===
+        // === 註冊流程 (支援多裝置綁定) ===
         document.getElementById('btnRegister').addEventListener('click', async () => {
             const user = document.getElementById('reg-user').value.trim();
             const pass = document.getElementById('reg-pass').value.trim();
@@ -295,24 +275,27 @@
                 const deviceType = getDeviceType();
 
                 if (snapshot.exists()) {
-                    if(!confirm("帳號已存在，要為此帳號綁定這台新裝置嗎？")) {
-                        showLoading(false); return;
-                    }
+                    // 帳號已存在，檢查是否為新裝置
                     const userData = snapshot.val();
                     let devices = userData.authorizedDevices || [];
                     
                     if(!devices.includes(myDeviceId)) {
-                        devices.push(myDeviceId);
+                        // 新裝置：詢問是否綁定 (允許同一帳號多裝置)
+                        if(!confirm("帳號已存在，要將此新裝置加入授權名單嗎？")) {
+                            showLoading(false); return;
+                        }
+                        devices.push(myDeviceId); // 加入列表，而非覆蓋
                         await update(userRef, { 
-                            password: pass, 
+                            password: pass, // 更新密碼
                             authorizedDevices: devices,
                             lastDeviceType: deviceType 
                         });
-                        alert("✅ 新裝置綁定成功！");
+                        alert("✅ 新裝置綁定成功！您現在可以在這台裝置登入。");
                     } else {
-                        alert("⚠️ 此裝置已經綁定過了。");
+                        alert("⚠️ 此裝置已經綁定過了，請直接登入。");
                     }
                 } else {
+                    // 帳號不存在：新註冊
                     await set(userRef, {
                         password: pass,
                         lastDeviceType: deviceType,
@@ -328,7 +311,7 @@
             showLoading(false);
         });
 
-        // === 登入流程 ===
+        // === 登入流程 (檢查裝置清單) ===
         document.getElementById('btnLogin').addEventListener('click', async (e) => {
             e.preventDefault();
             const user = document.getElementById('login-user').value.trim();
@@ -344,11 +327,13 @@
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     if (data.password === pass) {
+                        // 檢查本機 ID 是否在雲端的「授權清單」中
                         const devices = data.authorizedDevices || [];
                         if (devices.includes(myDeviceId)) {
+                            // 驗證通過
                             if(keep) localStorage.setItem('hg_cloud_session', user);
                             
-                            // 更新最後登入裝置
+                            // 更新最後登入狀態
                             const currentDeviceType = getDeviceType();
                             await update(ref(db, 'users/' + user), {
                                 lastDeviceType: currentDeviceType
@@ -356,7 +341,7 @@
 
                             window.enterDashboard(user, false);
                         } else {
-                            alert("⛔ 登入失敗：此裝置未經授權 (未綁定)。");
+                            alert("⛔ 登入失敗：此裝置未經授權。\n請使用「註冊並綁定」功能輸入開通碼來授權此裝置。");
                         }
                     } else {
                         alert("❌ 密碼錯誤");
@@ -371,6 +356,7 @@
             showLoading(false);
         });
 
+        // === 管理員登入 ===
         document.getElementById('btnAdminLogin').addEventListener('click', () => {
             if (document.getElementById('admin-pass-input').value === ADMIN_PASS) {
                 window.enterDashboard("Administrator", true);
@@ -379,6 +365,7 @@
             }
         });
 
+        // === 進入儀表板 ===
         window.enterDashboard = (user, isAdmin) => {
             document.getElementById('auth-section').style.display = 'none';
             document.getElementById('dashboard-section').style.display = 'flex';
@@ -414,7 +401,7 @@
             location.reload();
         }
 
-        // === 管理後台 (即時監聽) ===
+        // === 管理後台 (監聽) ===
         window.showAdminPanel = (el) => {
             document.getElementById('content-frame').style.display = 'none';
             document.getElementById('admin-panel').style.display = 'block';
@@ -467,6 +454,7 @@
             document.getElementById('display-code').innerText = window.calculateActivationCode(name);
         }
 
+        // === 自動登入檢查 ===
         window.onload = async () => {
             const banDisplay = document.getElementById('banned-list-display');
             if(BANNED_USERS.length > 0) banDisplay.innerHTML = "目前封鎖名單：" + BANNED_USERS.join(", ");
