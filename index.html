@@ -103,9 +103,9 @@
 
         <div id="register-form" class="auth-box" style="display: none;">
             <h2>📱 註冊並綁定裝置</h2>
-            <div class="alert-box">請輸入管理員提供的開通碼。<br>(同帳號可重複綁定多台裝置)</div>
+            <div class="alert-box">請輸入管理員提供的開通碼。<br>(綁定新裝置時，請輸入原密碼)</div>
             <div class="input-group"><input type="text" id="reg-user" placeholder="設定使用者名稱" autocomplete="username"></div>
-            <div class="input-group"><input type="password" id="reg-pass" placeholder="設定密碼" autocomplete="new-password"></div>
+            <div class="input-group"><input type="password" id="reg-pass" placeholder="輸入您的登入密碼" autocomplete="new-password"></div>
             <div class="input-group">
                 <label style="color:var(--danger-color);">裝置開通碼</label>
                 <input type="number" id="reg-code" placeholder="請輸入6位數代碼">
@@ -212,7 +212,6 @@
         ];
 
         // === 裝置指紋識別 (Device ID) ===
-        // 每個瀏覽器第一次打開會生成一個 ID 存在 localStorage
         let myDeviceId = localStorage.getItem('hg_cloud_did');
         if (!myDeviceId) {
             myDeviceId = 'DID-' + Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -258,7 +257,7 @@
             document.getElementById('admin-auth-form').style.display = 'block';
         }
 
-        // === 註冊流程 (支援多裝置綁定) ===
+        // === 註冊與綁定流程 (修正版：防止密碼覆蓋) ===
         document.getElementById('btnRegister').addEventListener('click', async () => {
             const user = document.getElementById('reg-user').value.trim();
             const pass = document.getElementById('reg-pass').value.trim();
@@ -275,27 +274,34 @@
                 const deviceType = getDeviceType();
 
                 if (snapshot.exists()) {
-                    // 帳號已存在，檢查是否為新裝置
+                    // 帳號已存在，準備綁定新裝置
                     const userData = snapshot.val();
+                    
+                    // 【關鍵修正】檢查密碼是否一致，防止誤蓋
+                    if (userData.password !== pass) {
+                        showLoading(false);
+                        alert("⚠️ 帳號已存在，但您輸入的密碼與原密碼不符！\n\n為保護您的帳號安全，請輸入原本設定的密碼來綁定此裝置。");
+                        return;
+                    }
+
                     let devices = userData.authorizedDevices || [];
                     
                     if(!devices.includes(myDeviceId)) {
-                        // 新裝置：詢問是否綁定 (允許同一帳號多裝置)
-                        if(!confirm("帳號已存在，要將此新裝置加入授權名單嗎？")) {
+                        if(!confirm("帳號驗證成功！要將此新裝置加入授權名單嗎？")) {
                             showLoading(false); return;
                         }
-                        devices.push(myDeviceId); // 加入列表，而非覆蓋
+                        devices.push(myDeviceId);
+                        // 這裡不更新 password，只更新裝置列表，確保密碼一致
                         await update(userRef, { 
-                            password: pass, // 更新密碼
                             authorizedDevices: devices,
                             lastDeviceType: deviceType 
                         });
-                        alert("✅ 新裝置綁定成功！您現在可以在這台裝置登入。");
+                        alert("✅ 新裝置綁定成功！您現在可以使用此裝置登入了。");
                     } else {
                         alert("⚠️ 此裝置已經綁定過了，請直接登入。");
                     }
                 } else {
-                    // 帳號不存在：新註冊
+                    // 新帳號建立 (第一次註冊)
                     await set(userRef, {
                         password: pass,
                         lastDeviceType: deviceType,
@@ -311,7 +317,7 @@
             showLoading(false);
         });
 
-        // === 登入流程 (檢查裝置清單) ===
+        // === 登入流程 (含裝置狀態更新) ===
         document.getElementById('btnLogin').addEventListener('click', async (e) => {
             e.preventDefault();
             const user = document.getElementById('login-user').value.trim();
@@ -327,13 +333,11 @@
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     if (data.password === pass) {
-                        // 檢查本機 ID 是否在雲端的「授權清單」中
                         const devices = data.authorizedDevices || [];
                         if (devices.includes(myDeviceId)) {
-                            // 驗證通過
                             if(keep) localStorage.setItem('hg_cloud_session', user);
                             
-                            // 更新最後登入狀態
+                            // 更新最後登入裝置
                             const currentDeviceType = getDeviceType();
                             await update(ref(db, 'users/' + user), {
                                 lastDeviceType: currentDeviceType
@@ -341,7 +345,7 @@
 
                             window.enterDashboard(user, false);
                         } else {
-                            alert("⛔ 登入失敗：此裝置未經授權。\n請使用「註冊並綁定」功能輸入開通碼來授權此裝置。");
+                            alert("⛔ 登入失敗：此裝置未經授權 (未綁定)。\n請使用「註冊並綁定」功能輸入開通碼。");
                         }
                     } else {
                         alert("❌ 密碼錯誤");
@@ -356,7 +360,6 @@
             showLoading(false);
         });
 
-        // === 管理員登入 ===
         document.getElementById('btnAdminLogin').addEventListener('click', () => {
             if (document.getElementById('admin-pass-input').value === ADMIN_PASS) {
                 window.enterDashboard("Administrator", true);
@@ -365,7 +368,6 @@
             }
         });
 
-        // === 進入儀表板 ===
         window.enterDashboard = (user, isAdmin) => {
             document.getElementById('auth-section').style.display = 'none';
             document.getElementById('dashboard-section').style.display = 'flex';
@@ -401,7 +403,7 @@
             location.reload();
         }
 
-        // === 管理後台 (監聽) ===
+        // === 管理後台 (即時監聽) ===
         window.showAdminPanel = (el) => {
             document.getElementById('content-frame').style.display = 'none';
             document.getElementById('admin-panel').style.display = 'block';
@@ -454,7 +456,6 @@
             document.getElementById('display-code').innerText = window.calculateActivationCode(name);
         }
 
-        // === 自動登入檢查 ===
         window.onload = async () => {
             const banDisplay = document.getElementById('banned-list-display');
             if(BANNED_USERS.length > 0) banDisplay.innerHTML = "目前封鎖名單：" + BANNED_USERS.join(", ");
