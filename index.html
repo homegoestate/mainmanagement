@@ -31,16 +31,16 @@
             width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; 
         }
 
-        /* [修正] 保持登入勾選框排版 */
+        /* 保持登入勾選框排版修正 */
         .checkbox-group {
             display: flex;
-            align-items: center; /* 垂直置中 */
-            justify-content: flex-start; /* 靠左對齊 */
+            align-items: center;
+            justify-content: flex-start;
             margin: 15px 0;
-            gap: 8px; /* 框與文字的間距 */
+            gap: 8px;
         }
         .checkbox-group input[type="checkbox"] {
-            width: 20px; /* 固定寬度，避免被拉伸 */
+            width: 20px;
             height: 20px;
             margin: 0;
             cursor: pointer;
@@ -67,7 +67,7 @@
         .nav-links { list-style: none; padding: 0; margin: 0; flex-grow: 1; overflow-y: auto; }
         .nav-links li { border-bottom: 1px solid rgba(255,255,255,0.1); }
         .nav-links li a { display: block; padding: 15px 20px; color: var(--text-light); text-decoration: none; }
-        .nav-links li a.active { background-color: var(--accent-color); }
+        .nav-links li a:hover, .nav-links li a.active { background-color: var(--accent-color); }
         .user-info { padding: 15px; background-color: var(--secondary-color); text-align: center; font-size: 0.9em; }
         .main-content { flex-grow: 1; background-color: white; position: relative; width: 100%; }
         iframe { width: 100%; height: 100%; border: none; }
@@ -155,6 +155,8 @@
                 <li><a href="#" onclick="loadPage(2, this)">案件流程</a></li>
                 <li><a href="#" onclick="loadPage(3, this)">收據系統</a></li>
                 <li><a href="#" onclick="loadPage(4, this)">報價系統</a></li>
+                <li><a href="#" onclick="loadPage(5, this)">AI 問答助手</a></li>
+                
                 <li id="admin-link" style="display:none;"><a href="#" onclick="showAdminPanel(this)" style="background:#c0392b;">管理員後台</a></li>
             </ul>
             <div class="user-info">
@@ -226,7 +228,8 @@
             "https://homegoestate.github.io/case/",
             "https://homegoestate.github.io/case-procedure/",
             "https://homegoestate.github.io/receipts/",
-            "https://homegoestate.github.io/quotation/"
+            "https://homegoestate.github.io/quotation/",
+            "https://homegoestate.github.io/AI-question-assistant/" // 新增的 AI 連結 (Index 5)
         ];
 
         // === 裝置指紋識別 (Device ID) ===
@@ -303,7 +306,7 @@
                         await update(userRef, { 
                             password: pass, 
                             authorizedDevices: devices,
-                            lastDeviceType: deviceType // 更新裝置類型
+                            lastDeviceType: deviceType 
                         });
                         alert("✅ 新裝置綁定成功！");
                     } else {
@@ -312,7 +315,7 @@
                 } else {
                     await set(userRef, {
                         password: pass,
-                        lastDeviceType: deviceType, // 紀錄初始裝置
+                        lastDeviceType: deviceType,
                         authorizedDevices: [myDeviceId]
                     });
                     alert("✅ 註冊並綁定成功！");
@@ -325,7 +328,7 @@
             showLoading(false);
         });
 
-        // === 登入流程 (含裝置狀態更新) ===
+        // === 登入流程 ===
         document.getElementById('btnLogin').addEventListener('click', async (e) => {
             e.preventDefault();
             const user = document.getElementById('login-user').value.trim();
@@ -343,10 +346,9 @@
                     if (data.password === pass) {
                         const devices = data.authorizedDevices || [];
                         if (devices.includes(myDeviceId)) {
-                            // 登入成功
                             if(keep) localStorage.setItem('hg_cloud_session', user);
                             
-                            // [新增] 更新該使用者的「最後登入裝置」
+                            // 更新最後登入裝置
                             const currentDeviceType = getDeviceType();
                             await update(ref(db, 'users/' + user), {
                                 lastDeviceType: currentDeviceType
@@ -430,7 +432,6 @@
                         const uid = childSnapshot.key;
                         const uData = childSnapshot.val();
                         const deviceCount = uData.authorizedDevices ? uData.authorizedDevices.length : 0;
-                        // 讀取 lastDeviceType (如果沒有則預設 desktop)
                         const devLabel = getDeviceLabel(uData.lastDeviceType || 'desktop');
                         
                         tbody.innerHTML += `
