@@ -6,7 +6,7 @@
     <title>HomeGo Estate - 雲端中控系統</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* === 樣式設定 (保持不變) === */
+        /* === 樣式設定 === */
         :root {
             --primary-color: #2c3e50;
             --secondary-color: #34495e;
@@ -17,7 +17,22 @@
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; height: 100vh; overflow: hidden; user-select: none; }
         
-        .auth-container { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); padding: 20px; }
+        /* 強制登入介面層級修正：確保登入畫面永遠蓋住後台 */
+        .auth-container { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            width: 100vw;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); 
+            padding: 20px; 
+            box-sizing: border-box;
+            position: fixed; /* 強制固定 */
+            top: 0;
+            left: 0;
+            z-index: 9999; /* 最高層級 */
+        }
+
         .auth-box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center; }
         .auth-box h2 { color: var(--primary-color); margin-bottom: 20px; }
         
@@ -71,7 +86,8 @@
         .bg-tablet { background-color: #9b59b6; }
         .admin-section { border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 20px; background: #fdfdfd; }
         .code-display { font-size: 20px; font-weight: bold; color: var(--danger-color); background: #eee; padding: 10px; display: inline-block; letter-spacing: 2px; }
-        #loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index: 9999; display:flex; justify-content:center; align-items:center; color: var(--primary-color); font-weight:bold; }
+        
+        #loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index: 10000; display:flex; justify-content:center; align-items:center; color: var(--primary-color); font-weight:bold; }
     </style>
 </head>
 <body>
@@ -131,7 +147,7 @@
             <ul class="nav-links">
                 <li><a href="#" onclick="loadPage(0, this)" class="active">員工管理</a></li>
                 <li><a href="#" onclick="loadPage(1, this)">案件管理</a></li>
-                <li><a href="#" onclick="loadPage(2, this)">案件流程</a></li>
+                <li><a href="#" onclick="loadPage(2, this)">土地效益評估</a></li>
                 <li><a href="#" onclick="loadPage(3, this)">收據系統</a></li>
                 <li><a href="#" onclick="loadPage(4, this)">報價系統</a></li>
                 <li><a href="#" onclick="loadPage(5, this)">AI 問答助手</a></li>
@@ -183,7 +199,7 @@
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
         import { getDatabase, ref, set, get, child, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // === 您的 Firebase 設定 ===
+        // === Firebase Config ===
         const firebaseConfig = {
             apiKey: "AIzaSyCSOS-36oQ6hTyhtD2vrez3QGvPdvwMOIw",
             authDomain: "mainmanagement-1f3d2.firebaseapp.com",
@@ -203,24 +219,40 @@
         const ADMIN_PASS = "8888";
         const SECRET_SALT = 9527; 
         const BANNED_USERS = []; 
+        
+        // [CRITICAL FIX] 恢復為使用者指定的網址 (無連字號)
+        // ⚠️ 請注意：如果此處又出現「無限迴圈」，請務必檢查 GitHub Repo 內的 index.html 是否放錯檔案！
         const SITES = [
-            "https://homegoestate.github.io/-Employee-management/",
-            "https://homegoestate.github.io/case/",
-            "https://homegoestate.github.io/case-procedure/",
-            "https://homegoestate.github.io/receipts/",
-            "https://homegoestate.github.io/quotation/",
-            "https://homegoestate.github.io/AI-question-assistant/",
-            "https://homegoestate.github.io/Bank-choice/" // New Site Index 6
+            // Index 0: 員工管理 (Correct URL without hyphen)
+            "https://homegoestate.github.io/Employee-management/", 
+            
+            // Index 1: 案件管理
+            "https://homegoestate.github.io/case/",                
+            
+            // Index 2: 土地效益評估 (New)
+            "https://yangceo-taiwan.github.io/Land-efficiency-assessment/",
+            
+            // Index 3: 收據系統
+            "https://homegoestate.github.io/receipts/",            
+            
+            // Index 4: 報價系統
+            "https://homegoestate.github.io/quotation/",           
+            
+            // Index 5: AI 助手
+            "https://homegoestate.github.io/AI-question-assistant/", 
+            
+            // Index 6: 銀行優選
+            "https://homegoestate.github.io/Bank-choice/"          
         ];
 
-        // === 裝置指紋識別 (Device ID) ===
+        // === 裝置指紋 ===
         let myDeviceId = localStorage.getItem('hg_cloud_did');
         if (!myDeviceId) {
             myDeviceId = 'DID-' + Math.random().toString(36).substr(2, 9).toUpperCase();
             localStorage.setItem('hg_cloud_did', myDeviceId);
         }
 
-        // === 工具函式 ===
+        // === Tools ===
         function showLoading(show) {
             document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
         }
@@ -244,7 +276,7 @@
             return (Math.abs(hash * SECRET_SALT) % 1000000).toString().padStart(6, '0');
         }
 
-        // === UI 切換 ===
+        // === UI Handlers ===
         window.showRegister = () => {
             document.getElementById('login-form').style.display = 'none';
             document.getElementById('register-form').style.display = 'block';
@@ -259,7 +291,7 @@
             document.getElementById('admin-auth-form').style.display = 'block';
         }
 
-        // === 註冊與綁定流程 (修正版：防止密碼覆蓋) ===
+        // === Register ===
         document.getElementById('btnRegister').addEventListener('click', async () => {
             const user = document.getElementById('reg-user').value.trim();
             const pass = document.getElementById('reg-pass').value.trim();
@@ -276,10 +308,7 @@
                 const deviceType = getDeviceType();
 
                 if (snapshot.exists()) {
-                    // 帳號已存在，準備綁定新裝置
                     const userData = snapshot.val();
-                    
-                    // 【關鍵修正】檢查密碼是否一致，防止誤蓋
                     if (userData.password !== pass) {
                         showLoading(false);
                         alert("⚠️ 帳號已存在，但您輸入的密碼與原密碼不符！\n\n為保護您的帳號安全，請輸入原本設定的密碼來綁定此裝置。");
@@ -287,23 +316,17 @@
                     }
 
                     let devices = userData.authorizedDevices || [];
-                    
                     if(!devices.includes(myDeviceId)) {
                         if(!confirm("帳號驗證成功！要將此新裝置加入授權名單嗎？")) {
                             showLoading(false); return;
                         }
                         devices.push(myDeviceId);
-                        // 這裡不更新 password，只更新裝置列表，確保密碼一致
-                        await update(userRef, { 
-                            authorizedDevices: devices,
-                            lastDeviceType: deviceType 
-                        });
+                        await update(userRef, { authorizedDevices: devices, lastDeviceType: deviceType });
                         alert("✅ 新裝置綁定成功！您現在可以使用此裝置登入了。");
                     } else {
                         alert("⚠️ 此裝置已經綁定過了，請直接登入。");
                     }
                 } else {
-                    // 新帳號建立 (第一次註冊)
                     await set(userRef, {
                         password: pass,
                         lastDeviceType: deviceType,
@@ -319,7 +342,7 @@
             showLoading(false);
         });
 
-        // === 登入流程 (含裝置狀態更新) ===
+        // === Login ===
         document.getElementById('btnLogin').addEventListener('click', async (e) => {
             e.preventDefault();
             const user = document.getElementById('login-user').value.trim();
@@ -338,13 +361,8 @@
                         const devices = data.authorizedDevices || [];
                         if (devices.includes(myDeviceId)) {
                             if(keep) localStorage.setItem('hg_cloud_session', user);
-                            
-                            // 更新最後登入裝置
                             const currentDeviceType = getDeviceType();
-                            await update(ref(db, 'users/' + user), {
-                                lastDeviceType: currentDeviceType
-                            });
-
+                            await update(ref(db, 'users/' + user), { lastDeviceType: currentDeviceType });
                             window.enterDashboard(user, false);
                         } else {
                             alert("⛔ 登入失敗：此裝置未經授權 (未綁定)。\n請使用「註冊並綁定」功能輸入開通碼。");
@@ -405,7 +423,6 @@
             location.reload();
         }
 
-        // === 管理後台 (即時監聽) ===
         window.showAdminPanel = (el) => {
             document.getElementById('content-frame').style.display = 'none';
             document.getElementById('admin-panel').style.display = 'block';
