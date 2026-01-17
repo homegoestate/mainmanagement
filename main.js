@@ -1,14 +1,16 @@
 /**
- * HomeGo Estate Core (Protected & Optimized)
- * Fix: iOS/iPad Click Issue Resolved
+ * HomeGo Estate Core (Final Fix)
+ * iOS/iPad Click Enabled
  */
 (function(){
-    // 1. 防護盾：禁止右鍵、F12，但允許觸控互動
-    document.addEventListener('contextmenu',e=>e.preventDefault());
-    document.addEventListener('keydown',e=>{
-        if(e.key=='F12'||(e.ctrlKey&&e.shiftKey&&e.key=='I')||(e.ctrlKey&&e.key=='u'))e.preventDefault();
+    // 1. 基礎防護 (移除 selectstart 以修復點擊)
+    document.addEventListener('contextmenu', e => e.preventDefault()); // 禁右鍵
+    document.addEventListener('keydown', e => {
+        // 禁 F12 和開發者工具快捷鍵
+        if(e.key=='F12' || (e.ctrlKey && e.shiftKey && e.key=='I') || (e.ctrlKey && e.key=='u')) {
+            e.preventDefault();
+        }
     });
-    // 移除全域的 selectstart 禁止，改用 CSS 控制，避免鎖死 iOS 點擊
 
     // 2. 引入 Firebase
     const loadScript = src => new Promise((resolve, reject) => {
@@ -21,7 +23,6 @@
     });
 
     async function initSystem() {
-        // 動態引入，隱藏依賴
         const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
         const { getDatabase, ref, set, get, update, remove, onValue } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
 
@@ -35,9 +36,10 @@
         const _0x3c = []; 
         const _sites = ["https://homegoestate.github.io/Employee-management/","https://homegoestate.github.io/case/","https://yangceo-taiwan.github.io/Land-efficiency-assessment/","https://homegoestate.github.io/receipts/","https://homegoestate.github.io/quotation/","https://homegoestate.github.io/AI-question-assistant/","https://homegoestate.github.io/Bank-choice/"];
 
-        // 3. 新聞爬蟲 (終極點擊修復版)
+        // 3. 新聞爬蟲 (強制點擊修正版)
         async function runTicker() {
             const el = document.getElementById('news-content');
+            // 你的 Replit 網址
             const api = "https://4dbd4a23-496d-4890-ba6f-b48d475d3a39-00-3cz7cqlznvxy2.pike.replit.dev/news";
             
             try {
@@ -45,21 +47,24 @@
                 const json = await res.json();
                 
                 if(json.status==="success" && json.data.length>0) {
-                    // 這裡使用了特殊的樣式，強制允許 iOS/iPad 點擊
-                    const linkStyle = "color:#06b6d4; text-decoration:none; margin-right:50px; font-weight:bold; cursor:pointer; pointer-events:auto; position:relative; z-index:9999; user-select:auto; -webkit-user-select:auto; touch-action:manipulation;";
-                    
-                    el.innerHTML = json.data.map(i=>
-                        `<a href="${i.link}" target="_blank" style="${linkStyle}">⚡ ${i.title}</a>`
+                    // 使用 class "news-link" 讓 CSS 強制接管樣式
+                    const links = json.data.map(i => 
+                        `<a href="${i.link}" target="_blank" class="news-link">⚡ ${i.title}</a>`
                     ).join("");
+                    
+                    el.innerHTML = links;
                     
                     // 動畫設定
                     el.style.animation = "marquee 45s linear infinite";
                     
-                    // 增加觸控暫停功能 (手機手指按住也會暫停)
-                    el.onmouseenter = () => el.style.animationPlayState = 'paused';
-                    el.onmouseleave = () => el.style.animationPlayState = 'running';
-                    el.ontouchstart = () => el.style.animationPlayState = 'paused';
-                    el.ontouchend = () => el.style.animationPlayState = 'running';
+                    // 滑鼠/手指互動暫停
+                    const pause = () => el.style.animationPlayState = 'paused';
+                    const run = () => el.style.animationPlayState = 'running';
+                    
+                    el.addEventListener('mouseenter', pause);
+                    el.addEventListener('mouseleave', run);
+                    el.addEventListener('touchstart', pause, {passive: true});
+                    el.addEventListener('touchend', run);
 
                 } else { el.innerText = "暫無快訊"; }
             } catch(e) { 
@@ -68,7 +73,7 @@
         }
         runTicker();
 
-        // 4. 系統功能
+        // 4. 系統與 Firebase 邏輯
         let did = localStorage.getItem('hg_did');
         if(!did){did='D-'+Math.random().toString(36).substr(2,9).toUpperCase();localStorage.setItem('hg_did',did);}
         
