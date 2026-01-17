@@ -14,22 +14,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* === 智慧財產防護盾 (優化版) === */
-        /* 禁止選取，保護內容 */
+        /* === 智慧財產防護盾 (修正版) === */
+        /* 預設禁止選取 */
         body { 
             user-select: none; 
-            -webkit-user-select: none; /* Safari/Chrome */
-            -moz-user-select: none;    /* Firefox */
-            -ms-user-select: none;     /* IE/Edge */
+            -webkit-user-select: none; 
         }
         
-        /* 例外：輸入框和連結必須可以互動 */
+        /* 允許輸入框和連結互動 */
         input, button, a { 
             user-select: text; 
             -webkit-user-select: text; 
+            -webkit-touch-callout: none; /* iOS 長按不跳出選單，直接點擊 */
         }
 
-        /* === 樣式系統 === */
         :root {
             --bg-main: #0f172a; --bg-secondary: #1e293b;
             --text-primary: #f1f5f9; --text-secondary: #94a3b8;
@@ -57,20 +55,41 @@
             position: relative; z-index: 2000;
         }
         
-        /* === 關鍵修正：新聞點擊層級 === */
+        /* === 新聞跑馬燈與連結樣式 (關鍵 CSS) === */
         #news-ticker-bar { 
             flex: 1; overflow: hidden; white-space: nowrap; 
             display: flex; align-items: center; 
             margin-left: 15px;
             position: relative; 
-            z-index: 5000; /* 層級拉到最高 */
-            pointer-events: auto; /* 強制接收點擊 */
+            z-index: 5000; /* 確保在最上層 */
         }
         #news-content { 
             display: inline-block; padding-left: 100%; 
-            cursor: pointer;
         }
-        /* ============================ */
+        
+        /* 連結專用樣式 - 萬能鑰匙 */
+        .news-link {
+            color: #06b6d4; 
+            text-decoration: none; 
+            margin-right: 50px; 
+            font-weight: bold; 
+            cursor: pointer;
+            
+            /* 解鎖點擊 */
+            pointer-events: auto !important;
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            touch-action: manipulation;
+            
+            /* 解決 iOS 渲染層級問題 */
+            position: relative;
+            z-index: 9999;
+            transform: translateZ(0);
+        }
+        .news-link:hover { color: #fff; text-shadow: 0 0 8px rgba(6,182,212,0.6); }
+        /* ======================================= */
+
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 
         .dashboard-body { flex: 1; display: flex; overflow: hidden; position: relative; }
         .sidebar { width: 250px; background: var(--bg-secondary); border-right: var(--border); display: flex; flex-direction: column; z-index: 1500; transition: 0.3s; }
