@@ -8,167 +8,67 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon-192.png">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* === 全新科技感樣式設定 === */
+        /* === 科技感樣式設定 === */
         :root {
-            --bg-main: #0f172a;
-            --bg-secondary: #1e293b;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
+            --bg-main: #0f172a; --bg-secondary: #1e293b;
+            --text-primary: #f1f5f9; --text-secondary: #94a3b8;
             --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
-            --danger-color: #ef4444;
-            --sidebar-width: 260px;
-            --header-height: 64px;
-            --glass-bg: rgba(30, 41, 59, 0.7);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            --danger-color: #ef4444; --sidebar-width: 260px; --header-height: 64px;
+            --glass-bg: rgba(30, 41, 59, 0.7); --glass-border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
-        body { 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; padding: 0; 
-            background-color: var(--bg-main); 
-            color: var(--text-primary);
-            height: 100vh; overflow: hidden; user-select: none; 
-        }
-
-        /* --- 通用元件 --- */
-        .btn { 
-            width: 100%; padding: 14px; border: none; border-radius: 8px; 
-            cursor: pointer; font-size: 16px; margin-top: 20px; font-weight: 700; color: white; 
-            transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: var(--bg-main); color: var(--text-primary); height: 100vh; overflow: hidden; user-select: none; }
+        
+        /* 基礎元件 */
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin-top: 20px; font-weight: 700; color: white; transition: 0.3s; }
         .btn-primary { background: var(--accent-gradient); }
-        .btn-primary:hover { box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4); }
         .btn-secondary { background-color: var(--bg-secondary); border: var(--glass-border); color: var(--text-secondary); }
         .btn-danger { background-color: var(--danger-color); }
-
         .input-group { margin: 20px 0; text-align: left; }
-        .input-group label { font-size: 14px; color: var(--text-secondary); font-weight: 600; display: block; margin-bottom: 8px; }
-        .input-box { 
-            width: 100%; padding: 14px; 
-            background: rgba(255,255,255,0.05); 
-            border: var(--glass-border); 
-            border-radius: 8px; 
-            box-sizing: border-box; font-size: 16px; color: var(--text-primary);
-            outline: none; transition: 0.3s;
-        }
-        .input-box:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
-
-        /* --- 登入介面 --- */
-        .auth-container { 
-            display: flex; justify-content: center; align-items: center; height: 100vh; width: 100vw;
-            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
-            position: fixed; top: 0; left: 0; z-index: 9999;
-        }
-        .auth-box { 
-            background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            padding: 40px; border-radius: 16px; border: var(--glass-border);
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 90%; max-width: 420px; text-align: center; 
-        }
-        .auth-box h2 { 
-            background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            font-size: 24px; margin-bottom: 30px; 
-        }
+        .input-box { width: 100%; padding: 14px; background: rgba(255,255,255,0.05); border: var(--glass-border); border-radius: 8px; box-sizing: border-box; font-size: 16px; color: var(--text-primary); outline: none; }
         .checkbox-group { display: flex; align-items: center; margin: 20px 0; gap: 10px; color: var(--text-secondary); }
         .switch-link { margin-top: 25px; font-size: 14px; color: var(--text-secondary); cursor: pointer; }
-        .switch-link:hover { color: var(--text-primary); text-decoration: underline; }
+
+        /* 登入區 */
+        .auth-container { display: flex; justify-content: center; align-items: center; height: 100vh; width: 100vw; background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); position: fixed; top: 0; left: 0; z-index: 9999; }
+        .auth-box { background: var(--glass-bg); backdrop-filter: blur(20px); padding: 40px; border-radius: 16px; border: var(--glass-border); width: 90%; max-width: 420px; text-align: center; }
+        .auth-box h2 { background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 30px; }
         .alert-box { background: rgba(6, 182, 212, 0.1); color: #06b6d4; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; border-left: 4px solid #06b6d4; text-align: left; }
 
-        /* --- 主儀表板佈局 --- */
+        /* 儀表板 */
         #dashboard-section { display: none; height: 100vh; display: flex; flex-direction: column; }
-        
-        /* 頂部導航欄 */
-        .top-header {
-            height: var(--header-height);
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border-bottom: var(--glass-border);
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            position: relative;
-            z-index: 2000;
-        }
-        .brand-logo {
-            font-size: 20px; font-weight: 800;
-            background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin-right: 30px;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .menu-toggle-btn { 
-            display: none; background: none; border: none; color: var(--text-primary); font-size: 24px; cursor: pointer; margin-right: 20px;
-        }
+        .top-header { height: var(--header-height); background: var(--glass-bg); backdrop-filter: blur(10px); border-bottom: var(--glass-border); display: flex; align-items: center; padding: 0 20px; position: relative; z-index: 2000; }
+        .brand-logo { font-size: 20px; font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-right: 30px; display: flex; align-items: center; gap: 10px; }
+        .menu-toggle-btn { display: none; background: none; border: none; color: var(--text-primary); font-size: 24px; cursor: pointer; margin-right: 20px; }
 
-        /* 新聞跑馬燈 (可點擊版) */
-        #news-ticker-bar {
-            flex-grow: 1;
-            overflow: hidden;
-            white-space: nowrap;
-            display: flex; align-items: center;
-            font-size: 14px; font-weight: 500; 
-            color: #06b6d4;
-            /* 讓跑馬燈容器不會擋住點擊 */
-            pointer-events: auto;
-        }
+        /* 新聞跑馬燈 (修復樣式) */
+        #news-ticker-bar { flex-grow: 1; overflow: hidden; white-space: nowrap; display: flex; align-items: center; font-size: 14px; font-weight: 500; color: #06b6d4; pointer-events: auto; }
         .news-label { font-weight: bold; margin-right: 15px; color: var(--text-secondary); flex-shrink: 0; }
+        #news-content { display: inline-block; padding-left: 100%; cursor: pointer; }
         
-        #news-content { 
-            display: inline-block; 
-            padding-left: 100%; 
-            /* 讓滑鼠移過去變成手指形狀，暗示可點 */
-            cursor: pointer;
+        /* 新聞連結專用樣式 (確保可點擊) */
+        .news-link {
+            color: #06b6d4; text-decoration: none; margin-right: 40px; 
+            display: inline-flex; align-items: center; gap: 5px; transition: color 0.2s;
+            pointer-events: auto !important; /* 強制接收點擊 */
+            cursor: pointer !important;
         }
+        .news-link:hover { color: #fff; text-decoration: underline; text-shadow: 0 0 10px rgba(6, 182, 212, 0.8); }
 
-        /* 跑馬燈中的連結樣式 */
-        #news-content a {
-            color: #06b6d4;
-            text-decoration: none;
-            margin-right: 40px; /* 新聞之間的間距 */
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            transition: color 0.2s;
-        }
-        #news-content a:hover {
-            color: #fff; /* 滑鼠移過去變白色 */
-            text-decoration: underline;
-        }
-
-        /* 動畫定義 */
+        /* 動畫 */
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
-
-        /* 滑鼠移到跑馬燈上時，暫停動畫，方便點擊 */
-        #news-ticker-bar:hover #news-content {
-            animation-play-state: paused;
-        }
-
-        /* 主內容與側邊欄 */
+        
         .dashboard-body { display: flex; flex-grow: 1; overflow: hidden; position: relative; }
-
-        .sidebar { 
-            width: var(--sidebar-width); 
-            background: var(--bg-secondary); border-right: var(--glass-border);
-            display: flex; flex-direction: column; z-index: 1500; transition: transform 0.3s ease; 
-        }
+        .sidebar { width: var(--sidebar-width); background: var(--bg-secondary); border-right: var(--glass-border); display: flex; flex-direction: column; z-index: 1500; transition: transform 0.3s ease; }
         .nav-links { list-style: none; padding: 20px 10px; margin: 0; flex-grow: 1; overflow-y: auto; }
-        .nav-links li a { 
-            display: flex; align-items: center; gap: 12px;
-            padding: 12px 15px; color: var(--text-secondary); text-decoration: none; border-radius: 8px; margin-bottom: 5px; transition: 0.2s;
-        }
-        .nav-links li a:hover, .nav-links li a.active { 
-            background: rgba(59, 130, 246, 0.1); color: #3b82f6; font-weight: 600;
-        }
-        .user-info { 
-            padding: 20px; background: rgba(0,0,0,0.2); border-top: var(--glass-border);
-            text-align: left; font-size: 0.9em; color: var(--text-secondary);
-        }
-        .user-info span { color: var(--text-primary); font-weight: bold; display: block; margin-bottom: 10px; font-size: 1.1em; }
-
+        .nav-links li a { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: var(--text-secondary); text-decoration: none; border-radius: 8px; margin-bottom: 5px; transition: 0.2s; }
+        .nav-links li a:hover, .nav-links li a.active { background: rgba(59, 130, 246, 0.1); color: #3b82f6; font-weight: 600; }
+        .user-info { padding: 20px; background: rgba(0,0,0,0.2); border-top: var(--glass-border); text-align: left; font-size: 0.9em; color: var(--text-secondary); }
         .main-content { flex-grow: 1; background-color: var(--bg-main); position: relative; display: flex; flex-direction: column; }
         iframe { width: 100%; height: 100%; border: none; background: white; }
 
@@ -179,10 +79,8 @@
             .sidebar.active { transform: translateX(0); }
             .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1400; }
             .sidebar-overlay.active { display: block; }
-            #news-ticker-bar { font-size: 13px; }
         }
 
-        /* 後台 */
         #admin-panel { display: none; padding: 20px; background: var(--bg-main); height: 100%; overflow-y: auto; color: var(--text-primary); }
         .admin-section { border: var(--glass-border); padding: 20px; border-radius: 12px; margin-bottom: 20px; background: var(--bg-secondary); }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 500px; }
@@ -193,34 +91,32 @@
 </head>
 <body>
 
-    <div id="loading-overlay" style="display:none;">
-        <i class="fas fa-circle-notch fa-spin" style="margin-right: 10px; color: #3b82f6;"></i> 連線雲端資料庫中...
-    </div>
+    <div id="loading-overlay" style="display:none;"><i class="fas fa-circle-notch fa-spin"></i> 載入中...</div>
 
     <div id="auth-section" class="auth-container">
         <div id="login-form" class="auth-box">
             <h2><i class="fas fa-shield-alt"></i> 宏國地政雲端中控</h2>
-            <div class="alert-box"><i class="fas fa-wifi"></i> 系統已安全連線至雲端資料庫。</div>
-            <div class="input-group"><label>使用者帳號</label><input type="text" id="login-user" class="input-box" placeholder="輸入您的帳號" autocomplete="username"></div>
+            <div class="alert-box"><i class="fas fa-wifi"></i> 系統安全連線中</div>
+            <div class="input-group"><label>使用者帳號</label><input type="text" id="login-user" class="input-box" placeholder="輸入帳號" autocomplete="username"></div>
             <div class="input-group"><label>登入密碼</label><input type="password" id="login-pass" class="input-box" placeholder="輸入密碼" autocomplete="current-password"></div>
-            <div class="checkbox-group"><input type="checkbox" id="keep-login"><label for="keep-login">保持登入狀態</label></div>
+            <div class="checkbox-group"><input type="checkbox" id="keep-login"><label for="keep-login">保持登入</label></div>
             <button id="btnLogin" class="btn btn-primary">安全登入</button>
-            <div class="switch-link" onclick="showRegister()">新進同仁？點此註冊並綁定裝置</div>
-            <div class="switch-link" onclick="showAdminAuth()" style="color: var(--text-secondary); font-size: 12px;"><i class="fas fa-user-cog"></i> 管理員後台</div>
+            <div class="switch-link" onclick="showRegister()">新進同仁註冊</div>
+            <div class="switch-link" onclick="showAdminAuth()" style="color: var(--text-secondary); font-size: 12px;">管理員後台</div>
         </div>
         <div id="register-form" class="auth-box" style="display: none;">
-            <h2>📱 裝置綁定註冊</h2>
-            <div class="alert-box">請輸入管理員提供的 6 位數開通碼。</div>
-            <div class="input-group"><label>設定帳號</label><input type="text" id="reg-user" class="input-box" placeholder="設定使用者名稱" autocomplete="username"></div>
-            <div class="input-group"><label>設定密碼</label><input type="password" id="reg-pass" class="input-box" placeholder="輸入您的登入密碼" autocomplete="new-password"></div>
-            <div class="input-group"><label style="color:var(--danger-color);">裝置開通碼</label><input type="number" id="reg-code" class="input-box" placeholder="請輸入開通碼"></div>
-            <button id="btnRegister" class="btn btn-primary">驗證並註冊</button>
-            <div class="switch-link" onclick="showLogin()">返回登入</div>
+            <h2>📱 裝置綁定</h2>
+            <div class="alert-box">請輸入 6 位數開通碼</div>
+            <div class="input-group"><label>帳號</label><input type="text" id="reg-user" class="input-box" placeholder="帳號" autocomplete="username"></div>
+            <div class="input-group"><label>密碼</label><input type="password" id="reg-pass" class="input-box" placeholder="密碼" autocomplete="new-password"></div>
+            <div class="input-group"><label style="color:var(--danger-color);">開通碼</label><input type="number" id="reg-code" class="input-box" placeholder="開通碼"></div>
+            <button id="btnRegister" class="btn btn-primary">註冊</button>
+            <div class="switch-link" onclick="showLogin()">返回</div>
         </div>
         <div id="admin-auth-form" class="auth-box" style="display: none;">
-            <h2><i class="fas fa-lock"></i> 管理員驗證</h2>
-            <div class="input-group"><input type="password" id="admin-pass-input" class="input-box" placeholder="輸入管理員密碼"></div>
-            <button id="btnAdminLogin" class="btn btn-danger">進入後台</button>
+            <h2>管理員驗證</h2>
+            <div class="input-group"><input type="password" id="admin-pass-input" class="input-box" placeholder="密碼"></div>
+            <button id="btnAdminLogin" class="btn btn-danger">進入</button>
             <div class="switch-link" onclick="showLogin()">返回</div>
         </div>
     </div>
@@ -229,11 +125,10 @@
         <header class="top-header">
             <button class="menu-toggle-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
             <div class="brand-logo"><i class="fas fa-building"></i> <span>HomeGo Estate</span></div>
-            
             <div id="news-ticker-bar">
                 <span class="news-label"><i class="fas fa-broadcast-tower"></i> 地產快訊</span>
                 <div style="overflow: hidden; flex-grow: 1;">
-                    <span id="news-content">正在連線新聞中心取得最新資訊...</span>
+                    <span id="news-content">連線中...</span>
                 </div>
             </div>
         </header>
@@ -253,19 +148,17 @@
                 </ul>
                 <div class="user-info">
                     <span id="display-username">User</span>
-                    <div style="font-size: 12px; opacity: 0.7;">已安全登入</div>
-                    <button class="btn btn-secondary" style="padding:10px; margin-top:15px; font-size:14px; background:transparent;" onclick="window.logout()"><i class="fas fa-sign-out-alt"></i> 登出系統</button>
+                    <button class="btn btn-secondary" style="padding:10px; margin-top:15px; background:transparent;" onclick="window.logout()">登出</button>
                 </div>
             </nav>
 
             <main class="main-content">
                 <iframe id="content-frame" src=""></iframe>
-                
                 <div id="admin-panel">
-                    <h2 style="padding-top:20px; margin-bottom:30px;"><i class="fas fa-shield-alt"></i> 雲端管理員控制台</h2>
-                    <div class="admin-section" style="border-left: 4px solid var(--danger-color);"><h3>🚫 離職黑名單狀態</h3><p style="color:var(--text-secondary)">請修改程式碼中的 <code>BANNED_USERS</code> 來封鎖。</p><div id="banned-list-display" style="color:#ef4444; font-weight:bold;">目前封鎖名單：無</div></div>
-                    <div class="admin-section"><h3>🚀 開通碼產生器</h3><div style="display:flex; gap:10px; margin-top:15px;"><input type="text" id="admin-generate-name" class="input-box" placeholder="輸入員工帳號" style="flex:1;"><button class="btn btn-primary" style="width:auto; margin:0; padding: 12px 20px;" onclick="generateCode()">產生開通碼</button></div><div id="generated-code-area" style="display:none; margin-top:20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px;">開通碼：<span id="display-code" style="font-size: 24px; font-weight: bold; color: #06b6d4; letter-spacing: 3px; margin-left: 10px;"></span></div></div>
-                    <div class="admin-section"><h3>👥 雲端使用者列表 (即時同步)</h3><div class="table-responsive"><table id="user-table"><thead><tr><th>使用者</th><th>最新登入裝置</th><th>授權裝置數</th><th>操作</th></tr></thead><tbody id="user-table-body"></tbody></table></div></div>
+                    <h2 style="padding-top:20px; margin-bottom:30px;"><i class="fas fa-shield-alt"></i> 雲端管理員</h2>
+                    <div class="admin-section" style="border-left: 4px solid var(--danger-color);"><h3>🚫 封鎖名單</h3><div id="banned-list-display" style="color:#ef4444; font-weight:bold;">無</div></div>
+                    <div class="admin-section"><h3>🚀 開通碼</h3><div style="display:flex; gap:10px; margin-top:15px;"><input type="text" id="admin-generate-name" class="input-box" placeholder="帳號" style="flex:1;"><button class="btn btn-primary" style="width:auto; margin:0; padding: 12px 20px;" onclick="generateCode()">產生</button></div><div id="generated-code-area" style="display:none; margin-top:20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px;">開通碼：<span id="display-code" style="font-size: 24px; font-weight: bold; color: #06b6d4; letter-spacing: 3px; margin-left: 10px;"></span></div></div>
+                    <div class="admin-section"><h3>👥 使用者列表</h3><div class="table-responsive"><table id="user-table"><thead><tr><th>使用者</th><th>裝置</th><th>數量</th><th>操作</th></tr></thead><tbody id="user-table-body"></tbody></table></div></div>
                 </div>
             </main>
         </div>
@@ -273,77 +166,10 @@
 
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then((reg) => console.log('Service Worker 已註冊成功'))
-                    .catch((err) => console.log('Service Worker 註冊失敗', err));
-            });
+            window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
         }
     </script>
     
-    <script>
-        async function loadNews() {
-            const newsContent = document.getElementById('news-content');
-            // ⚠️ 你的 Replit 網址 (確認無誤)
-            const API_URL = "https://4dbd4a23-496d-4890-ba6f-b48d475d3a39-00-3cz7cqlznvxy2.pike.replit.dev/news"; 
-
-            try {
-                const response = await fetch(API_URL);
-                const data = await response.json();
-
-                if (data.status === "success" && data.data.length > 0) {
-                    // 【關鍵修改】使用 map 產生 <a> 標籤，而不是純文字
-                    let newsHTML = data.data.map(item => 
-                        // target="_blank" 代表開新視窗
-                        `<a href="${item.link}" target="_blank">⚡ ${item.title}</a>`
-                    ).join(""); // 用空字串連接，因為 CSS 有設定 margin 來隔開
-
-                    // 使用 innerHTML 來插入 HTML 代碼
-                    newsContent.innerHTML = newsHTML;
-                    
-                    // 設定動畫
-                    newsContent.style.paddingLeft = "100%";
-                    newsContent.style.animation = "marquee 40s linear infinite";
-                } else {
-                    newsContent.innerText = "目前沒有最新快訊。";
-                }
-            } catch (error) {
-                console.error("新聞抓取失敗:", error);
-                newsContent.innerText = "⚠️ 無法連線至新聞中心，請稍後再試。";
-                newsContent.style.color = "#ef4444";
-            }
-        }
-        loadNews();
-    </script>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, get, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        const firebaseConfig = { apiKey: "AIzaSyCSOS-36oQ6hTyhtD2vrez3QGvPdvwMOIw", authDomain: "mainmanagement-1f3d2.firebaseapp.com", databaseURL: "https://mainmanagement-1f3d2-default-rtdb.firebaseio.com", projectId: "mainmanagement-1f3d2", storageBucket: "mainmanagement-1f3d2.firebasestorage.app", messagingSenderId: "916729301354", appId: "1:916729301354:web:11d81d965c2127b0a17d13", measurementId: "G-NQ6YKGEJE9" };
-        const app = initializeApp(firebaseConfig); const db = getDatabase(app);
-        const ADMIN_PASS = "8888"; const SECRET_SALT = 9527; const BANNED_USERS = []; 
-        const SITES = ["https://homegoestate.github.io/Employee-management/", "https://homegoestate.github.io/case/", "https://yangceo-taiwan.github.io/Land-efficiency-assessment/", "https://homegoestate.github.io/receipts/", "https://homegoestate.github.io/quotation/", "https://homegoestate.github.io/AI-question-assistant/", "https://homegoestate.github.io/Bank-choice/"];
-        let myDeviceId = localStorage.getItem('hg_cloud_did');
-        if (!myDeviceId) { myDeviceId = 'DID-' + Math.random().toString(36).substr(2, 9).toUpperCase(); localStorage.setItem('hg_cloud_did', myDeviceId); }
-        function showLoading(show) { document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none'; }
-        function getDeviceType() { const ua = navigator.userAgent; if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) return "tablet"; if (/Mobile|Android|iP(hone|od)|IEMobile/.test(ua)) return "mobile"; return "desktop"; }
-        function getDeviceLabel(type) { if(type === 'mobile') return '<span class="device-badge bg-mobile"><i class="fas fa-mobile-alt"></i> 手機</span>'; if(type === 'tablet') return '<span class="device-badge bg-tablet"><i class="fas fa-tablet-alt"></i> 平板</span>'; return '<span class="device-badge bg-desktop"><i class="fas fa-desktop"></i> 電腦</span>'; }
-        window.calculateActivationCode = (username) => { let hash = 0, name = username.trim(); for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash); return (Math.abs(hash * SECRET_SALT) % 1000000).toString().padStart(6, '0'); }
-        window.showRegister = () => { document.getElementById('login-form').style.display = 'none'; document.getElementById('register-form').style.display = 'block'; }
-        window.showLogin = () => { document.getElementById('register-form').style.display = 'none'; document.getElementById('admin-auth-form').style.display = 'none'; document.getElementById('login-form').style.display = 'block'; }
-        window.showAdminAuth = () => { document.getElementById('login-form').style.display = 'none'; document.getElementById('admin-auth-form').style.display = 'block'; }
-        document.getElementById('btnRegister').addEventListener('click', async () => { const user = document.getElementById('reg-user').value.trim(); const pass = document.getElementById('reg-pass').value.trim(); const inputCode = document.getElementById('reg-code').value.trim(); if(BANNED_USERS.includes(user)) return alert("此帳號已被公司停用。"); if(!user || !pass || !inputCode) return alert("請輸入完整資訊"); if (inputCode !== window.calculateActivationCode(user)) return alert("❌ 開通碼錯誤，請洽管理員。"); showLoading(true); try { const userRef = ref(db, 'users/' + user); const snapshot = await get(userRef); const deviceType = getDeviceType(); if (snapshot.exists()) { const userData = snapshot.val(); if (userData.password !== pass) { showLoading(false); alert("⚠️ 帳號已存在，但您輸入的密碼與原密碼不符！\n\n為保護您的帳號安全，請輸入原本設定的密碼來綁定此裝置。"); return; } let devices = userData.authorizedDevices || []; if(!devices.includes(myDeviceId)) { if(!confirm("帳號驗證成功！要將此新裝置加入授權名單嗎？")) { showLoading(false); return; } devices.push(myDeviceId); await update(userRef, { authorizedDevices: devices, lastDeviceType: deviceType }); alert("✅ 新裝置綁定成功！您現在可以使用此裝置登入了。"); } else { alert("⚠️ 此裝置已經綁定過了，請直接登入。"); } } else { await set(userRef, { password: pass, lastDeviceType: deviceType, authorizedDevices: [myDeviceId] }); alert("✅ 註冊並綁定成功！"); } window.showLogin(); } catch (error) { console.error(error); alert("連線錯誤：" + error.message); } showLoading(false); });
-        document.getElementById('btnLogin').addEventListener('click', async (e) => { e.preventDefault(); const user = document.getElementById('login-user').value.trim(); const pass = document.getElementById('login-pass').value.trim(); const keep = document.getElementById('keep-login').checked; if (BANNED_USERS.includes(user)) return alert("您的帳號已被公司停用。"); if (!user || !pass) return alert("請輸入帳號密碼"); showLoading(true); try { const snapshot = await get(ref(db, 'users/' + user)); if (snapshot.exists()) { const data = snapshot.val(); if (data.password === pass) { const devices = data.authorizedDevices || []; if (devices.includes(myDeviceId)) { if(keep) localStorage.setItem('hg_cloud_session', user); const currentDeviceType = getDeviceType(); await update(ref(db, 'users/' + user), { lastDeviceType: currentDeviceType }); window.enterDashboard(user, false); } else { alert("⛔ 登入失敗：此裝置未經授權 (未綁定)。\n請使用「註冊並綁定」功能輸入開通碼。"); } } else { alert("❌ 密碼錯誤"); } } else { alert("❌ 帳號不存在"); } } catch (error) { console.error(error); alert("登入錯誤"); } showLoading(false); });
-        document.getElementById('btnAdminLogin').addEventListener('click', () => { if (document.getElementById('admin-pass-input').value === ADMIN_PASS) { window.enterDashboard("Administrator", true); } else { alert("密碼錯誤"); } });
-        window.enterDashboard = (user, isAdmin) => { document.getElementById('auth-section').style.display = 'none'; document.getElementById('dashboard-section').style.display = 'flex'; document.getElementById('display-username').innerText = user; if(isAdmin) { document.getElementById('admin-link').style.display = 'block'; window.showAdminPanel(document.getElementById('admin-link').querySelector('a')); } else { document.getElementById('admin-link').style.display = 'none'; window.loadPage(0, document.querySelector('.nav-links li a')); } }
-        window.loadPage = (idx, el) => { document.getElementById('admin-panel').style.display = 'none'; document.getElementById('content-frame').style.display = 'block'; document.getElementById('content-frame').src = SITES[idx]; if(el) { document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active')); el.classList.add('active'); } if(window.innerWidth <= 768) window.toggleSidebar(); }
-        window.toggleSidebar = () => { document.getElementById('sidebar').classList.toggle('active'); document.querySelector('.sidebar-overlay').classList.toggle('active'); }
-        window.logout = () => { localStorage.removeItem('hg_cloud_session'); location.reload(); }
-        window.showAdminPanel = (el) => { document.getElementById('content-frame').style.display = 'none'; document.getElementById('admin-panel').style.display = 'block'; if(el) { document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active')); el.classList.add('active'); } const usersRef = ref(db, 'users'); onValue(usersRef, (snapshot) => { const tbody = document.getElementById('user-table-body'); tbody.innerHTML = ''; if(snapshot.exists()) { snapshot.forEach((childSnapshot) => { const uid = childSnapshot.key; const uData = childSnapshot.val(); const deviceCount = uData.authorizedDevices ? uData.authorizedDevices.length : 0; const devLabel = getDeviceLabel(uData.lastDeviceType || 'desktop'); tbody.innerHTML += `<tr><td>${uid}</td><td>${devLabel}</td><td>${deviceCount} 台</td><td><button class="btn btn-danger" style="width:auto; padding:5px; font-size:12px;" onclick="window.deleteCloudUser('${uid}')">刪除帳號</button></td></tr>`; }); } else { tbody.innerHTML = '<tr><td colspan="4">目前無使用者資料</td></tr>'; } }); }
-        window.deleteCloudUser = async (uid) => { if(confirm(`確定要從雲端刪除使用者 ${uid} 嗎？\n該使用者將無法再登入，所有綁定裝置也會失效。`)) { try { await remove(ref(db, 'users/' + uid)); alert("已刪除"); } catch(e) { alert("刪除失敗: " + e.message); } } }
-        window.generateCode = () => { const name = document.getElementById('admin-generate-name').value.trim(); if(!name) return alert("請輸入帳號"); document.getElementById('generated-code-area').style.display = 'block'; document.getElementById('display-code').innerText = window.calculateActivationCode(name); }
-        window.onload = async () => { const banDisplay = document.getElementById('banned-list-display'); if(BANNED_USERS.length > 0) banDisplay.innerHTML = "目前封鎖名單：" + BANNED_USERS.join(", "); const savedUser = localStorage.getItem('hg_cloud_session'); if (savedUser) { if (BANNED_USERS.includes(savedUser)) { alert("您的帳號已被停用"); window.logout(); } else { window.enterDashboard(savedUser, false); } } }
-        window.toggleSidebar = toggleSidebar;
-    </script>
+    <script type="module" src="./main.js"></script>
 </body>
 </html>
