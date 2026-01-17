@@ -1,14 +1,14 @@
 /**
- * HomeGo Estate Core Logic (Protected)
- * © 2026 HomeGo Estate. All Rights Reserved.
+ * HomeGo Estate Core (Protected & Optimized)
+ * Fix: iOS/iPad Click Issue Resolved
  */
 (function(){
-    // 1. 啟動防護盾 (禁止右鍵、F12、選取)
+    // 1. 防護盾：禁止右鍵、F12，但允許觸控互動
     document.addEventListener('contextmenu',e=>e.preventDefault());
     document.addEventListener('keydown',e=>{
         if(e.key=='F12'||(e.ctrlKey&&e.shiftKey&&e.key=='I')||(e.ctrlKey&&e.key=='u'))e.preventDefault();
     });
-    document.addEventListener('selectstart',e=>e.preventDefault());
+    // 移除全域的 selectstart 禁止，改用 CSS 控制，避免鎖死 iOS 點擊
 
     // 2. 引入 Firebase
     const loadScript = src => new Promise((resolve, reject) => {
@@ -20,8 +20,8 @@
         document.head.appendChild(script);
     });
 
-    // 核心邏輯封裝
     async function initSystem() {
+        // 動態引入，隱藏依賴
         const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
         const { getDatabase, ref, set, get, update, remove, onValue } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
 
@@ -29,29 +29,41 @@
         const app = initializeApp(cfg);
         const db = getDatabase(app);
         
-        // 變數混淆 (保護設定值)
+        // 變數混淆
         const _0x1a = "8888"; 
         const _0x2b = 9527; 
         const _0x3c = []; 
         const _sites = ["https://homegoestate.github.io/Employee-management/","https://homegoestate.github.io/case/","https://yangceo-taiwan.github.io/Land-efficiency-assessment/","https://homegoestate.github.io/receipts/","https://homegoestate.github.io/quotation/","https://homegoestate.github.io/AI-question-assistant/","https://homegoestate.github.io/Bank-choice/"];
 
-        // 3. 新聞爬蟲 (修復點擊問題)
+        // 3. 新聞爬蟲 (終極點擊修復版)
         async function runTicker() {
             const el = document.getElementById('news-content');
             const api = "https://4dbd4a23-496d-4890-ba6f-b48d475d3a39-00-3cz7cqlznvxy2.pike.replit.dev/news";
+            
             try {
                 const res = await fetch(api);
                 const json = await res.json();
+                
                 if(json.status==="success" && json.data.length>0) {
-                    // 這裡強制設定 style 確保連結在最上層
-                    el.innerHTML = json.data.map(i=>`<a href="${i.link}" target="_blank" style="color:#06b6d4;text-decoration:none;margin-right:50px;font-weight:bold;cursor:pointer;pointer-events:auto;position:relative;z-index:9999;">⚡ ${i.title}</a>`).join("");
+                    // 這裡使用了特殊的樣式，強制允許 iOS/iPad 點擊
+                    const linkStyle = "color:#06b6d4; text-decoration:none; margin-right:50px; font-weight:bold; cursor:pointer; pointer-events:auto; position:relative; z-index:9999; user-select:auto; -webkit-user-select:auto; touch-action:manipulation;";
+                    
+                    el.innerHTML = json.data.map(i=>
+                        `<a href="${i.link}" target="_blank" style="${linkStyle}">⚡ ${i.title}</a>`
+                    ).join("");
+                    
+                    // 動畫設定
                     el.style.animation = "marquee 45s linear infinite";
-                    el.onmouseenter = ()=>el.style.animationPlayState='paused';
-                    el.onmouseleave = ()=>el.style.animationPlayState='running';
+                    
+                    // 增加觸控暫停功能 (手機手指按住也會暫停)
+                    el.onmouseenter = () => el.style.animationPlayState = 'paused';
+                    el.onmouseleave = () => el.style.animationPlayState = 'running';
+                    el.ontouchstart = () => el.style.animationPlayState = 'paused';
+                    el.ontouchend = () => el.style.animationPlayState = 'running';
+
                 } else { el.innerText = "暫無快訊"; }
             } catch(e) { 
-                console.log("News Error"); 
-                el.innerHTML = "<span style='color:red'>連線中 (請確認伺服器狀態)</span>";
+                el.innerHTML = "<span style='color:#ef4444'>連線中... (請喚醒 Replit)</span>";
             }
         }
         runTicker();
@@ -62,7 +74,6 @@
         
         window.calculateActivationCode = u => { let h=0;for(let i=0;i<u.length;i++)h=u.charCodeAt(i)+((h<<5)-h);return (Math.abs(h*_0x2b)%1000000).toString().padStart(6,'0'); }
         
-        // UI 控制與 Firebase 互動
         const dom = (id) => document.getElementById(id);
         window.showRegister=()=>{dom('login-form').style.display='none';dom('register-form').style.display='block';}
         window.showLogin=()=>{dom('register-form').style.display='none';dom('admin-auth-form').style.display='none';dom('login-form').style.display='block';}
@@ -84,7 +95,7 @@
                     } else alert("已綁定");
                 } else { await set(r,{password:p,authorizedDevices:[did]});alert("註冊成功"); }
                 window.showLogin();
-            } catch(e){alert("Error");}
+            } catch(e){alert("Error: "+e.message);}
             dom('loading-overlay').style.display='none';
         };
 
@@ -144,7 +155,6 @@
             if(n){ dom('generated-code-area').style.display='block'; dom('display-code').innerText=window.calculateActivationCode(n); }
         }
 
-        // Auto Login
         const sess = localStorage.getItem('hg_sess');
         if(sess && !_0x3c.includes(sess)) enterDash(sess,false);
     }
