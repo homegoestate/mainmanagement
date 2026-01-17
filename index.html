@@ -23,6 +23,13 @@
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; height: 100vh; overflow: hidden; user-select: none; }
         
+        /* 跑馬燈動畫 */
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* 強制登入介面層級修正 */
         .auth-container { 
             display: flex; justify-content: center; align-items: center; height: 100vh; width: 100vw;
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); 
@@ -51,8 +58,26 @@
         .nav-links li a { display: block; padding: 15px 20px; color: var(--text-light); text-decoration: none; }
         .nav-links li a:hover, .nav-links li a.active { background-color: var(--accent-color); }
         .user-info { padding: 15px; background-color: var(--secondary-color); text-align: center; font-size: 0.9em; }
-        .main-content { flex-grow: 1; background-color: white; position: relative; width: 100%; }
-        iframe { width: 100%; height: 100%; border: none; }
+        
+        /* 調整 main-content 以容納跑馬燈 */
+        .main-content { flex-grow: 1; background-color: white; position: relative; width: 100%; display: flex; flex-direction: column; }
+        
+        /* 跑馬燈樣式 */
+        #news-ticker {
+            background: #2c3e50; 
+            color: #f1c40f; /* 金黃色字體比較顯眼 */
+            padding: 8px 15px; 
+            font-size: 14px; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            display: none; /* 預設隱藏，抓到資料才顯示 */
+            border-bottom: 1px solid #34495e;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-weight: bold;
+        }
+        
+        iframe { width: 100%; flex-grow: 1; border: none; }
+
         @media (max-width: 768px) {
             .menu-toggle-btn { display: block; }
             .sidebar { position: absolute; height: 100%; left: 0; top: 0; transform: translateX(-100%); }
@@ -75,7 +100,9 @@
     </style>
 </head>
 <body>
+
     <div id="loading-overlay" style="display:none;">連線雲端資料庫中...</div>
+
     <div id="auth-section" class="auth-container">
         <div id="login-form" class="auth-box">
             <h2>🔐 員工安全登入 (雲端版)</h2>
@@ -107,6 +134,7 @@
     <div id="dashboard-section">
         <button class="menu-toggle-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i> 選單</button>
         <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">HomeGo Estate</div>
             <ul class="nav-links">
@@ -121,8 +149,14 @@
             </ul>
             <div class="user-info">歡迎, <span id="display-username">User</span><br><button class="btn btn-danger" style="padding:5px; margin-top:10px; font-size:12px;" onclick="window.logout()">登出</button></div>
         </div>
+
         <div class="main-content">
+            <div id="news-ticker">
+                <span style="color: #ecf0f1; margin-right: 10px;">📢 最新地產快訊：</span>
+                <span id="news-content" style="display: inline-block;">正在連線新聞中心...</span>
+            </div>
             <iframe id="content-frame" src=""></iframe>
+            
             <div id="admin-panel">
                 <h2 style="padding-top:40px;">🔐 雲端管理員控制台</h2>
                 <div class="admin-section" style="border-left: 5px solid var(--danger-color);"><h3>🚫 離職黑名單狀態</h3><p>請修改程式碼中的 <code>BANNED_USERS</code> 來封鎖。</p><div id="banned-list-display" style="color:red; font-weight:bold;">目前封鎖名單：無</div></div>
@@ -136,11 +170,49 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./service-worker.js')
-                    .then((reg) => console.log('Service Worker 已註冊成功', reg))
+                    .then((reg) => console.log('Service Worker 已註冊成功'))
                     .catch((err) => console.log('Service Worker 註冊失敗', err));
             });
         }
     </script>
+    
+    <script>
+        async function loadNews() {
+            const newsTicker = document.getElementById('news-ticker');
+            const newsContent = document.getElementById('news-content');
+            
+            // ⚠️ 這裡填入你的 Replit 網址 (記得後面要加 /news) ⚠️
+            // 如果顯示「暫無新聞」，請確認這個網址是否跟你的 Replit Webview 網址一樣
+            const API_URL = "https://HomeGo-Crawler.yangceo.replit.dev/news"; 
+
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+
+                if (data.status === "success" && data.data.length > 0) {
+                    // 顯示跑馬燈
+                    newsTicker.style.display = 'block';
+                    
+                    // 組合新聞標題
+                    let newsText = data.data.map(item => `【${item.title}】`).join("　　");
+                    newsContent.innerText = newsText;
+                    
+                    // 設定動畫 (根據文字長度調整速度)
+                    newsContent.style.paddingLeft = "100%";
+                    newsContent.style.animation = "marquee 30s linear infinite";
+                } else {
+                    console.log("目前沒有新聞資料");
+                }
+            } catch (error) {
+                console.error("新聞抓取失敗 (請檢查 Replit 是否有在 Running):", error);
+                // 失敗時不顯示跑馬燈，以免影響美觀
+            }
+        }
+        
+        // 啟動抓新聞
+        loadNews();
+    </script>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, get, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
