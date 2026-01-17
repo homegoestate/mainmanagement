@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HomeGo Estate - 雲端中控系統</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50"> <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         /* === 樣式設定 === */
@@ -194,6 +199,15 @@
         </div>
     </div>
 
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then((reg) => console.log('Service Worker 已註冊成功', reg))
+                    .catch((err) => console.log('Service Worker 註冊失敗', err));
+            });
+        }
+    </script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
@@ -220,28 +234,13 @@
         const SECRET_SALT = 9527; 
         const BANNED_USERS = []; 
         
-        // [CRITICAL FIX] 恢復為使用者指定的網址 (無連字號)
-        // ⚠️ 請注意：如果此處又出現「無限迴圈」，請務必檢查 GitHub Repo 內的 index.html 是否放錯檔案！
         const SITES = [
-            // Index 0: 員工管理 (Correct URL without hyphen)
             "https://homegoestate.github.io/Employee-management/", 
-            
-            // Index 1: 案件管理
             "https://homegoestate.github.io/case/",                
-            
-            // Index 2: 土地效益評估 (New)
             "https://yangceo-taiwan.github.io/Land-efficiency-assessment/",
-            
-            // Index 3: 收據系統
             "https://homegoestate.github.io/receipts/",            
-            
-            // Index 4: 報價系統
             "https://homegoestate.github.io/quotation/",           
-            
-            // Index 5: AI 助手
             "https://homegoestate.github.io/AI-question-assistant/", 
-            
-            // Index 6: 銀行優選
             "https://homegoestate.github.io/Bank-choice/"          
         ];
 
