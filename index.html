@@ -3,166 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HomeGo Estate - 雲端中控系統</title>
+    <title>HomeGo Estate - 雲端戰情中心</title>
     
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2c3e50">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a"> <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        /* === 樣式設定 === */
+        /* === 全新科技感樣式設定 === */
         :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #34495e;
-            --accent-color: #3498db;
-            --text-light: #ecf0f1;
-            --danger-color: #e74c3c;
-            --sidebar-width: 250px;
-        }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; height: 100vh; overflow: hidden; user-select: none; }
-        
-        /* 跑馬燈動畫 */
-        @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-100%); }
+            --bg-main: #0f172a; /* 深太空藍背景 */
+            --bg-secondary: #1e293b; /* 次級深色背景 */
+            --text-primary: #f1f5f9; /* 亮白文字 */
+            --text-secondary: #94a3b8; /* 灰藍文字 */
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%); /* 科技藍漸層 */
+            --danger-color: #ef4444;
+            --sidebar-width: 260px;
+            --header-height: 64px;
+            --glass-bg: rgba(30, 41, 59, 0.7); /* 毛玻璃背景 */
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* 強制登入介面層級修正 */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; padding: 0; 
+            background-color: var(--bg-main); /* 整體深色背景 */
+            color: var(--text-primary);
+            height: 100vh; overflow: hidden; user-select: none; 
+        }
+
+        /* --- 通用元件 --- */
+        .btn { 
+            width: 100%; padding: 14px; border: none; border-radius: 8px; 
+            cursor: pointer; font-size: 16px; margin-top: 20px; font-weight: 700; color: white; 
+            transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .btn-primary { background: var(--accent-gradient); }
+        .btn-primary:hover { box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4); }
+        .btn-secondary { background-color: var(--bg-secondary); border: var(--glass-border); color: var(--text-secondary); }
+        .btn-danger { background-color: var(--danger-color); }
+
+        .input-group { margin: 20px 0; text-align: left; }
+        .input-group label { font-size: 14px; color: var(--text-secondary); font-weight: 600; display: block; margin-bottom: 8px; }
+        .input-box { 
+            width: 100%; padding: 14px; 
+            background: rgba(255,255,255,0.05); 
+            border: var(--glass-border); 
+            border-radius: 8px; 
+            box-sizing: border-box; font-size: 16px; color: var(--text-primary);
+            outline: none; transition: 0.3s;
+        }
+        .input-box:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+
+        /* --- 登入介面 --- */
         .auth-container { 
             display: flex; justify-content: center; align-items: center; height: 100vh; width: 100vw;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); 
-            padding: 20px; box-sizing: border-box; position: fixed; top: 0; left: 0; z-index: 9999;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+            position: fixed; top: 0; left: 0; z-index: 9999;
         }
-        .auth-box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center; }
-        .auth-box h2 { color: var(--primary-color); margin-bottom: 20px; }
-        .input-group { margin: 15px 0; text-align: left; }
-        .input-group label { font-size: 13px; color: #555; font-weight: bold; display: block; margin-bottom: 5px;}
-        .auth-box input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
-        .checkbox-group { display: flex; align-items: center; justify-content: flex-start; margin: 15px 0; gap: 8px; }
-        .checkbox-group input[type="checkbox"] { width: 20px; height: 20px; margin: 0; cursor: pointer; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 15px; font-weight: bold; color: white; transition: 0.3s; }
-        .btn-primary { background-color: var(--accent-color); }
-        .btn-secondary { background-color: #95a5a6; }
-        .btn-danger { background-color: var(--danger-color); }
-        .switch-link { margin-top: 20px; font-size: 14px; color: #7f8c8d; cursor: pointer; text-decoration: underline; }
-        .alert-box { background-color: #e8f4f8; color: #2c3e50; padding: 12px; border-radius: 5px; font-size: 13px; margin-bottom: 15px; border-left: 4px solid var(--accent-color); text-align: left; }
-        
-        #dashboard-section { display: none; height: 100vh; position: relative; overflow: hidden; }
-        .menu-toggle-btn { display: none; position: absolute; top: 15px; left: 15px; z-index: 2000; background: var(--primary-color); color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; }
-        .sidebar { width: var(--sidebar-width); background-color: var(--primary-color); color: var(--text-light); display: flex; flex-direction: column; z-index: 1500; transition: transform 0.3s ease; }
-        .sidebar-header { padding: 20px; text-align: center; background-color: var(--secondary-color); font-weight: bold; }
-        .nav-links { list-style: none; padding: 0; margin: 0; flex-grow: 1; overflow-y: auto; }
-        .nav-links li { border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .nav-links li a { display: block; padding: 15px 20px; color: var(--text-light); text-decoration: none; }
-        .nav-links li a:hover, .nav-links li a.active { background-color: var(--accent-color); }
-        .user-info { padding: 15px; background-color: var(--secondary-color); text-align: center; font-size: 0.9em; }
-        
-        /* 調整 main-content 以容納跑馬燈 */
-        .main-content { flex-grow: 1; background-color: white; position: relative; width: 100%; display: flex; flex-direction: column; }
-        
-        /* 跑馬燈樣式 */
-        #news-ticker {
-            background: #2c3e50; 
-            color: #f1c40f; /* 金黃色字體比較顯眼 */
-            padding: 8px 15px; 
-            font-size: 14px; 
-            white-space: nowrap; 
-            overflow: hidden; 
-            display: none; /* 預設隱藏，抓到資料才顯示 */
-            border-bottom: 1px solid #34495e;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            font-weight: bold;
+        .auth-box { 
+            background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: 40px; border-radius: 16px; border: var(--glass-border);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 90%; max-width: 420px; text-align: center; 
         }
-        
-        iframe { width: 100%; flex-grow: 1; border: none; }
+        .auth-box h2 { 
+            background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-size: 24px; margin-bottom: 30px; 
+        }
+        .checkbox-group { display: flex; align-items: center; margin: 20px 0; gap: 10px; color: var(--text-secondary); }
+        .switch-link { margin-top: 25px; font-size: 14px; color: var(--text-secondary); cursor: pointer; }
+        .switch-link:hover { color: var(--text-primary); text-decoration: underline; }
+        .alert-box { background: rgba(6, 182, 212, 0.1); color: #06b6d4; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; border-left: 4px solid #06b6d4; text-align: left; }
 
+        /* --- 主儀表板佈局 --- */
+        #dashboard-section { display: none; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* 頂部導航欄 (Top Header) - 放置品牌和新聞跑馬燈 */
+        .top-header {
+            height: var(--header-height);
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: var(--glass-border);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            position: relative;
+            z-index: 2000;
+        }
+        .brand-logo {
+            font-size: 20px; font-weight: 800;
+            background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-right: 30px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .menu-toggle-btn { 
+            display: none; background: none; border: none; color: var(--text-primary); font-size: 24px; cursor: pointer; margin-right: 20px;
+        }
+
+        /* 新聞跑馬燈 (整合在頂部欄) */
+        #news-ticker-bar {
+            flex-grow: 1;
+            overflow: hidden;
+            white-space: nowrap;
+            display: flex; align-items: center;
+            font-size: 14px; font-weight: 500; color: #06b6d4; /* 科技青色文字 */
+        }
+        .news-label { font-weight: bold; margin-right: 15px; color: var(--text-secondary); }
+        #news-content { display: inline-block; padding-left: 100%; }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+
+        /* 主內容區域 (包含側邊欄和 iframe) */
+        .dashboard-body { display: flex; flex-grow: 1; overflow: hidden; position: relative; }
+
+        /* 側邊欄 */
+        .sidebar { 
+            width: var(--sidebar-width); 
+            background: var(--bg-secondary); border-right: var(--glass-border);
+            display: flex; flex-direction: column; z-index: 1500; transition: transform 0.3s ease; 
+        }
+        .nav-links { list-style: none; padding: 20px 10px; margin: 0; flex-grow: 1; overflow-y: auto; }
+        .nav-links li a { 
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 15px; color: var(--text-secondary); text-decoration: none; border-radius: 8px; margin-bottom: 5px; transition: 0.2s;
+        }
+        .nav-links li a:hover, .nav-links li a.active { 
+            background: rgba(59, 130, 246, 0.1); color: #3b82f6; font-weight: 600;
+        }
+        .nav-links li a i { width: 20px; text-align: center; }
+        .user-info { 
+            padding: 20px; background: rgba(0,0,0,0.2); border-top: var(--glass-border);
+            text-align: left; font-size: 0.9em; color: var(--text-secondary);
+        }
+        .user-info span { color: var(--text-primary); font-weight: bold; display: block; margin-bottom: 10px; font-size: 1.1em; }
+
+        /* 右側內容區 */
+        .main-content { flex-grow: 1; background-color: var(--bg-main); position: relative; display: flex; flex-direction: column; }
+        iframe { width: 100%; height: 100%; border: none; background: white; /* iframe 內容通常是亮色的，保持白色底 */ }
+
+        /* RWD 設定 */
         @media (max-width: 768px) {
             .menu-toggle-btn { display: block; }
+            .brand-logo span { display: none; /* 手機版隱藏文字logo只留圖標 */ }
             .sidebar { position: absolute; height: 100%; left: 0; top: 0; transform: translateX(-100%); }
             .sidebar.active { transform: translateX(0); }
             .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1400; }
             .sidebar-overlay.active { display: block; }
+            #news-ticker-bar { font-size: 12px; } /* 手機版字體縮小 */
         }
-        #admin-panel { display: none; padding: 20px; background: white; height: 100%; overflow-y: auto; }
-        .table-responsive { overflow-x: auto; }
+
+        /* 後台樣式調整 (深色版) */
+        #admin-panel { display: none; padding: 20px; background: var(--bg-main); height: 100%; overflow-y: auto; color: var(--text-primary); }
+        .admin-section { border: var(--glass-border); padding: 20px; border-radius: 12px; margin-bottom: 20px; background: var(--bg-secondary); }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 500px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background-color: var(--primary-color); color: white; }
-        .device-badge { padding: 3px 8px; border-radius: 12px; font-size: 12px; color: white; }
-        .bg-desktop { background-color: #3498db; }
-        .bg-mobile { background-color: #e67e22; }
-        .bg-tablet { background-color: #9b59b6; }
-        .admin-section { border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 20px; background: #fdfdfd; }
-        .code-display { font-size: 20px; font-weight: bold; color: var(--danger-color); background: #eee; padding: 10px; display: inline-block; letter-spacing: 2px; }
-        #loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index: 10000; display:flex; justify-content:center; align-items:center; color: var(--primary-color); font-weight:bold; }
+        th, td { border: var(--glass-border); padding: 12px; text-align: left; }
+        th { background-color: rgba(59, 130, 246, 0.2); color: var(--text-primary); }
+        #loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg-main); z-index: 10000; display:flex; justify-content:center; align-items:center; color: var(--text-primary); font-weight:bold; }
     </style>
 </head>
 <body>
 
-    <div id="loading-overlay" style="display:none;">連線雲端資料庫中...</div>
+    <div id="loading-overlay" style="display:none;">
+        <i class="fas fa-circle-notch fa-spin" style="margin-right: 10px; color: #3b82f6;"></i> 連線雲端資料庫中...
+    </div>
 
     <div id="auth-section" class="auth-container">
         <div id="login-form" class="auth-box">
-            <h2>🔐 員工安全登入 (雲端版)</h2>
-            <div class="alert-box">本系統已連線至雲端資料庫。</div>
-            <div class="input-group"><label>使用者名稱</label><input type="text" id="login-user" placeholder="輸入帳號" autocomplete="username"></div>
-            <div class="input-group"><label>密碼</label><input type="password" id="login-pass" placeholder="輸入密碼" autocomplete="current-password"></div>
-            <div class="checkbox-group"><input type="checkbox" id="keep-login"><label for="keep-login">保持登入</label></div>
-            <button id="btnLogin" class="btn btn-primary">登入</button>
-            <div class="switch-link" onclick="showRegister()">新員工？註冊並綁定此裝置</div>
-            <div class="switch-link" onclick="showAdminAuth()">管理員後台</div>
+            <h2><i class="fas fa-shield-alt"></i> 宏國地政雲端中控</h2>
+            <div class="alert-box"><i class="fas fa-wifi"></i> 系統已安全連線至雲端資料庫。</div>
+            <div class="input-group"><label>使用者帳號</label><input type="text" id="login-user" class="input-box" placeholder="輸入您的帳號" autocomplete="username"></div>
+            <div class="input-group"><label>登入密碼</label><input type="password" id="login-pass" class="input-box" placeholder="輸入密碼" autocomplete="current-password"></div>
+            <div class="checkbox-group"><input type="checkbox" id="keep-login"><label for="keep-login">保持登入狀態</label></div>
+            <button id="btnLogin" class="btn btn-primary">安全登入</button>
+            <div class="switch-link" onclick="showRegister()">新進同仁？點此註冊並綁定裝置</div>
+            <div class="switch-link" onclick="showAdminAuth()" style="color: var(--text-secondary); font-size: 12px;"><i class="fas fa-user-cog"></i> 管理員後台</div>
         </div>
         <div id="register-form" class="auth-box" style="display: none;">
-            <h2>📱 註冊並綁定裝置</h2>
-            <div class="alert-box">請輸入管理員提供的開通碼。<br>(綁定新裝置時，請輸入原密碼)</div>
-            <div class="input-group"><input type="text" id="reg-user" placeholder="設定使用者名稱" autocomplete="username"></div>
-            <div class="input-group"><input type="password" id="reg-pass" placeholder="輸入您的登入密碼" autocomplete="new-password"></div>
-            <div class="input-group"><label style="color:var(--danger-color);">裝置開通碼</label><input type="number" id="reg-code" placeholder="請輸入6位數代碼"></div>
-            <button id="btnRegister" class="btn btn-secondary">驗證綁定並註冊</button>
-            <div class="switch-link" onclick="showLogin()">返回</div>
+            <h2>📱 裝置綁定註冊</h2>
+            <div class="alert-box">請輸入管理員提供的 6 位數開通碼。</div>
+            <div class="input-group"><label>設定帳號</label><input type="text" id="reg-user" class="input-box" placeholder="設定使用者名稱" autocomplete="username"></div>
+            <div class="input-group"><label>設定密碼</label><input type="password" id="reg-pass" class="input-box" placeholder="輸入您的登入密碼" autocomplete="new-password"></div>
+            <div class="input-group"><label style="color:var(--danger-color);">裝置開通碼</label><input type="number" id="reg-code" class="input-box" placeholder="請輸入開通碼"></div>
+            <button id="btnRegister" class="btn btn-primary">驗證並註冊</button>
+            <div class="switch-link" onclick="showLogin()">返回登入</div>
         </div>
         <div id="admin-auth-form" class="auth-box" style="display: none;">
-            <h2>管理員驗證</h2>
-            <input type="password" id="admin-pass-input" placeholder="管理員密碼">
+            <h2><i class="fas fa-lock"></i> 管理員驗證</h2>
+            <div class="input-group"><input type="password" id="admin-pass-input" class="input-box" placeholder="輸入管理員密碼"></div>
             <button id="btnAdminLogin" class="btn btn-danger">進入後台</button>
             <div class="switch-link" onclick="showLogin()">返回</div>
         </div>
     </div>
 
     <div id="dashboard-section">
-        <button class="menu-toggle-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i> 選單</button>
-        <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">HomeGo Estate</div>
-            <ul class="nav-links">
-                <li><a href="#" onclick="loadPage(0, this)" class="active">員工管理</a></li>
-                <li><a href="#" onclick="loadPage(1, this)">案件管理</a></li>
-                <li><a href="#" onclick="loadPage(2, this)">土地效益評估</a></li>
-                <li><a href="#" onclick="loadPage(3, this)">收據系統</a></li>
-                <li><a href="#" onclick="loadPage(4, this)">報價系統</a></li>
-                <li><a href="#" onclick="loadPage(5, this)">AI 問答助手</a></li>
-                <li><a href="#" onclick="loadPage(6, this)">銀行優選</a></li>
-                <li id="admin-link" style="display:none;"><a href="#" onclick="showAdminPanel(this)" style="background:#c0392b;">管理員後台</a></li>
-            </ul>
-            <div class="user-info">歡迎, <span id="display-username">User</span><br><button class="btn btn-danger" style="padding:5px; margin-top:10px; font-size:12px;" onclick="window.logout()">登出</button></div>
-        </div>
-
-        <div class="main-content">
-            <div id="news-ticker">
-                <span style="color: #ecf0f1; margin-right: 10px;">📢 最新地產快訊：</span>
-                <span id="news-content" style="display: inline-block;">正在連線新聞中心...</span>
-            </div>
-            <iframe id="content-frame" src=""></iframe>
+        <header class="top-header">
+            <button class="menu-toggle-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            <div class="brand-logo"><i class="fas fa-building"></i> <span>HomeGo Estate</span></div>
             
-            <div id="admin-panel">
-                <h2 style="padding-top:40px;">🔐 雲端管理員控制台</h2>
-                <div class="admin-section" style="border-left: 5px solid var(--danger-color);"><h3>🚫 離職黑名單狀態</h3><p>請修改程式碼中的 <code>BANNED_USERS</code> 來封鎖。</p><div id="banned-list-display" style="color:red; font-weight:bold;">目前封鎖名單：無</div></div>
-                <div class="admin-section"><h3>🚀 開通碼產生器</h3><div style="display:flex; gap:10px;"><input type="text" id="admin-generate-name" placeholder="員工帳號" style="padding:10px; flex:1;"><button class="btn btn-danger" style="width:auto; margin:0;" onclick="generateCode()">產生</button></div><div id="generated-code-area" style="display:none; margin-top:10px;">開通碼：<span id="display-code" class="code-display"></span></div></div>
-                <div class="admin-section"><h3>👥 雲端使用者列表 (即時同步)</h3><div class="table-responsive"><table id="user-table"><thead><tr><th>使用者</th><th>最新登入裝置</th><th>授權裝置數</th><th>操作</th></tr></thead><tbody id="user-table-body"></tbody></table></div></div>
+            <div id="news-ticker-bar">
+                <span class="news-label"><i class="fas fa-broadcast-tower"></i> 地產快訊</span>
+                <div style="overflow: hidden; flex-grow: 1;">
+                    <span id="news-content">正在連線新聞中心取得最新資訊...</span>
+                </div>
             </div>
+        </header>
+
+        <div class="dashboard-body">
+            <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+            <nav class="sidebar" id="sidebar">
+                <ul class="nav-links">
+                    <li><a href="#" onclick="loadPage(0, this)" class="active"><i class="fas fa-users"></i> 員工管理</a></li>
+                    <li><a href="#" onclick="loadPage(1, this)"><i class="fas fa-file-alt"></i> 案件管理</a></li>
+                    <li><a href="#" onclick="loadPage(2, this)"><i class="fas fa-chart-line"></i> 土地效益評估</a></li>
+                    <li><a href="#" onclick="loadPage(3, this)"><i class="fas fa-receipt"></i> 收據系統</a></li>
+                    <li><a href="#" onclick="loadPage(4, this)"><i class="fas fa-calculator"></i> 報價系統</a></li>
+                    <li><a href="#" onclick="loadPage(5, this)"><i class="fas fa-robot"></i> AI 問答助手</a></li>
+                    <li><a href="#" onclick="loadPage(6, this)"><i class="fas fa-university"></i> 銀行優選</a></li>
+                    <li id="admin-link" style="display:none; margin-top: 20px;"><a href="#" onclick="showAdminPanel(this)" style="background:rgba(239, 68, 68, 0.2); color:#ef4444;"><i class="fas fa-cogs"></i> 管理員後台</a></li>
+                </ul>
+                <div class="user-info">
+                    <span id="display-username">User</span>
+                    <div style="font-size: 12px; opacity: 0.7;">已安全登入</div>
+                    <button class="btn btn-secondary" style="padding:10px; margin-top:15px; font-size:14px; background:transparent;" onclick="window.logout()"><i class="fas fa-sign-out-alt"></i> 登出系統</button>
+                </div>
+            </nav>
+
+            <main class="main-content">
+                <iframe id="content-frame" src=""></iframe>
+                
+                <div id="admin-panel">
+                    <h2 style="padding-top:20px; margin-bottom:30px;"><i class="fas fa-shield-alt"></i> 雲端管理員控制台</h2>
+                    <div class="admin-section" style="border-left: 4px solid var(--danger-color);"><h3>🚫 離職黑名單狀態</h3><p style="color:var(--text-secondary)">請修改程式碼中的 <code>BANNED_USERS</code> 來封鎖。</p><div id="banned-list-display" style="color:#ef4444; font-weight:bold;">目前封鎖名單：無</div></div>
+                    <div class="admin-section"><h3>🚀 開通碼產生器</h3><div style="display:flex; gap:10px; margin-top:15px;"><input type="text" id="admin-generate-name" class="input-box" placeholder="輸入員工帳號" style="flex:1;"><button class="btn btn-primary" style="width:auto; margin:0; padding: 12px 20px;" onclick="generateCode()">產生開通碼</button></div><div id="generated-code-area" style="display:none; margin-top:20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px;">開通碼：<span id="display-code" style="font-size: 24px; font-weight: bold; color: #06b6d4; letter-spacing: 3px; margin-left: 10px;"></span></div></div>
+                    <div class="admin-section"><h3>👥 雲端使用者列表 (即時同步)</h3><div class="table-responsive"><table id="user-table"><thead><tr><th>使用者</th><th>最新登入裝置</th><th>授權裝置數</th><th>操作</th></tr></thead><tbody id="user-table-body"></tbody></table></div></div>
+                </div>
+            </main>
         </div>
     </div>
 
@@ -178,10 +255,8 @@
     
     <script>
         async function loadNews() {
-            const newsTicker = document.getElementById('news-ticker');
             const newsContent = document.getElementById('news-content');
-            
-            // ⚠️ 已經幫你填好你的專屬 Replit 網址 ⚠️
+            // ⚠️ 你的 Replit 網址 ⚠️
             const API_URL = "https://4dbd4a23-496d-4890-ba6f-b48d475d3a39-00-3cz7cqlznvxy2.pike.replit.dev/news"; 
 
             try {
@@ -189,26 +264,22 @@
                 const data = await response.json();
 
                 if (data.status === "success" && data.data.length > 0) {
-                    // 顯示跑馬燈
-                    newsTicker.style.display = 'block';
-                    
-                    // 組合新聞標題
-                    let newsText = data.data.map(item => `【${item.title}】`).join("　　");
+                    // 組合新聞標題，使用更科技感的符號
+                    let newsText = data.data.map(item => `⚡ ${item.title}`).join("　　　");
                     newsContent.innerText = newsText;
                     
-                    // 設定動畫 (根據文字長度調整速度)
+                    // 設定動畫
                     newsContent.style.paddingLeft = "100%";
-                    newsContent.style.animation = "marquee 30s linear infinite";
+                    newsContent.style.animation = "marquee 40s linear infinite"; // 速度調慢一點點更易讀
                 } else {
-                    console.log("目前沒有新聞資料");
+                    newsContent.innerText = "目前沒有最新快訊。";
                 }
             } catch (error) {
-                console.error("新聞抓取失敗 (請檢查 Replit 是否有在 Running):", error);
-                // 失敗時不顯示跑馬燈，以免影響美觀
+                console.error("新聞抓取失敗:", error);
+                newsContent.innerText = "⚠️ 無法連線至新聞中心，請稍後再試 (或請管理員喚醒主機)。";
+                newsContent.style.color = "#ef4444";
             }
         }
-        
-        // 啟動抓新聞
         loadNews();
     </script>
 
