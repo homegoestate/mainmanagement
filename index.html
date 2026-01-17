@@ -6,7 +6,8 @@
     <title>HomeGo Estate - 雲端戰情中心</title>
     
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f172a"> <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon-192.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -15,22 +16,22 @@
     <style>
         /* === 全新科技感樣式設定 === */
         :root {
-            --bg-main: #0f172a; /* 深太空藍背景 */
-            --bg-secondary: #1e293b; /* 次級深色背景 */
-            --text-primary: #f1f5f9; /* 亮白文字 */
-            --text-secondary: #94a3b8; /* 灰藍文字 */
-            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%); /* 科技藍漸層 */
+            --bg-main: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
             --danger-color: #ef4444;
             --sidebar-width: 260px;
             --header-height: 64px;
-            --glass-bg: rgba(30, 41, 59, 0.7); /* 毛玻璃背景 */
+            --glass-bg: rgba(30, 41, 59, 0.7);
             --glass-border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         body { 
             font-family: 'Inter', sans-serif; 
             margin: 0; padding: 0; 
-            background-color: var(--bg-main); /* 整體深色背景 */
+            background-color: var(--bg-main); 
             color: var(--text-primary);
             height: 100vh; overflow: hidden; user-select: none; 
         }
@@ -81,7 +82,7 @@
         /* --- 主儀表板佈局 --- */
         #dashboard-section { display: none; height: 100vh; display: flex; flex-direction: column; }
         
-        /* 頂部導航欄 (Top Header) - 放置品牌和新聞跑馬燈 */
+        /* 頂部導航欄 */
         .top-header {
             height: var(--header-height);
             background: var(--glass-bg);
@@ -103,22 +104,52 @@
             display: none; background: none; border: none; color: var(--text-primary); font-size: 24px; cursor: pointer; margin-right: 20px;
         }
 
-        /* 新聞跑馬燈 (整合在頂部欄) */
+        /* 新聞跑馬燈 (可點擊版) */
         #news-ticker-bar {
             flex-grow: 1;
             overflow: hidden;
             white-space: nowrap;
             display: flex; align-items: center;
-            font-size: 14px; font-weight: 500; color: #06b6d4; /* 科技青色文字 */
+            font-size: 14px; font-weight: 500; 
+            color: #06b6d4;
+            /* 讓跑馬燈容器不會擋住點擊 */
+            pointer-events: auto;
         }
-        .news-label { font-weight: bold; margin-right: 15px; color: var(--text-secondary); }
-        #news-content { display: inline-block; padding-left: 100%; }
+        .news-label { font-weight: bold; margin-right: 15px; color: var(--text-secondary); flex-shrink: 0; }
+        
+        #news-content { 
+            display: inline-block; 
+            padding-left: 100%; 
+            /* 讓滑鼠移過去變成手指形狀，暗示可點 */
+            cursor: pointer;
+        }
+
+        /* 跑馬燈中的連結樣式 */
+        #news-content a {
+            color: #06b6d4;
+            text-decoration: none;
+            margin-right: 40px; /* 新聞之間的間距 */
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.2s;
+        }
+        #news-content a:hover {
+            color: #fff; /* 滑鼠移過去變白色 */
+            text-decoration: underline;
+        }
+
+        /* 動畫定義 */
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 
-        /* 主內容區域 (包含側邊欄和 iframe) */
+        /* 滑鼠移到跑馬燈上時，暫停動畫，方便點擊 */
+        #news-ticker-bar:hover #news-content {
+            animation-play-state: paused;
+        }
+
+        /* 主內容與側邊欄 */
         .dashboard-body { display: flex; flex-grow: 1; overflow: hidden; position: relative; }
 
-        /* 側邊欄 */
         .sidebar { 
             width: var(--sidebar-width); 
             background: var(--bg-secondary); border-right: var(--glass-border);
@@ -132,29 +163,26 @@
         .nav-links li a:hover, .nav-links li a.active { 
             background: rgba(59, 130, 246, 0.1); color: #3b82f6; font-weight: 600;
         }
-        .nav-links li a i { width: 20px; text-align: center; }
         .user-info { 
             padding: 20px; background: rgba(0,0,0,0.2); border-top: var(--glass-border);
             text-align: left; font-size: 0.9em; color: var(--text-secondary);
         }
         .user-info span { color: var(--text-primary); font-weight: bold; display: block; margin-bottom: 10px; font-size: 1.1em; }
 
-        /* 右側內容區 */
         .main-content { flex-grow: 1; background-color: var(--bg-main); position: relative; display: flex; flex-direction: column; }
-        iframe { width: 100%; height: 100%; border: none; background: white; /* iframe 內容通常是亮色的，保持白色底 */ }
+        iframe { width: 100%; height: 100%; border: none; background: white; }
 
-        /* RWD 設定 */
         @media (max-width: 768px) {
             .menu-toggle-btn { display: block; }
-            .brand-logo span { display: none; /* 手機版隱藏文字logo只留圖標 */ }
+            .brand-logo span { display: none; }
             .sidebar { position: absolute; height: 100%; left: 0; top: 0; transform: translateX(-100%); }
             .sidebar.active { transform: translateX(0); }
             .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1400; }
             .sidebar-overlay.active { display: block; }
-            #news-ticker-bar { font-size: 12px; } /* 手機版字體縮小 */
+            #news-ticker-bar { font-size: 13px; }
         }
 
-        /* 後台樣式調整 (深色版) */
+        /* 後台 */
         #admin-panel { display: none; padding: 20px; background: var(--bg-main); height: 100%; overflow-y: auto; color: var(--text-primary); }
         .admin-section { border: var(--glass-border); padding: 20px; border-radius: 12px; margin-bottom: 20px; background: var(--bg-secondary); }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 500px; }
@@ -256,7 +284,7 @@
     <script>
         async function loadNews() {
             const newsContent = document.getElementById('news-content');
-            // ⚠️ 你的 Replit 網址 ⚠️
+            // ⚠️ 你的 Replit 網址 (確認無誤)
             const API_URL = "https://4dbd4a23-496d-4890-ba6f-b48d475d3a39-00-3cz7cqlznvxy2.pike.replit.dev/news"; 
 
             try {
@@ -264,19 +292,24 @@
                 const data = await response.json();
 
                 if (data.status === "success" && data.data.length > 0) {
-                    // 組合新聞標題，使用更科技感的符號
-                    let newsText = data.data.map(item => `⚡ ${item.title}`).join("　　　");
-                    newsContent.innerText = newsText;
+                    // 【關鍵修改】使用 map 產生 <a> 標籤，而不是純文字
+                    let newsHTML = data.data.map(item => 
+                        // target="_blank" 代表開新視窗
+                        `<a href="${item.link}" target="_blank">⚡ ${item.title}</a>`
+                    ).join(""); // 用空字串連接，因為 CSS 有設定 margin 來隔開
+
+                    // 使用 innerHTML 來插入 HTML 代碼
+                    newsContent.innerHTML = newsHTML;
                     
                     // 設定動畫
                     newsContent.style.paddingLeft = "100%";
-                    newsContent.style.animation = "marquee 40s linear infinite"; // 速度調慢一點點更易讀
+                    newsContent.style.animation = "marquee 40s linear infinite";
                 } else {
                     newsContent.innerText = "目前沒有最新快訊。";
                 }
             } catch (error) {
                 console.error("新聞抓取失敗:", error);
-                newsContent.innerText = "⚠️ 無法連線至新聞中心，請稍後再試 (或請管理員喚醒主機)。";
+                newsContent.innerText = "⚠️ 無法連線至新聞中心，請稍後再試。";
                 newsContent.style.color = "#ef4444";
             }
         }
