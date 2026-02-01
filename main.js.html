@@ -1,0 +1,168 @@
+/**
+ * HomeGo Estate Core (Final Fix)
+ * iOS/iPad Click Enabled
+ */
+(function(){
+    // 1. 基礎防護 (移除 selectstart 以修復點擊)
+    document.addEventListener('contextmenu', e => e.preventDefault()); // 禁右鍵
+    document.addEventListener('keydown', e => {
+        // 禁 F12 和開發者工具快捷鍵
+        if(e.key=='F12' || (e.ctrlKey && e.shiftKey && e.key=='I') || (e.ctrlKey && e.key=='u')) {
+            e.preventDefault();
+        }
+    });
+
+    // 2. 引入 Firebase
+    const loadScript = src => new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.type = 'module';
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+
+    async function initSystem() {
+        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
+        const { getDatabase, ref, set, get, update, remove, onValue } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
+
+        const cfg = {apiKey:"AIzaSyCSOS-36oQ6hTyhtD2vrez3QGvPdvwMOIw",authDomain:"mainmanagement-1f3d2.firebaseapp.com",databaseURL:"https://mainmanagement-1f3d2-default-rtdb.firebaseio.com",projectId:"mainmanagement-1f3d2",storageBucket:"mainmanagement-1f3d2.firebasestorage.app",messagingSenderId:"916729301354",appId:"1:916729301354:web:11d81d965c2127b0a17d13",measurementId:"G-NQ6YKGEJE9"};
+        const app = initializeApp(cfg);
+        const db = getDatabase(app);
+        
+        // 變數混淆
+        const _0x1a = "8888"; 
+        const _0x2b = 9527; 
+        const _0x3c = []; 
+        const _sites = ["https://homegoestate.github.io/Employee-management/","https://homegoestate.github.io/case/","https://yangceo-taiwan.github.io/Land-efficiency-assessment/","https://homegoestate.github.io/receipts/","https://homegoestate.github.io/quotation/","https://homegoestate.github.io/AI-question-assistant/","https://homegoestate.github.io/Bank-choice/"];
+
+        // 3. 新聞爬蟲 (強制點擊修正版)
+        async function runTicker() {
+            const el = document.getElementById('news-content');
+            // 你的 Replit 網址
+            const api = "https://4dbd4a23-496d-4890-ba6f-b48d475d3a39-00-3cz7cqlznvxy2.pike.replit.dev/news";
+            
+            try {
+                const res = await fetch(api);
+                const json = await res.json();
+                
+                if(json.status==="success" && json.data.length>0) {
+                    // 使用 class "news-link" 讓 CSS 強制接管樣式
+                    const links = json.data.map(i => 
+                        `<a href="${i.link}" target="_blank" class="news-link">⚡ ${i.title}</a>`
+                    ).join("");
+                    
+                    el.innerHTML = links;
+                    
+                    // 動畫設定
+                    el.style.animation = "marquee 45s linear infinite";
+                    
+                    // 滑鼠/手指互動暫停
+                    const pause = () => el.style.animationPlayState = 'paused';
+                    const run = () => el.style.animationPlayState = 'running';
+                    
+                    el.addEventListener('mouseenter', pause);
+                    el.addEventListener('mouseleave', run);
+                    el.addEventListener('touchstart', pause, {passive: true});
+                    el.addEventListener('touchend', run);
+
+                } else { el.innerText = "暫無快訊"; }
+            } catch(e) { 
+                el.innerHTML = "<span style='color:#ef4444'>連線中... (請喚醒 Replit)</span>";
+            }
+        }
+        runTicker();
+
+        // 4. 系統與 Firebase 邏輯
+        let did = localStorage.getItem('hg_did');
+        if(!did){did='D-'+Math.random().toString(36).substr(2,9).toUpperCase();localStorage.setItem('hg_did',did);}
+        
+        window.calculateActivationCode = u => { let h=0;for(let i=0;i<u.length;i++)h=u.charCodeAt(i)+((h<<5)-h);return (Math.abs(h*_0x2b)%1000000).toString().padStart(6,'0'); }
+        
+        const dom = (id) => document.getElementById(id);
+        window.showRegister=()=>{dom('login-form').style.display='none';dom('register-form').style.display='block';}
+        window.showLogin=()=>{dom('register-form').style.display='none';dom('admin-auth-form').style.display='none';dom('login-form').style.display='block';}
+        window.showAdminAuth=()=>{dom('login-form').style.display='none';dom('admin-auth-form').style.display='block';}
+        
+        dom('btnRegister').onclick = async () => {
+            const u=dom('reg-user').value.trim(), p=dom('reg-pass').value.trim(), c=dom('reg-code').value.trim();
+            if(_0x3c.includes(u))return alert("帳號停用");
+            if(!u||!p||!c)return alert("資料不全");
+            if(c!==window.calculateActivationCode(u))return alert("開通碼錯誤");
+            dom('loading-overlay').style.display='flex';
+            try {
+                const r=ref(db,'users/'+u), s=await get(r);
+                if(s.exists()){
+                    if(s.val().password!==p){dom('loading-overlay').style.display='none';return alert("密碼錯誤");}
+                    let d=s.val().authorizedDevices||[];
+                    if(!d.includes(did)){
+                        if(confirm("綁定此裝置?")){d.push(did);await update(r,{authorizedDevices:d});alert("綁定成功");}
+                    } else alert("已綁定");
+                } else { await set(r,{password:p,authorizedDevices:[did]});alert("註冊成功"); }
+                window.showLogin();
+            } catch(e){alert("Error: "+e.message);}
+            dom('loading-overlay').style.display='none';
+        };
+
+        dom('btnLogin').onclick = async (e) => {
+            e.preventDefault();
+            const u=dom('login-user').value.trim(), p=dom('login-pass').value.trim();
+            if(_0x3c.includes(u))return alert("帳號停用");
+            dom('loading-overlay').style.display='flex';
+            try {
+                const s=await get(ref(db,'users/'+u));
+                if(s.exists() && s.val().password===p) {
+                    if((s.val().authorizedDevices||[]).includes(did)) {
+                        if(dom('keep-login').checked) localStorage.setItem('hg_sess',u);
+                        enterDash(u,false);
+                    } else alert("裝置未授權");
+                } else alert("帳號或密碼錯誤");
+            } catch(e){alert("Login Error");}
+            dom('loading-overlay').style.display='none';
+        };
+
+        dom('btnAdminLogin').onclick = () => {
+            if(dom('admin-pass-input').value===_0x1a) enterDash("Admin",true);
+            else alert("錯誤");
+        };
+
+        function enterDash(u,isAdmin) {
+            dom('auth-section').style.display='none';
+            dom('dashboard-section').style.display='flex';
+            dom('display-username').innerText=u;
+            if(isAdmin) { dom('admin-link').style.display='block'; showAdmin(dom('admin-link').firstChild); }
+            else { dom('admin-link').style.display='none'; loadPage(0,document.querySelector('.nav-links li a')); }
+        }
+
+        window.loadPage = (i,el) => {
+            dom('admin-panel').style.display='none';
+            dom('content-frame').style.display='block';
+            dom('content-frame').src=_sites[i];
+            document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
+            if(el)el.classList.add('active');
+            if(window.innerWidth<=768)toggleSidebar();
+        }
+
+        window.toggleSidebar = () => { dom('sidebar').classList.toggle('active'); document.querySelector('.sidebar-overlay').classList.toggle('active'); }
+        window.logout = () => { localStorage.removeItem('hg_sess'); location.reload(); }
+        
+        function showAdmin(el) {
+            dom('content-frame').style.display='none';
+            dom('admin-panel').style.display='block';
+            onValue(ref(db,'users'), s => {
+                let h=''; s.forEach(c => { h+=`<tr><td>${c.key}</td><td>${(c.val().authorizedDevices||[]).length}台</td><td><button class="btn btn-danger" style="padding:2px 5px;font-size:12px" onclick="delUser('${c.key}')">刪</button></td></tr>`; });
+                dom('user-table-body').innerHTML = h||'<tr><td colspan=3>無資料</td></tr>';
+            });
+        }
+        window.delUser = async u => { if(confirm("刪除?")) await remove(ref(db,'users/'+u)); }
+        window.generateCode = () => { 
+            const n=dom('admin-generate-name').value.trim();
+            if(n){ dom('generated-code-area').style.display='block'; dom('display-code').innerText=window.calculateActivationCode(n); }
+        }
+
+        const sess = localStorage.getItem('hg_sess');
+        if(sess && !_0x3c.includes(sess)) enterDash(sess,false);
+    }
+
+    initSystem();
+})();
