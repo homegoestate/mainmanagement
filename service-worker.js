@@ -1,5 +1,5 @@
-// HomeGo ERP Portal Service Worker v11
-const CACHE_NAME = 'homego-erp-portal-v11';
+// HomeGo ERP Portal Service Worker v12
+const CACHE_NAME = 'homego-erp-portal-v12';
 const ASSETS_TO_CACHE = ['./','./index.html','./manifest.json'];
 self.addEventListener('install', event => {
   self.skipWaiting();
@@ -12,7 +12,7 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   if (event.request.method !== 'GET') return;
-  if (url.href.includes('script.google.com') || url.href.includes('firebase') || url.href.includes('googleapis') || url.href.includes('allorigins') || url.href.includes('corsproxy')) {
+  if (url.href.includes('script.google.com') || url.href.includes('firebase') || url.href.includes('googleapis') || url.href.includes('allorigins') || url.href.includes('corsproxy') || url.href.includes('rss2json')) {
     event.respondWith(fetch(event.request));
     return;
   }

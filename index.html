@@ -33,6 +33,12 @@
     .topic-news-link{display:flex;gap:8px;align-items:flex-start;color:#1e3a5f;text-decoration:none;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:9px 10px;font-size:13px;line-height:1.45}
     .topic-news-link:hover{background:#eef6ff;text-decoration:none}.topic-news-link .idx{font-weight:900;color:#0f5f99;min-width:22px}
     .topic-source-line{font-size:12px;color:#64748b;margin-top:6px}.topic-empty{border:1px solid #e2e8f0;background:#f8fafc;border-radius:14px;padding:14px;color:#475569;line-height:1.7}
+
+    .news-reading-intro{background:linear-gradient(135deg,#f8fbff,#fff);border:1px solid #dbeafe;border-radius:16px;padding:14px 16px;margin-bottom:14px;color:#334155;line-height:1.65;font-size:14px}
+    .news-section-label{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px}.news-section-label h4{margin:0;color:var(--navy);font-size:17px;display:flex;align-items:center;gap:8px}.news-section-label .hint{font-size:12px;color:#64748b}
+    .news-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.news-readable-card{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:12px;text-decoration:none;color:#0f2e46;line-height:1.5;transition:.16s}.news-readable-card:hover{background:#f8fbff;border-color:#bfdbfe;transform:translateY(-1px);box-shadow:0 8px 18px rgba(15,46,70,.06)}.news-readable-card .num{flex:0 0 28px;width:28px;height:28px;border-radius:999px;background:#eaf4ff;color:#0f5f99;font-weight:900;display:flex;align-items:center;justify-content:center}.news-readable-card .title{font-weight:900}.news-readable-card .meta{font-size:12px;color:#64748b;margin-top:3px}.news-readable-card .summary{font-size:12px;color:#475569;margin-top:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .news-topic-card{background:#fff;border:1px solid #e5e7eb;border-left:5px solid #0f5f99;border-radius:16px;padding:14px;margin-bottom:10px}.news-topic-title{font-size:16px;font-weight:900;color:var(--navy);margin-bottom:8px}.news-topic-title small{font-size:12px;color:#64748b;font-weight:700;margin-left:6px}.news-topic-links{display:grid;gap:6px}.news-topic-links a{display:flex;gap:8px;align-items:flex-start;text-decoration:none;color:#1e3a5f;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;font-size:13px;line-height:1.45}.news-topic-links a:hover{background:#eef6ff}.news-topic-links .idx{font-weight:900;color:#0f5f99;min-width:18px}.news-fallback-panel{background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:12px 14px;color:#9a3412;line-height:1.65;margin-bottom:12px}.news-search-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.news-search-buttons a{background:#fff;border:1px solid #fdba74;border-radius:999px;padding:7px 10px;color:#9a3412;text-decoration:none;font-weight:800;font-size:12px}.news-search-buttons a:hover{background:#ffedd5}
+    @media(max-width:900px){.news-card-grid{grid-template-columns:1fr}}
     @media(max-width:768px){.iframe-toolbar{right:10px;bottom:10px;max-width:calc(100vw - 20px);overflow:auto}.topic-card{align-items:flex-start;flex-direction:column}.topic-count{align-self:flex-start}.topic-example{white-space:normal}.topic-header-row{flex-direction:column}.topic-action{align-self:flex-start}}
     @media(max-width:1100px){.grid-container{grid-template-columns:repeat(3,1fr)}.quick-panel{grid-template-columns:1fr}.form-grid{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:768px){body{overflow:hidden}.menu-toggle-btn{display:block}.sidebar{position:absolute;left:0;top:0;transform:translateX(-100%);transition:.25s}.sidebar.active{transform:translateX(0)}.sidebar-overlay.active{display:block}.topbar{padding-top:46px;flex-direction:column}.grid-container{grid-template-columns:repeat(2,1fr);gap:14px}.dashboard-card{min-height:136px;padding:18px 10px}.card-icon-wrapper{width:56px;height:56px;border-radius:18px}.dashboard-card i{font-size:25px}.dashboard-card h3{font-size:15px}.form-grid{grid-template-columns:1fr}#dashboard-grid-view{padding:18px}.welcome-banner h2{font-size:22px}}
@@ -155,8 +161,8 @@
   <div class="modal" id="newsModal">
     <div class="modal-card">
       <div class="modal-head"><h3><i class="fa-solid fa-newspaper"></i> 今日不動產／金融／地政新知</h3><button class="btn btn-light" onclick="closeNewsModal()"><i class="fa-solid fa-xmark"></i></button></div>
-      <div class="modal-body" id="newsModalBody"><div class="news-loading"><div class="spinner" style="margin:auto auto 12px"></div>正在整理新聞主題連結...</div></div>
-      <div class="modal-foot"><label class="checkbox-group" style="margin:0"><input type="checkbox" id="newsDontShowToday" checked><span>今天登入不再自動跳出</span></label><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-light" id="newsSourceLink" href="#" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> 新聞來源備查</a><button class="btn btn-navy" onclick="closeNewsModal()">我知道了</button></div></div>
+      <div class="modal-body" id="newsModalBody"><div class="news-loading"><div class="spinner" style="margin:auto auto 12px"></div>正在整理新聞清單...</div></div>
+      <div class="modal-foot"><label class="checkbox-group" style="margin:0"><input type="checkbox" id="newsDontShowToday" checked><span>今天登入不再自動跳出</span></label><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-light" id="newsSourceLink" href="#" target="_blank"><i class="fa-solid fa-magnifying-glass"></i> 搜尋更多今日新聞</a><button class="btn btn-navy" onclick="closeNewsModal()">我知道了</button></div></div>
     </div>
   </div>
 
@@ -904,56 +910,107 @@ function newsUrlWithCacheBust() {
   u.searchParams.set("_t", Date.now().toString());
   return u.toString();
 }
+function rss2JsonUrl() {
+  return "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(NEWS_API_URL) + "&_=" + Date.now();
+}
 async function fetchTextWithFallbacks() {
+  // 先用 RSS 轉 JSON 服務，避免 Apps Script RSS 被瀏覽器 CORS 擋住；失敗再嘗試其他備援。
   const targets = [
-    newsUrlWithCacheBust(),
+    rss2JsonUrl(),
+    "https://api.allorigins.win/get?url=" + encodeURIComponent(newsUrlWithCacheBust()),
     "https://api.allorigins.win/raw?url=" + encodeURIComponent(newsUrlWithCacheBust()),
-    "https://corsproxy.io/?" + encodeURIComponent(newsUrlWithCacheBust())
+    "https://corsproxy.io/?" + encodeURIComponent(newsUrlWithCacheBust()),
+    newsUrlWithCacheBust()
   ];
   let lastErr = null;
   for (const target of targets) {
     try {
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 8000);
+      const timer = setTimeout(() => controller.abort(), 9000);
       const res = await fetch(target, { cache: "no-store", signal: controller.signal });
       clearTimeout(timer);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const text = await res.text();
-      if (text && text.trim()) return text;
+      if (!text || !text.trim()) continue;
+      // allOrigins / rss2json 回 JSON；allOrigins 會把原文放在 contents。
+      try {
+        const obj = JSON.parse(text);
+        if (obj && typeof obj.contents === "string") return obj.contents;
+        return JSON.stringify(obj);
+      } catch {
+        return text;
+      }
     } catch (err) { lastErr = err; }
   }
   throw lastErr || new Error("新聞來源暫時無法讀取");
 }
+function dailyFallbackItems() {
+  const qs = [
+    "今日 台灣 不動產 房市 地政 房貸",
+    "今日 台南 房市 南科 不動產",
+    "今日 央行 信用管制 房貸",
+    "今日 房地合一稅 繼承 贈與 不動產",
+    "今日 土地開發 重劃 都市計畫"
+  ];
+  return qs.map(q => ({ title: `搜尋：${q}`, link: googleNewsSearchUrl(q), source: "Google 新聞搜尋", date: todayKey(), summary: "新聞來源暫時無法自動解析時，可先用這個主題入口查看今日相關新聞。" }));
+}
+function displayDateLabel(item) {
+  const raw = item?.date || "";
+  if (!raw) return item?.source || "每日新聞";
+  const d = new Date(raw);
+  if (Number.isNaN(d.getTime())) return raw;
+  return d.toLocaleString("zh-TW", { timeZone: "Asia/Taipei", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false });
+}
+function shortSummary(item) {
+  const s = normalizeNewsTitle(item?.summary || "");
+  if (!s || s === item?.title) return "";
+  return s.length > 90 ? s.slice(0, 90) + "…" : s;
+}
+function newsCardHtml(item, idx) {
+  return `<a class="news-readable-card" href="${escapeAttr(item.link)}" target="_blank">
+    <span class="num">${idx + 1}</span>
+    <span><span class="title">${escapeHtml(item.title)}</span><div class="meta">${escapeHtml(item.source || "每日新聞")}｜${escapeHtml(displayDateLabel(item))}</div>${shortSummary(item) ? `<div class="summary">${escapeHtml(shortSummary(item))}</div>` : ""}</span>
+  </a>`;
+}
 function renderNewsList(items, { fallback = false } = {}) {
-  const normalized = sortedNewsItems(items || []);
+  let normalized = sortedNewsItems(items || []);
+  const noRealItems = fallback || !normalized.length;
+  if (!normalized.length) normalized = dailyFallbackItems();
   const todays = todayNewsItems(normalized);
-  const latestForDisplay = todays.length ? todays : normalized.slice(0, 12);
-  const topicBase = todays.length ? todays : normalized.slice(0, 24);
-  const topics = (!fallback && topicBase.length) ? buildNewsTopics(topicBase) : fallbackTopics();
-  $("newsSourceLink").href = NEWS_API_URL;
+  const latestForDisplay = (todays.length ? todays : normalized).slice(0, 12);
+  const topicBase = (todays.length ? todays : normalized).slice(0, 36);
+  const topics = (!noRealItems && topicBase.length) ? buildNewsTopics(topicBase) : fallbackTopics();
+  const mainSearch = googleNewsSearchUrl("今日 台灣 不動產 地政 房貸 台南");
+  $("newsSourceLink").href = mainSearch;
+  $("newsSourceLink").innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> 搜尋更多今日新聞`;
   $("newsModalBody").innerHTML = `
-    <div class="news-compact-tip">先看「每日最新新聞」，再看下方主題分類。每一行都是可點擊的新聞原文，不再顯示 RSS/XML 原始碼。</div>
-    ${fallback ? `<div class="topic-empty">目前無法自動解析每日新聞源，系統先提供主題式 Google 新聞連結。右下角仍可開啟新聞來源備查。</div>` : ""}
+    <div class="news-reading-intro">
+      <b>閱讀方式：</b>先看「每日最新新聞」，再看「主題延伸」。同仁只要點新聞標題就能開原文；系統不再顯示 RSS/XML 原始碼。
+    </div>
+    ${noRealItems ? `<div class="news-fallback-panel">
+      今日新聞來源暫時無法自動整理成標題清單，系統先提供「今日新聞搜尋入口」。這不是系統故障，案件、打卡、報價、收據仍可正常使用。
+      <div class="news-search-buttons">
+        ${dailyFallbackItems().map(i => `<a href="${escapeAttr(i.link)}" target="_blank">${escapeHtml(i.title.replace("搜尋：", ""))}</a>`).join("")}
+      </div>
+    </div>` : ""}
     <div class="latest-news-section">
-      <h4><i class="fa-solid fa-calendar-day"></i> 每日最新新聞${todays.length ? "（今天發布）" : "（來源最新）"}</h4>
-      <div class="latest-news-list">
-        ${latestForDisplay.length ? latestForDisplay.slice(0, 12).map((item, idx) => `<a class="latest-news-link" href="${escapeAttr(item.link)}" target="_blank"><span class="idx">${idx + 1}</span><span><span>${escapeHtml(item.title)}</span><div class="date">${escapeHtml(item.date || item.source || "每日新聞")}</div></span></a>`).join("") : `<div class="topic-empty">目前沒有可解析的今日新聞，請點右下角新聞來源備查。</div>`}
+      <div class="news-section-label">
+        <h4><i class="fa-solid fa-calendar-day"></i> 每日最新新聞${todays.length ? "（今天發布）" : "（來源最新）"}</h4>
+        <span class="hint">點標題開原文</span>
+      </div>
+      <div class="news-card-grid">
+        ${latestForDisplay.length ? latestForDisplay.map((item, idx) => newsCardHtml(item, idx)).join("") : `<div class="topic-empty">目前沒有可顯示的新聞。</div>`}
       </div>
     </div>
     <div class="news-divider"></div>
-    <h4 class="topic-section-title"><i class="fa-solid fa-layer-group"></i> 主題分類延伸閱讀</h4>
+    <div class="news-section-label"><h4><i class="fa-solid fa-layer-group"></i> 主題分類延伸閱讀</h4><span class="hint">方便晨會或午休快速吸收</span></div>
     <div class="topic-list">
       ${topics.map((topic, idx) => {
         const list = topic.items && topic.items.length ? topic.items : [{ title: `查看「${topic.title}」相關新聞`, link: googleNewsSearchUrl(topic.title), source: "Google 新聞搜尋" }];
-        return `<div class="topic-card learning">
-          <div class="topic-header-row">
-            <div class="topic-title-block">
-              <div class="topic-link">${idx + 1}. ${escapeHtml(topic.title)}</div>
-              <div class="topic-source-line">${topic.fallback || fallback ? "主題搜尋" : `本主題 ${list.length} 則`}</div>
-            </div>
-          </div>
-          <div class="topic-news-list">
-            ${list.slice(0, 4).map((item, j) => `<a class="topic-news-link" href="${escapeAttr(item.link)}" target="_blank"><span class="idx">${j + 1}</span><span>${escapeHtml(item.title)}</span></a>`).join("")}
+        return `<div class="news-topic-card">
+          <div class="news-topic-title">${idx + 1}. ${escapeHtml(topic.title)}<small>${topic.fallback || noRealItems ? "主題搜尋" : `本主題 ${list.length} 則`}</small></div>
+          <div class="news-topic-links">
+            ${list.slice(0, 5).map((item, j) => `<a href="${escapeAttr(item.link)}" target="_blank"><span class="idx">${j + 1}</span><span>${escapeHtml(item.title)}</span></a>`).join("")}
           </div>
         </div>`;
       }).join("")}
@@ -967,7 +1024,7 @@ async function fetchNews({ auto = false, force = false } = {}) {
     return;
   }
   if (auto || force) {
-    $("newsModalBody").innerHTML = `<div class="news-loading"><div class="spinner" style="margin:auto auto 12px"></div>正在整理今日新聞主題...</div>`;
+    $("newsModalBody").innerHTML = `<div class="news-loading"><div class="spinner" style="margin:auto auto 12px"></div>正在整理今日新聞清單...</div>`;
     $("newsModal").classList.add("show");
   }
   try {
@@ -991,7 +1048,7 @@ async function tryLoadTickerOnly() {
 }
 function openNewsModal(loading = false, items = null) {
   if (loading) {
-    $("newsModalBody").innerHTML = `<div class="news-loading"><div class="spinner" style="margin:auto auto 12px"></div>正在整理新聞主題連結...</div>`;
+    $("newsModalBody").innerHTML = `<div class="news-loading"><div class="spinner" style="margin:auto auto 12px"></div>正在整理新聞清單...</div>`;
   }
   if (items) renderNewsList(items);
   else $("newsModal").classList.add("show");
