@@ -1,5 +1,5 @@
-// HomeGo ERP Portal Service Worker v10
-const CACHE_NAME = 'homego-erp-v10';
+// HomeGo ERP Portal Service Worker v11
+const CACHE_NAME = 'homego-erp-portal-v11';
 const ASSETS_TO_CACHE = ['./','./index.html','./manifest.json'];
 self.addEventListener('install', event => {
   self.skipWaiting();

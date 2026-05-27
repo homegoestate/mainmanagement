@@ -36,6 +36,13 @@
     @media(max-width:768px){.iframe-toolbar{right:10px;bottom:10px;max-width:calc(100vw - 20px);overflow:auto}.topic-card{align-items:flex-start;flex-direction:column}.topic-count{align-self:flex-start}.topic-example{white-space:normal}.topic-header-row{flex-direction:column}.topic-action{align-self:flex-start}}
     @media(max-width:1100px){.grid-container{grid-template-columns:repeat(3,1fr)}.quick-panel{grid-template-columns:1fr}.form-grid{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:768px){body{overflow:hidden}.menu-toggle-btn{display:block}.sidebar{position:absolute;left:0;top:0;transform:translateX(-100%);transition:.25s}.sidebar.active{transform:translateX(0)}.sidebar-overlay.active{display:block}.topbar{padding-top:46px;flex-direction:column}.grid-container{grid-template-columns:repeat(2,1fr);gap:14px}.dashboard-card{min-height:136px;padding:18px 10px}.card-icon-wrapper{width:56px;height:56px;border-radius:18px}.dashboard-card i{font-size:25px}.dashboard-card h3{font-size:15px}.form-grid{grid-template-columns:1fr}#dashboard-grid-view{padding:18px}.welcome-banner h2{font-size:22px}}
+
+    .latest-news-section{background:#f8fbff;border:1px solid #dbeafe;border-radius:16px;padding:14px;margin-bottom:14px}
+    .latest-news-section h4,.topic-section-title{margin:0 0 10px;color:var(--navy);font-size:16px;display:flex;align-items:center;gap:8px}
+    .latest-news-list{display:grid;gap:8px}
+    .latest-news-link{display:flex;gap:8px;align-items:flex-start;color:#1e3a5f;text-decoration:none;background:white;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;line-height:1.45;font-weight:800}
+    .latest-news-link:hover{background:#eef6ff;text-decoration:none}.latest-news-link .idx{color:#0f5f99;font-weight:900;min-width:24px}.latest-news-link .date{font-size:12px;color:#64748b;font-weight:700;margin-top:3px}.news-divider{height:1px;background:#e5eaf0;margin:16px 0}.password-help{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;color:#475569;font-size:13px;line-height:1.6}.alias-note{font-size:11px;color:#64748b;margin-top:3px}
+
   </style>
 </head>
 <body>
@@ -51,6 +58,7 @@
       <div class="checkbox-group"><input type="checkbox" id="keep-login"><label for="keep-login">保持登入</label></div>
       <button id="btnLogin" class="btn btn-primary btn-block"><i class="fa-solid fa-right-to-bracket"></i> 登入系統</button>
       <div class="switch-link" onclick="showRegister()"><i class="fa-solid fa-mobile-screen-button"></i> 新員工？使用開通碼註冊並綁定裝置</div>
+      <div class="switch-link" onclick="showResetPassword()"><i class="fa-solid fa-unlock-keyhole"></i> 忘記密碼？用開通碼自行重設</div>
       <div style="margin-top:12px"><span class="switch-link" onclick="showAdminAuth()" style="color:#94a3b8"><i class="fa-solid fa-screwdriver-wrench"></i> 系統管理驗證</span></div>
     </div>
 
@@ -62,6 +70,20 @@
       <div class="input-group"><label>登入密碼</label><input type="password" id="reg-pass" autocomplete="new-password" placeholder="請妥善保管密碼"></div>
       <div class="input-group"><label>裝置開通碼</label><input type="number" id="reg-code" placeholder="6 位數開通碼"></div>
       <button id="btnRegister" class="btn btn-gray btn-block"><i class="fa-solid fa-link"></i> 驗證並綁定此裝置</button>
+      <div class="switch-link" onclick="showLogin()"><i class="fa-solid fa-arrow-left"></i> 返回登入</div>
+    </div>
+
+
+    <div id="reset-form" class="auth-box hidden">
+      <div class="auth-brand"><div class="brand-logo">鑰</div><div><h1>自行重設密碼</h1><p>拿到開通碼後，同仁可自行更新密碼</p></div></div>
+      <h2><i class="fa-solid fa-unlock-keyhole"></i> 開通碼重設密碼</h2>
+      <div class="alert-box">請輸入自己的中文姓名或舊登入別名，再輸入楊翊晟提供的 6 位數開通碼。重設成功後，此裝置會一併綁定。</div>
+      <div class="input-group"><label>姓名 / 登入別名</label><input type="text" id="reset-user" placeholder="例如：呂蕙蓁 或 Misso"></div>
+      <div class="input-group"><label>開通碼</label><input type="number" id="reset-code" placeholder="6 位數開通碼"></div>
+      <div class="input-group"><label>新密碼</label><input type="password" id="reset-pass" autocomplete="new-password" placeholder="請輸入新密碼"></div>
+      <div class="input-group"><label>再次確認新密碼</label><input type="password" id="reset-pass2" autocomplete="new-password" placeholder="請再輸入一次新密碼"></div>
+      <div class="password-help">這個功能只會讓同仁重設自己的登入密碼，不會開放新增、刪除人員；人員主檔仍由楊翊晟管理。</div>
+      <button id="btnResetPassword" class="btn btn-green btn-block"><i class="fa-solid fa-key"></i> 驗證開通碼並重設密碼</button>
       <div class="switch-link" onclick="showLogin()"><i class="fa-solid fa-arrow-left"></i> 返回登入</div>
     </div>
 
@@ -134,7 +156,7 @@
     <div class="modal-card">
       <div class="modal-head"><h3><i class="fa-solid fa-newspaper"></i> 今日不動產／金融／地政新知</h3><button class="btn btn-light" onclick="closeNewsModal()"><i class="fa-solid fa-xmark"></i></button></div>
       <div class="modal-body" id="newsModalBody"><div class="news-loading"><div class="spinner" style="margin:auto auto 12px"></div>正在整理新聞主題連結...</div></div>
-      <div class="modal-foot"><label class="checkbox-group" style="margin:0"><input type="checkbox" id="newsDontShowToday" checked><span>今天登入不再自動跳出</span></label><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-light" id="newsSourceLink" href="#" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> 開啟完整新聞源</a><button class="btn btn-navy" onclick="closeNewsModal()">我知道了</button></div></div>
+      <div class="modal-foot"><label class="checkbox-group" style="margin:0"><input type="checkbox" id="newsDontShowToday" checked><span>今天登入不再自動跳出</span></label><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-light" id="newsSourceLink" href="#" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> 新聞來源備查</a><button class="btn btn-navy" onclick="closeNewsModal()">我知道了</button></div></div>
     </div>
   </div>
 
@@ -304,9 +326,10 @@ function deviceLabel(type) {
   return `<span class="device-badge bg-desktop"><i class="fa-solid fa-desktop"></i> 電腦</span>`;
 }
 
-window.showRegister = () => { $("login-form").classList.add("hidden"); $("admin-auth-form").classList.add("hidden"); $("register-form").classList.remove("hidden"); };
-window.showLogin = () => { $("register-form").classList.add("hidden"); $("admin-auth-form").classList.add("hidden"); $("login-form").classList.remove("hidden"); };
-window.showAdminAuth = () => { $("login-form").classList.add("hidden"); $("register-form").classList.add("hidden"); $("admin-auth-form").classList.remove("hidden"); };
+window.showRegister = () => { $("login-form").classList.add("hidden"); $("admin-auth-form").classList.add("hidden"); $("reset-form").classList.add("hidden"); $("register-form").classList.remove("hidden"); };
+window.showResetPassword = () => { $("login-form").classList.add("hidden"); $("register-form").classList.add("hidden"); $("admin-auth-form").classList.add("hidden"); $("reset-form").classList.remove("hidden"); };
+window.showLogin = () => { $("register-form").classList.add("hidden"); $("admin-auth-form").classList.add("hidden"); $("reset-form").classList.add("hidden"); $("login-form").classList.remove("hidden"); };
+window.showAdminAuth = () => { $("login-form").classList.add("hidden"); $("register-form").classList.add("hidden"); $("reset-form").classList.add("hidden"); $("admin-auth-form").classList.remove("hidden"); };
 
 function sessionFromEmployee(emp, source = "login", loginAccount = null) {
   const record = buildEmployeeRecord(emp);
@@ -382,15 +405,59 @@ async function ensureCanUseEmployee(name) {
   return emp;
 }
 
+
+function activationCodesForIdentity(emp, inputName = "") {
+  const rec = buildEmployeeRecord(emp);
+  const candidates = [inputName, rec.name, rec.primaryLogin, ...(rec.loginAliases || [])].filter(Boolean);
+  return new Set(candidates.map(calculateActivationCode));
+}
+function isValidActivationCode(emp, inputName, code) {
+  return activationCodesForIdentity(emp, inputName).has(String(code || "").trim());
+}
+
+async function resetPasswordWithCode() {
+  const inputName = $("reset-user").value.trim();
+  const code = $("reset-code").value.trim();
+  const pass = $("reset-pass").value.trim();
+  const pass2 = $("reset-pass2").value.trim();
+  if (!inputName || !code || !pass || !pass2) return alert("請輸入姓名、開通碼與新密碼");
+  if (pass !== pass2) return alert("兩次新密碼不一致");
+  if (pass.length < 4) return alert("密碼至少 4 碼，請重新設定");
+  showLoading(true, "驗證開通碼並更新密碼...");
+  try {
+    const { emp, account, userRecord } = await resolveLoginIdentity(inputName);
+    if (!isValidActivationCode(emp, inputName, code)) throw new Error("開通碼錯誤，請確認是否使用對應帳號的開通碼。 ");
+    const targetAccount = account || primaryLoginForEmployee(emp) || emp.name;
+    const oldDevices = userRecord && Array.isArray(userRecord.authorizedDevices) ? userRecord.authorizedDevices : [];
+    if (!oldDevices.includes(myDeviceId)) oldDevices.push(myDeviceId);
+    await set(ref(db, "users/" + safeKey(targetAccount)), {
+      ...(userRecord || {}),
+      password: pass,
+      employeeName: emp.name,
+      authorizedDevices: oldDevices,
+      lastDeviceType: getDeviceType(),
+      passwordResetAt: new Date().toISOString(),
+      lastBoundAt: new Date().toISOString()
+    });
+    alert(`密碼已更新，請用「${targetAccount}」或「${emp.name}」登入。`);
+    $("login-user").value = targetAccount;
+    $("login-pass").value = "";
+    window.showLogin();
+  } catch (err) {
+    alert(err.message || "重設密碼失敗");
+  } finally { showLoading(false); }
+}
+
 async function register() {
   const user = $("reg-user").value.trim();
   const pass = $("reg-pass").value.trim();
   const code = $("reg-code").value.trim();
   if (!user || !pass || !code) return alert("請輸入完整資料");
-  if (code !== calculateActivationCode(user)) return alert("開通碼錯誤");
+  /* 開通碼會在解析員工身分後檢查，可使用中文姓名或舊登入別名對應的開通碼。 */
   showLoading(true, "註冊並綁定裝置中...");
   try {
     const { emp, account, userRecord } = await resolveLoginIdentity(user);
+    if (!isValidActivationCode(emp, user, code)) throw new Error("開通碼錯誤，請確認是否使用對應帳號的開通碼。 ");
     const userRef = ref(db, "users/" + safeKey(account));
     const type = getDeviceType();
     if (userRecord) {
@@ -799,13 +866,38 @@ function fallbackTopics() {
   }));
 }
 function newsSeenKey() { return `hg_news_seen_${currentSession?.name || "guest"}_${todayKey()}`; }
+function itemDateKey(item) {
+  const raw = item?.date || item?.pubDate || "";
+  if (!raw) return "";
+  const d = new Date(raw);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+}
+function newsSortTime(item) {
+  const d = new Date(item?.date || "");
+  return Number.isNaN(d.getTime()) ? 0 : d.getTime();
+}
+function sortedNewsItems(items) {
+  return uniqueNewsItems(items).sort((a, b) => newsSortTime(b) - newsSortTime(a));
+}
+function todayNewsItems(items) {
+  const today = todayKey();
+  return sortedNewsItems(items).filter(item => itemDateKey(item) === today);
+}
 function renderTickerPlaceholder(items = []) {
   const inner = $("newsTickerInner");
-  const topics = items.length ? buildNewsTopics(items) : fallbackTopics();
-  inner.innerHTML = topics.slice(0, 6).map(topic => {
-    const first = topic.items[0] || { link: googleNewsSearchUrl(topic.title) };
-    return `<a href="${escapeAttr(first.link)}" target="_blank">${escapeHtml(topic.title)}</a>`;
-  }).join("");
+  const todays = todayNewsItems(items).slice(0, 5);
+  if (todays.length) {
+    inner.innerHTML = todays.map((item, idx) => `<a href="${escapeAttr(item.link)}" target="_blank">${idx + 1}. ${escapeHtml(item.title)}</a>`).join("");
+    return;
+  }
+  const latest = sortedNewsItems(items).slice(0, 5);
+  if (latest.length) {
+    inner.innerHTML = latest.map((item, idx) => `<a href="${escapeAttr(item.link)}" target="_blank">最新 ${idx + 1}. ${escapeHtml(item.title)}</a>`).join("");
+    return;
+  }
+  const topics = fallbackTopics();
+  inner.innerHTML = topics.slice(0, 6).map(topic => `<a href="${escapeAttr(topic.items[0].link)}" target="_blank">${escapeHtml(topic.title)}</a>`).join("");
 }
 function newsUrlWithCacheBust() {
   const u = new URL(NEWS_API_URL, window.location.href);
@@ -833,22 +925,32 @@ async function fetchTextWithFallbacks() {
   throw lastErr || new Error("新聞來源暫時無法讀取");
 }
 function renderNewsList(items, { fallback = false } = {}) {
-  const topics = (!fallback && items && items.length) ? buildNewsTopics(items) : fallbackTopics();
+  const normalized = sortedNewsItems(items || []);
+  const todays = todayNewsItems(normalized);
+  const latestForDisplay = todays.length ? todays : normalized.slice(0, 12);
+  const topicBase = todays.length ? todays : normalized.slice(0, 24);
+  const topics = (!fallback && topicBase.length) ? buildNewsTopics(topicBase) : fallbackTopics();
   $("newsSourceLink").href = NEWS_API_URL;
   $("newsModalBody").innerHTML = `
-    <div class="news-compact-tip">以下整理成「可吸收的新知主題」。先看主題，再點新聞標題看原文；不用再看整頁 RSS 原始碼。</div>
-    ${fallback ? `<div class="topic-empty">目前無法自動解析每日新聞源，系統先提供主題式 Google 新聞連結。右下角仍可開啟完整新聞源供備查。</div>` : ""}
+    <div class="news-compact-tip">先看「每日最新新聞」，再看下方主題分類。每一行都是可點擊的新聞原文，不再顯示 RSS/XML 原始碼。</div>
+    ${fallback ? `<div class="topic-empty">目前無法自動解析每日新聞源，系統先提供主題式 Google 新聞連結。右下角仍可開啟新聞來源備查。</div>` : ""}
+    <div class="latest-news-section">
+      <h4><i class="fa-solid fa-calendar-day"></i> 每日最新新聞${todays.length ? "（今天發布）" : "（來源最新）"}</h4>
+      <div class="latest-news-list">
+        ${latestForDisplay.length ? latestForDisplay.slice(0, 12).map((item, idx) => `<a class="latest-news-link" href="${escapeAttr(item.link)}" target="_blank"><span class="idx">${idx + 1}</span><span><span>${escapeHtml(item.title)}</span><div class="date">${escapeHtml(item.date || item.source || "每日新聞")}</div></span></a>`).join("") : `<div class="topic-empty">目前沒有可解析的今日新聞，請點右下角新聞來源備查。</div>`}
+      </div>
+    </div>
+    <div class="news-divider"></div>
+    <h4 class="topic-section-title"><i class="fa-solid fa-layer-group"></i> 主題分類延伸閱讀</h4>
     <div class="topic-list">
       ${topics.map((topic, idx) => {
         const list = topic.items && topic.items.length ? topic.items : [{ title: `查看「${topic.title}」相關新聞`, link: googleNewsSearchUrl(topic.title), source: "Google 新聞搜尋" }];
-        const first = list[0];
         return `<div class="topic-card learning">
           <div class="topic-header-row">
             <div class="topic-title-block">
               <div class="topic-link">${idx + 1}. ${escapeHtml(topic.title)}</div>
-              <div class="topic-source-line">${topic.fallback || fallback ? "主題搜尋" : `已整理 ${list.length} 則新聞`}</div>
+              <div class="topic-source-line">${topic.fallback || fallback ? "主題搜尋" : `本主題 ${list.length} 則`}</div>
             </div>
-            <a class="topic-action" href="${escapeAttr(first.link)}" target="_blank">看代表新聞</a>
           </div>
           <div class="topic-news-list">
             ${list.slice(0, 4).map((item, j) => `<a class="topic-news-link" href="${escapeAttr(item.link)}" target="_blank"><span class="idx">${j + 1}</span><span>${escapeHtml(item.title)}</span></a>`).join("")}
@@ -935,6 +1037,7 @@ window.addEventListener("message", (event) => {
 
 $("btnLogin").addEventListener("click", (e) => { e.preventDefault(); login(); });
 $("btnRegister").addEventListener("click", (e) => { e.preventDefault(); register(); });
+$("btnResetPassword").addEventListener("click", (e) => { e.preventDefault(); resetPasswordWithCode(); });
 $("btnAdminLogin").addEventListener("click", (e) => { e.preventDefault(); adminLogin(); });
 $("btnSaveEmployee").addEventListener("click", saveEmployee);
 $("btnMakeCode").addEventListener("click", makeCodeFromForm);
