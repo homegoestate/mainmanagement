@@ -1,0 +1,23 @@
+{
+  "name": "宏國地政｜易丞地政 ERP 總控制管理",
+  "short_name": "宏國ERP",
+  "description": "內部 ERP 總控制管理：單一登入、人員權限、新聞新知、模組入口",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f2e46",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,518 +1,967 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HomeGo Estate - 雲端中控儀表板</title>
-    <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#2c3e50">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* === 核心變數 === */
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #34495e;
-            --accent-color: #3498db;
-            --hover-color: #2980b9;
-            --text-light: #ecf0f1;
-            --danger-color: #e74c3c;
-            --sidebar-width: 250px;
-            --card-bg: #ffffff;
-            --bg-main: #f4f7f6;
-        }
-        
-        /* === 全域樣式 === */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: var(--bg-main); height: 100vh; overflow: hidden; user-select: none; -webkit-tap-highlight-color: transparent; }
-        
-        /* === 登入/註冊樣式 === */
-        .auth-container { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); padding: 20px; }
-        .auth-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 400px; text-align: center; transition: transform 0.3s; }
-        .auth-box h2 { color: var(--primary-color); margin-bottom: 25px; font-weight: 600; }
-        .input-group { margin: 15px 0; text-align: left; }
-        .input-group label { font-size: 13px; color: #666; font-weight: bold; display: block; margin-bottom: 8px;}
-        .auth-box input[type="text"], .auth-box input[type="password"], .auth-box input[type="number"] { width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: border 0.3s; }
-        .auth-box input:focus { border-color: var(--accent-color); outline: none; }
-        .checkbox-group { display: flex; align-items: center; justify-content: flex-start; margin: 15px 0; gap: 8px; }
-        .checkbox-group input[type="checkbox"] { width: 18px; height: 18px; margin: 0; cursor: pointer; accent-color: var(--accent-color); }
-        .checkbox-group label { font-size: 15px; color: #555; cursor: pointer; margin: 0; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin-top: 15px; font-weight: bold; color: white; transition: all 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
-        .btn-primary { background-color: var(--accent-color); }
-        .btn-secondary { background-color: #95a5a6; }
-        .btn-danger { background-color: var(--danger-color); }
-        .switch-link { margin-top: 25px; font-size: 14px; color: #7f8c8d; cursor: pointer; text-decoration: none; transition: color 0.3s; }
-        .switch-link:hover { color: var(--accent-color); text-decoration: underline; }
-        .alert-box { background-color: #e8f4f8; color: #2c3e50; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; border-left: 4px solid var(--accent-color); text-align: left; }
-        
-        /* === 主結構 === */
-        #dashboard-section { display: none; height: 100vh; position: relative; overflow: hidden; background-color: var(--bg-main); }
-        .menu-toggle-btn { display: none; position: absolute; top: 15px; left: 15px; z-index: 2000; background: var(--primary-color); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        
-        .sidebar { width: var(--sidebar-width); background-color: var(--primary-color); color: var(--text-light); display: flex; flex-direction: column; z-index: 1500; transition: transform 0.3s ease; box-shadow: 5px 0 15px rgba(0,0,0,0.05); }
-        .sidebar-header { padding: 25px 20px; text-align: center; background-color: rgba(0,0,0,0.1); font-weight: bold; font-size: 1.2em; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 10px;}
-        .nav-links { list-style: none; padding: 20px 0; margin: 0; flex-grow: 1; overflow-y: auto; }
-        .nav-links li a { display: flex; align-items: center; padding: 15px 25px; color: rgba(255,255,255,0.7); text-decoration: none; transition: all 0.3s; border-left: 4px solid transparent; font-size: 15px; }
-        .nav-links li a i { margin-right: 15px; width: 20px; text-align: center; font-size: 1.1em;}
-        .nav-links li a:hover, .nav-links li a.active { background-color: rgba(255,255,255,0.05); color: white; border-left-color: var(--accent-color); }
-        .user-info { padding: 20px; background-color: rgba(0,0,0,0.2); text-align: center; font-size: 0.9em; border-top: 1px solid rgba(255,255,255,0.05); }
-        
-        .main-content { flex-grow: 1; position: relative; width: 100%; height: 100%; overflow: hidden; }
-        iframe { width: 100%; height: 100%; border: none; display: none; background: white;}
-
-        /* === 儀表板網格視圖 === */
-        #dashboard-grid-view {
-            display: none;
-            padding: 30px;
-            height: 100%;
-            box-sizing: border-box;
-            overflow-y: auto;
-            background-color: var(--bg-main);
-        }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 25px;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding-bottom: 40px;
-        }
-
-        /* 卡片設計 */
-        .dashboard-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 30px 20px;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            cursor: pointer;
-            border: 2px solid transparent;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            aspect-ratio: 1 / 1;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .dashboard-card:hover { transform: translateY(-8px); box-shadow: 0 12px 30px rgba(52, 152, 219, 0.2); border-color: rgba(52, 152, 219, 0.3); }
-        .dashboard-card:active { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2); transition: 0.1s; }
-        
-        .card-icon-wrapper { width: 70px; height: 70px; background: linear-gradient(135deg, #e3f2fd, #bbdefb); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; transition: all 0.3s; }
-        .dashboard-card:hover .card-icon-wrapper { background: linear-gradient(135deg, var(--accent-color), var(--hover-color)); transform: rotateY(360deg); }
-        .dashboard-card i { font-size: 32px; color: var(--accent-color); transition: color 0.3s; }
-        .dashboard-card:hover i { color: white; }
-        .dashboard-card h3 { margin: 0; color: var(--primary-color); font-size: 18px; font-weight: 600; letter-spacing: 0.5px; }
-
-        .welcome-banner { max-width: 1200px; margin: 0 auto 25px auto; }
-        .welcome-banner h2 { margin: 0; color: var(--primary-color); font-size: 28px; }
-        .welcome-banner p { margin: 5px 0 0 0; color: #7f8c8d; }
-
-        /* === RWD === */
-        @media (max-width: 1024px) { .grid-container { grid-template-columns: repeat(3, 1fr); gap: 20px; } }
-        @media (max-width: 768px) {
-            .menu-toggle-btn { display: block; }
-            .sidebar { position: absolute; height: 100%; left: 0; top: 0; transform: translateX(-100%); }
-            .sidebar.active { transform: translateX(0); }
-            .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1400; }
-            .sidebar-overlay.active { display: block; }
-            #dashboard-grid-view { padding: 20px 15px; }
-            .grid-container { grid-template-columns: repeat(2, 1fr); gap: 15px; }
-            .dashboard-card { padding: 20px 10px; border-radius: 12px;}
-            .card-icon-wrapper { width: 55px; height: 55px; margin-bottom: 15px; }
-            .dashboard-card i { font-size: 26px; }
-            .dashboard-card h3 { font-size: 15px; }
-            .welcome-banner h2 { font-size: 22px; }
-        }
-
-        /* === 管理後台 === */
-        #admin-panel { display: none; padding: 20px; background: white; height: 100%; overflow-y: auto; }
-        .table-responsive { overflow-x: auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: collapse; margin: 0; min-width: 600px; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background-color: #f8f9fa; color: var(--primary-color); font-weight: 600; }
-        .device-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; color: white; font-weight: bold; display: inline-flex; align-items: center; gap: 5px;}
-        .bg-desktop { background-color: #3498db; }
-        .bg-mobile { background-color: #e67e22; }
-        .bg-tablet { background-color: #9b59b6; }
-        .admin-section { border: none; padding: 25px; border-radius: 12px; margin-bottom: 25px; background: white; box-shadow: 0 2px 15px rgba(0,0,0,0.05); }
-        .admin-section h3 { margin-top: 0; color: var(--primary-color); border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px;}
-        .code-display { font-size: 24px; font-weight: bold; color: var(--accent-color); background: #e3f2fd; padding: 15px 25px; display: inline-block; letter-spacing: 3px; border-radius: 8px; border: 2px dashed var(--accent-color);}
-        
-        #loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index: 9999; display:flex; flex-direction: column; justify-content:center; align-items:center; color: var(--primary-color); font-weight:bold; }
-        #loading-overlay i { font-size: 40px; margin-bottom: 15px; color: var(--accent-color); }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>宏國地政｜易丞地政｜內部 ERP 總控制管理 v7 修正版</title>
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#0f2e46">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{
+      --navy:#0f2e46;--navy2:#123a59;--gold:#c5a065;--blue:#3498db;--green:#10b981;--red:#ef4444;--orange:#f59e0b;
+      --bg:#f3f6f8;--card:#fff;--text:#1f2937;--muted:#64748b;--sidebar:264px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:"Microsoft JhengHei","Noto Sans TC",Arial,sans-serif;background:var(--bg);height:100vh;overflow:hidden;color:var(--text);user-select:none;-webkit-tap-highlight-color:transparent}
+    button,input,select{font-family:inherit}
+    .hidden{display:none!important}.soft-hide{visibility:hidden;pointer-events:none}.mono{font-family:ui-monospace,Consolas,monospace}
+    .auth-container{height:100vh;display:flex;align-items:center;justify-content:center;padding:22px;background:radial-gradient(circle at top left,#1e5a86 0,#0f2e46 42%,#081d2d 100%)}
+    .auth-box{width:100%;max-width:420px;background:#fff;border-radius:22px;padding:30px;box-shadow:0 22px 70px rgba(0,0,0,.28);position:relative;overflow:hidden}
+    .auth-box:before{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:linear-gradient(90deg,var(--gold),var(--blue),var(--green))}
+    .auth-brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}.brand-logo{width:48px;height:48px;border-radius:14px;background:var(--navy);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900}.auth-brand h1{margin:0;font-size:20px;color:var(--navy)}.auth-brand p{margin:3px 0 0;color:var(--muted);font-size:13px}.auth-box h2{margin:0 0 18px;color:var(--navy);font-size:21px}.input-group{margin:13px 0;text-align:left}.input-group label{display:block;font-size:13px;color:#475569;font-weight:800;margin-bottom:6px}.input-group input,.input-group select{width:100%;padding:12px 14px;border:1px solid #d1d5db;border-radius:12px;font-size:16px;outline:none;transition:.2s;background:#fff}.input-group input:focus,.input-group select:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(52,152,219,.12)}.checkbox-group{display:flex;align-items:center;gap:8px;margin:14px 0;color:#475569;font-size:14px}.checkbox-group input{width:18px;height:18px;accent-color:var(--blue)}.btn{border:0;border-radius:12px;padding:12px 16px;font-weight:900;cursor:pointer;color:#fff;transition:.18s;box-shadow:0 8px 18px rgba(15,46,70,.16);display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn:hover{transform:translateY(-1px);filter:brightness(.98)}.btn:active{transform:translateY(0)}.btn-block{width:100%;margin-top:10px}.btn-primary{background:var(--blue)}.btn-navy{background:var(--navy)}.btn-gold{background:var(--gold);color:#14213d}.btn-gray{background:#64748b}.btn-red{background:var(--red)}.btn-green{background:var(--green)}.btn-orange{background:var(--orange)}.btn-light{background:#eef2f7;color:#334155;box-shadow:none}.switch-link{margin-top:18px;font-size:14px;color:#64748b;cursor:pointer;text-decoration:none;display:inline-flex;gap:6px;align-items:center}.switch-link:hover{color:var(--blue);text-decoration:underline}.alert-box{background:#eef6ff;color:#1e3a5f;padding:12px 14px;border-left:4px solid var(--blue);border-radius:12px;font-size:13px;text-align:left;line-height:1.55;margin-bottom:16px}.warning-box{background:#fff7ed;color:#9a3412;border-left-color:#f97316}
+    #loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.92);z-index:99999;display:none;align-items:center;justify-content:center;flex-direction:column;color:var(--navy);font-weight:900}.spinner{width:48px;height:48px;border:5px solid #dbeafe;border-top-color:var(--blue);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:12px}@keyframes spin{to{transform:rotate(360deg)}}
+    #dashboard-section{height:100vh;display:none;position:relative;background:var(--bg)}.sidebar{width:var(--sidebar);height:100%;background:linear-gradient(180deg,var(--navy),#071a29);color:white;display:flex;flex-direction:column;box-shadow:5px 0 22px rgba(15,46,70,.18);z-index:1500}.sidebar-header{padding:22px 18px;background:rgba(0,0,0,.18);border-bottom:1px solid rgba(255,255,255,.08)}.sidebar-title{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:1px}.sidebar-title i{color:var(--gold)}.sidebar-sub{font-size:11px;color:#bfd1df;margin-top:6px;line-height:1.5}.session-pill{margin:14px 14px 8px;padding:10px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px}.session-pill .name{color:#fff;font-weight:900}.session-pill .role{font-size:12px;color:var(--gold);margin-top:3px}.nav-links{list-style:none;margin:0;padding:10px 0;overflow-y:auto;flex:1}.nav-links li a{display:flex;align-items:center;gap:13px;padding:13px 20px;color:rgba(255,255,255,.72);text-decoration:none;border-left:4px solid transparent;transition:.18s;font-size:14px;font-weight:700}.nav-links li a i{width:20px;text-align:center}.nav-links li a:hover,.nav-links li a.active{background:rgba(255,255,255,.08);color:#fff;border-left-color:var(--gold)}.user-info{padding:14px;background:rgba(0,0,0,.22);border-top:1px solid rgba(255,255,255,.08)}.main-content{flex:1;min-width:0;height:100%;position:relative}.menu-toggle-btn{display:none;position:absolute;top:14px;left:14px;z-index:2000;background:var(--navy);color:white;border:0;border-radius:12px;padding:10px 14px;box-shadow:0 8px 18px rgba(0,0,0,.2)}.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1400}
+    #dashboard-grid-view{display:none;height:100%;overflow-y:auto;padding:28px}.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin:0 auto 20px;max-width:1260px}.welcome-banner h2{margin:0;color:var(--navy);font-size:29px}.welcome-banner p{margin:7px 0 0;color:#64748b}.top-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.grid-container{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px;max-width:1260px;margin:0 auto 34px}.dashboard-card{background:var(--card);border-radius:20px;padding:26px 18px;box-shadow:0 8px 28px rgba(15,46,70,.07);border:1px solid #e5eaf0;min-height:170px;display:flex;flex-direction:column;justify-content:center;align-items:center;cursor:pointer;transition:.22s;position:relative;overflow:hidden}.dashboard-card:after{content:"";position:absolute;inset:auto 0 0 0;height:5px;background:linear-gradient(90deg,var(--gold),var(--blue));opacity:0;transition:.2s}.dashboard-card:hover{transform:translateY(-5px);box-shadow:0 16px 36px rgba(15,46,70,.14)}.dashboard-card:hover:after{opacity:1}.card-icon-wrapper{width:70px;height:70px;border-radius:22px;background:linear-gradient(135deg,#edf5ff,#dbeafe);display:flex;align-items:center;justify-content:center;margin-bottom:16px}.dashboard-card i{font-size:31px;color:var(--navy)}.dashboard-card h3{margin:0;color:var(--navy);font-size:18px}.dashboard-card p{margin:8px 0 0;text-align:center;color:#64748b;font-size:12px;line-height:1.5}.quick-panel{max-width:1260px;margin:0 auto 22px;display:grid;grid-template-columns:1.4fr 1fr;gap:18px}.panel-card{background:#fff;border:1px solid #e5eaf0;border-radius:18px;padding:18px;box-shadow:0 8px 22px rgba(15,46,70,.05)}.panel-card h3{margin:0 0 10px;color:var(--navy)}.news-ticker{overflow:visible;white-space:normal;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;padding:10px;color:#334155;min-height:44px}.news-ticker-inner{display:flex;flex-wrap:wrap;gap:8px;animation:none}.news-ticker a{color:#0f5f99;text-decoration:none;font-weight:800;background:#eaf4ff;border:1px solid #cfe8ff;border-radius:999px;padding:6px 10px;line-height:1.35;font-size:13px}.news-ticker a:hover{text-decoration:underline;background:#dff0ff}@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(0)}}
+    iframe{width:100%;height:100%;border:0;background:#fff;display:none}.iframe-toolbar{display:none;position:fixed;right:18px;bottom:18px;top:auto;z-index:2100;gap:8px;background:rgba(255,255,255,.96);border:1px solid #e2e8f0;border-radius:18px;padding:8px;box-shadow:0 12px 32px rgba(15,46,70,.18);backdrop-filter:blur(8px)}.iframe-toolbar .btn{padding:8px 10px;border-radius:10px;font-size:12px}.iframe-toolbar:hover{box-shadow:0 16px 38px rgba(15,46,70,.24)}
+    #admin-panel{display:none;height:100%;overflow-y:auto;padding:26px;background:#f8fafc}.admin-wrap{max-width:1240px;margin:0 auto}.admin-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.admin-title h2{margin:0;color:var(--navy)}.admin-section{background:#fff;border:1px solid #e5eaf0;border-radius:18px;padding:18px;margin-bottom:18px;box-shadow:0 8px 22px rgba(15,46,70,.05)}.admin-section h3{margin:0 0 14px;color:var(--navy);border-bottom:1px solid #edf2f7;padding-bottom:12px}.form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.form-grid .input-group{margin:0}.table-responsive{overflow:auto;border:1px solid #e5e7eb;border-radius:14px;background:#fff}table{width:100%;border-collapse:collapse;min-width:820px}th,td{padding:12px 13px;border-bottom:1px solid #eef2f7;text-align:left;font-size:14px}th{background:#f1f5f9;color:#0f2e46;font-weight:900;position:sticky;top:0}.tag{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:900}.tag-ceo{background:#fef3c7;color:#92400e}.tag-manager{background:#dbeafe;color:#1e40af}.tag-ops{background:#dcfce7;color:#166534}.tag-accounting{background:#f3e8ff;color:#6b21a8}.tag-off{background:#fee2e2;color:#991b1b}.device-badge{padding:4px 8px;border-radius:999px;font-size:12px;color:#fff;font-weight:900;display:inline-flex;align-items:center;gap:5px}.bg-desktop{background:#3498db}.bg-mobile{background:#e67e22}.bg-tablet{background:#9b59b6}.code-display{font-size:24px;font-weight:900;color:var(--navy);background:#fef3c7;padding:12px 20px;border-radius:12px;border:2px dashed var(--gold);letter-spacing:3px;display:inline-block}.small-muted{font-size:12px;color:#64748b;line-height:1.55}.row-actions{display:flex;gap:6px;flex-wrap:wrap}.row-actions .btn{font-size:12px;padding:7px 9px;border-radius:9px}.status-dot{width:9px;height:9px;border-radius:99px;background:#10b981;display:inline-block}.status-dot.off{background:#ef4444}
+    .modal{position:fixed;inset:0;background:rgba(2,6,23,.62);z-index:5000;display:none;align-items:center;justify-content:center;padding:18px}.modal.show{display:flex}.modal-card{width:min(920px,96vw);max-height:88vh;background:#fff;border-radius:22px;box-shadow:0 24px 80px rgba(0,0,0,.32);display:flex;flex-direction:column;overflow:hidden}.modal-head{background:linear-gradient(135deg,var(--navy),#1f5c89);color:#fff;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}.modal-head h3{margin:0;font-size:20px}.modal-body{padding:18px;overflow:auto}.modal-foot{padding:14px 18px;border-top:1px solid #e5eaf0;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.news-list{display:grid;gap:10px}.news-item,.topic-card{border:1px solid #e5e7eb;border-left:5px solid var(--gold);border-radius:14px;padding:13px;background:#fff}.news-item h4{margin:0;font-size:16px;color:var(--navy);line-height:1.45}.news-item h4 a{color:inherit;text-decoration:none}.news-item h4 a:hover{text-decoration:underline}.news-meta{font-size:12px;color:#64748b;margin-top:5px}.news-summary{display:none}.news-error{background:#fff7ed;border:1px solid #fdba74;color:#9a3412;border-radius:14px;padding:14px;line-height:1.6}.news-loading{padding:30px;text-align:center;color:#64748b}.news-compact-tip{font-size:13px;color:#64748b;line-height:1.6;margin-bottom:10px}.news-frame-wrap,.news-frame{display:none!important}.topic-list{display:grid;gap:10px}.topic-card{display:flex;align-items:center;justify-content:space-between;gap:12px;transition:.16s}.topic-card:hover{background:#f8fafc;transform:translateY(-1px)}.topic-main{min-width:0}.topic-link{display:block;color:var(--navy);font-weight:900;font-size:16px;text-decoration:none;line-height:1.45}.topic-link:hover{text-decoration:underline}.topic-example{font-size:12px;color:#64748b;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:680px}.topic-count{flex-shrink:0;background:#eaf4ff;color:#0f5f99;border:1px solid #cfe8ff;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:900}.topic-details{margin-top:8px;font-size:12px;color:#475569}.topic-details summary{cursor:pointer;font-weight:800;color:#0f5f99}.topic-details a{display:block;color:#334155;text-decoration:none;margin-top:5px}.topic-details a:hover{text-decoration:underline}
+    .topic-card.learning{align-items:stretch;display:block;border-left-color:#0f5f99}
+    .topic-header-row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+    .topic-title-block{min-width:0}.topic-action{flex-shrink:0;background:#0f2e46;color:#fff;border-radius:999px;padding:8px 12px;text-decoration:none;font-size:12px;font-weight:900}
+    .topic-action:hover{filter:brightness(1.08);text-decoration:none}.topic-news-list{margin-top:10px;display:grid;gap:7px}
+    .topic-news-link{display:flex;gap:8px;align-items:flex-start;color:#1e3a5f;text-decoration:none;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:9px 10px;font-size:13px;line-height:1.45}
+    .topic-news-link:hover{background:#eef6ff;text-decoration:none}.topic-news-link .idx{font-weight:900;color:#0f5f99;min-width:22px}
+    .topic-source-line{font-size:12px;color:#64748b;margin-top:6px}.topic-empty{border:1px solid #e2e8f0;background:#f8fafc;border-radius:14px;padding:14px;color:#475569;line-height:1.7}
+    @media(max-width:768px){.iframe-toolbar{right:10px;bottom:10px;max-width:calc(100vw - 20px);overflow:auto}.topic-card{align-items:flex-start;flex-direction:column}.topic-count{align-self:flex-start}.topic-example{white-space:normal}.topic-header-row{flex-direction:column}.topic-action{align-self:flex-start}}
+    @media(max-width:1100px){.grid-container{grid-template-columns:repeat(3,1fr)}.quick-panel{grid-template-columns:1fr}.form-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:768px){body{overflow:hidden}.menu-toggle-btn{display:block}.sidebar{position:absolute;left:0;top:0;transform:translateX(-100%);transition:.25s}.sidebar.active{transform:translateX(0)}.sidebar-overlay.active{display:block}.topbar{padding-top:46px;flex-direction:column}.grid-container{grid-template-columns:repeat(2,1fr);gap:14px}.dashboard-card{min-height:136px;padding:18px 10px}.card-icon-wrapper{width:56px;height:56px;border-radius:18px}.dashboard-card i{font-size:25px}.dashboard-card h3{font-size:15px}.form-grid{grid-template-columns:1fr}#dashboard-grid-view{padding:18px}.welcome-banner h2{font-size:22px}}
+  </style>
 </head>
 <body>
+  <div id="loading-overlay"><div class="spinner"></div><div id="loadingText">連線雲端資料庫中...</div></div>
 
-    <div id="loading-overlay" style="display:none;"><i class="fas fa-circle-notch fa-spin"></i><div>連線雲端資料庫中...</div></div>
-
-    <div id="auth-section" class="auth-container">
-        <div id="login-form" class="auth-box">
-            <h2><i class="fas fa-shield-alt"></i> 員工安全登入 (雲端版)</h2>
-            <div class="alert-box">本系統已連線至雲端資料庫。</div>
-            <div class="input-group">
-                <label>使用者名稱</label>
-                <input type="text" id="login-user" placeholder="輸入帳號" autocomplete="username">
-            </div>
-            <div class="input-group">
-                <label>密碼</label>
-                <input type="password" id="login-pass" placeholder="輸入密碼" autocomplete="current-password">
-            </div>
-            
-            <div class="checkbox-group">
-                <input type="checkbox" id="keep-login"> 
-                <label for="keep-login">保持登入</label>
-            </div>
-
-            <button id="btnLogin" class="btn btn-primary">登入系統</button>
-            <div class="switch-link" onclick="showRegister()">新員工？註冊並綁定此裝置</div>
-            <div style="margin-top: 15px; font-size: 13px;">
-                <span class="switch-link" onclick="showAdminAuth()" style="color: #bbb;"><i class="fas fa-cog"></i> 管理員後台</span>
-            </div>
-        </div>
-
-        <div id="register-form" class="auth-box" style="display: none;">
-            <h2><i class="fas fa-mobile-screen-button"></i> 註冊並綁定裝置</h2>
-            <div class="alert-box">請輸入管理員提供的開通碼。<br>(綁定新裝置時，請輸入原密碼)</div>
-            <div class="input-group"><label>設定使用者名稱</label><input type="text" id="reg-user" placeholder="例如: JohnDoe" autocomplete="username"></div>
-            <div class="input-group"><label>設定登入密碼</label><input type="password" id="reg-pass" placeholder="請妥善保管密碼" autocomplete="new-password"></div>
-            <div class="input-group">
-                <label style="color:var(--danger-color);"><i class="fas fa-key"></i> 裝置開通碼</label>
-                <input type="number" id="reg-code" placeholder="輸入6位數代碼">
-            </div>
-            <button id="btnRegister" class="btn btn-secondary">驗證綁定並註冊</button>
-            <div class="switch-link" onclick="showLogin()"><i class="fas fa-arrow-left"></i> 返回登入</div>
-        </div>
-
-        <div id="admin-auth-form" class="auth-box" style="display: none;">
-            <h2 style="color: var(--danger-color);"><i class="fas fa-user-shield"></i> 管理員驗證</h2>
-            <div class="input-group">
-                <label>管理密碼</label>
-                <input type="password" id="admin-pass-input" placeholder="請輸入管理密碼">
-            </div>
-            <button id="btnAdminLogin" class="btn btn-danger">進入後台</button>
-            <div class="switch-link" onclick="showLogin()"><i class="fas fa-arrow-left"></i> 返回</div>
-        </div>
+  <section id="auth-section" class="auth-container">
+    <div id="login-form" class="auth-box">
+      <div class="auth-brand"><div class="brand-logo">宏</div><div><h1>宏國地政｜易丞地政</h1><p>內部 ERP 總控制管理</p></div></div>
+      <h2><i class="fa-solid fa-shield-halved"></i> 員工安全登入</h2>
+      <div class="alert-box">登入一次後，案件、打卡、報價、收據等模組會自動帶入同一位操作人，不需要各系統重複登入。</div>
+      <div class="input-group"><label>使用者名稱</label><input type="text" id="login-user" autocomplete="username" placeholder="例如：楊翊晟"></div>
+      <div class="input-group"><label>密碼</label><input type="password" id="login-pass" autocomplete="current-password" placeholder="輸入密碼"></div>
+      <div class="checkbox-group"><input type="checkbox" id="keep-login"><label for="keep-login">保持登入</label></div>
+      <button id="btnLogin" class="btn btn-primary btn-block"><i class="fa-solid fa-right-to-bracket"></i> 登入系統</button>
+      <div class="switch-link" onclick="showRegister()"><i class="fa-solid fa-mobile-screen-button"></i> 新員工？使用開通碼註冊並綁定裝置</div>
+      <div style="margin-top:12px"><span class="switch-link" onclick="showAdminAuth()" style="color:#94a3b8"><i class="fa-solid fa-screwdriver-wrench"></i> 系統管理驗證</span></div>
     </div>
 
-    <div id="dashboard-section">
-        <button class="menu-toggle-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-        <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-header"><i class="fas fa-building-columns"></i> HomeGo Estate</div>
-            <ul class="nav-links" id="sidebar-nav-links"></ul>
-            <div class="user-info">
-                <div style="margin-bottom: 10px;"><i class="fas fa-user-circle"></i> 歡迎, <span id="display-username" style="font-weight:bold; color:var(--accent-color);">User</span></div>
-                <button class="btn btn-danger" style="padding:8px; font-size:14px; display:flex; align-items:center; justify-content:center; gap:5px;" onclick="window.logout()">
-                    <i class="fas fa-sign-out-alt"></i> 登出
-                </button>
-            </div>
-        </div>
-
-        <div class="main-content">
-            <div id="dashboard-grid-view">
-                <div class="welcome-banner">
-                    <h2>早安，<span id="grid-username">夥伴</span>！</h2>
-                    <p>請選擇您要進行的操作模組：</p>
-                </div>
-                <div class="grid-container" id="grid-cards-container">
-                    </div>
-            </div>
-
-            <iframe id="content-frame" src=""></iframe>
-
-            <div id="admin-panel">
-                <h2 style="padding-top:20px; margin-bottom:30px; color:var(--primary-color);"><i class="fas fa-cogs"></i> 雲端管理員控制台</h2>
-                
-                <div class="admin-section" style="border-left: 5px solid var(--danger-color);">
-                    <h3><i class="fas fa-user-slash" style="color:var(--danger-color);"></i> 離職黑名單狀態</h3>
-                    <p>請修改程式碼中的 <code>BANNED_USERS</code> 來封鎖。</p>
-                    <div id="banned-list-display" style="color:var(--danger-color); font-weight:bold; background: #ffebee; padding: 10px; border-radius: 5px;">目前封鎖名單：無</div>
-                </div>
-
-                <div class="admin-section">
-                    <h3><i class="fas fa-ticket-alt" style="color:var(--accent-color);"></i> 開通碼產生器</h3>
-                    <div style="display:flex; gap:15px; align-items: flex-end; flex-wrap: wrap;">
-                        <div class="input-group" style="flex:1; margin:0; min-width: 200px;">
-                             <label>員工帳號</label>
-                             <input type="text" id="admin-generate-name" placeholder="輸入帳號" style="padding:12px;">
-                        </div>
-                        <button class="btn btn-primary" style="width:auto; margin:0; padding: 12px 25px;" onclick="generateCode()"><i class="fas fa-wand-magic-sparkles"></i> 產生</button>
-                    </div>
-                    <div id="generated-code-area" style="display:none; margin-top:25px; text-align: center;">
-                        <p style="margin-bottom:10px; font-weight:bold; color:#666;">此裝置開通碼為：</p>
-                        <span id="display-code" class="code-display"></span>
-                    </div>
-                </div>
-
-                <div class="admin-section">
-                    <h3><i class="fas fa-users-viewfinder" style="color:var(--accent-color);"></i> 雲端使用者列表 (即時同步)</h3>
-                    <div class="table-responsive">
-                        <table id="user-table">
-                            <thead><tr><th><i class="fas fa-user"></i> 使用者</th><th><i class="fas fa-mobile-alt"></i> 最新登入裝置</th><th><i class="fas fa-shield-alt"></i> 授權裝置數</th><th>操作</th></tr></thead>
-                            <tbody id="user-table-body"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div id="register-form" class="auth-box hidden">
+      <div class="auth-brand"><div class="brand-logo">宏</div><div><h1>裝置註冊</h1><p>請先由楊翊晟於人員管理新增員工</p></div></div>
+      <h2><i class="fa-solid fa-key"></i> 註冊並綁定裝置</h2>
+      <div class="alert-box warning-box">請輸入主管提供的 6 位數開通碼。若是更換新手機/電腦，也可用原帳號密碼重新綁定。</div>
+      <div class="input-group"><label>使用者名稱</label><input type="text" id="reg-user" autocomplete="username" placeholder="須與員工主檔姓名一致"></div>
+      <div class="input-group"><label>登入密碼</label><input type="password" id="reg-pass" autocomplete="new-password" placeholder="請妥善保管密碼"></div>
+      <div class="input-group"><label>裝置開通碼</label><input type="number" id="reg-code" placeholder="6 位數開通碼"></div>
+      <button id="btnRegister" class="btn btn-gray btn-block"><i class="fa-solid fa-link"></i> 驗證並綁定此裝置</button>
+      <div class="switch-link" onclick="showLogin()"><i class="fa-solid fa-arrow-left"></i> 返回登入</div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
-        import { getDatabase, ref, set, get, child, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    <div id="admin-auth-form" class="auth-box hidden">
+      <div class="auth-brand"><div class="brand-logo">管</div><div><h1>系統管理驗證</h1><p>緊急維護與開通碼管理</p></div></div>
+      <h2 style="color:#ef4444"><i class="fa-solid fa-user-shield"></i> 管理員驗證</h2>
+      <div class="input-group"><label>管理密碼</label><input type="password" id="admin-pass-input" placeholder="請輸入管理密碼"></div>
+      <button id="btnAdminLogin" class="btn btn-red btn-block"><i class="fa-solid fa-lock-open"></i> 進入系統後台</button>
+      <div class="switch-link" onclick="showLogin()"><i class="fa-solid fa-arrow-left"></i> 返回登入</div>
+    </div>
+  </section>
 
-        // === PWA Service Worker 註冊 (強制更新) ===
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./service-worker.js')
-            .then(registration => {
-                console.log('SW Registered:', registration);
-                // 檢查是否有更新
-                registration.onupdatefound = () => {
-                    const installingWorker = registration.installing;
-                    installingWorker.onstatechange = () => {
-                        if (installingWorker.state === 'installed') {
-                            if (navigator.serviceWorker.controller) {
-                                console.log('New content is available; please refresh.');
-                            } else {
-                                console.log('Content is cached for offline use.');
-                            }
-                        }
-                    };
-                };
-            })
-            .catch(error => {
-                console.log('SW Registration failed:', error);
-            });
-        }
+  <section id="dashboard-section">
+    <button class="menu-toggle-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header"><div class="sidebar-title"><i class="fa-solid fa-building-columns"></i> HomeGo ERP</div><div class="sidebar-sub">單一登入｜權限管理｜新聞新知｜模組入口</div></div>
+      <div class="session-pill"><div class="name" id="display-username">User</div><div class="role" id="display-role">Role</div></div>
+      <ul class="nav-links" id="sidebar-nav-links"></ul>
+      <div class="user-info"><button class="btn btn-red btn-block" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> 登出</button></div>
+    </aside>
 
-        // === Firebase Config (您原本的設定，未更動) ===
-        const firebaseConfig = {
-            apiKey: "AIzaSyCSOS-36oQ6hTyhtD2vrez3QGvPdvwMOIw",
-            authDomain: "mainmanagement-1f3d2.firebaseapp.com",
-            databaseURL: "https://mainmanagement-1f3d2-default-rtdb.firebaseio.com",
-            projectId: "mainmanagement-1f3d2",
-            storageBucket: "mainmanagement-1f3d2.firebasestorage.app",
-            messagingSenderId: "916729301354",
-            appId: "1:916729301354:web:11d81d965c2127b0a17d13",
-            measurementId: "G-NQ6YKGEJE9"
-        };
+    <main class="main-content">
+      <div id="dashboard-grid-view">
+        <div class="topbar">
+          <div class="welcome-banner"><h2>早安，<span id="grid-username">夥伴</span>！</h2><p>今天也請依照 SOP 留痕作業，重要異動以系統紀錄為準。</p></div>
+          <div class="top-actions"><button class="btn btn-gold" id="btnOpenNews"><i class="fa-solid fa-newspaper"></i> 今日新聞新知</button><button class="btn btn-light" id="btnRefreshSession"><i class="fa-solid fa-arrows-rotate"></i> 更新登入身份</button></div>
+        </div>
+        <div class="quick-panel">
+          <div class="panel-card"><h3><i class="fa-solid fa-bullhorn"></i> 今日不動產新知快訊</h3><div class="news-ticker"><div class="news-ticker-inner" id="newsTickerInner">登入後自動載入每日新聞...</div></div></div>
+          <div class="panel-card"><h3><i class="fa-solid fa-id-badge"></i> 目前登入身份</h3><div id="sessionSummary" class="small-muted"></div></div>
+        </div>
+        <div class="grid-container" id="grid-cards-container"></div>
+      </div>
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+      <div class="iframe-toolbar" id="iframeToolbar"><button class="btn btn-light" id="btnSendSession"><i class="fa-solid fa-link"></i> 重新綁定身份</button><button class="btn btn-light" id="btnBackHome"><i class="fa-solid fa-house"></i> 回首頁</button><button class="btn btn-light" id="btnOpenExternal"><i class="fa-solid fa-up-right-from-square"></i> 新視窗</button></div>
+      <iframe id="content-frame" src=""></iframe>
 
-        // === 全域變數 (未更動) ===
-        const ADMIN_PASS = "8888";
-        const SECRET_SALT = 9527; 
-        const BANNED_USERS = []; 
+      <section id="admin-panel">
+        <div class="admin-wrap">
+          <div class="admin-title"><h2><i class="fa-solid fa-crown"></i> CEO 人員與系統管理</h2><button class="btn btn-light" onclick="loadPage(-1)"><i class="fa-solid fa-house"></i> 回首頁</button></div>
+          <div class="admin-section">
+            <h3><i class="fa-solid fa-user-plus"></i> 新增 / 修改人員</h3>
+            <div class="form-grid">
+              <div class="input-group"><label>姓名 / 登入帳號</label><input type="text" id="emp-name" placeholder="例如：新同仁姓名"></div>
+              <div class="input-group"><label>角色</label><select id="emp-role"><option value="OPS">一般助理</option><option value="ACCOUNTING">會計</option><option value="MANAGER">主管</option><option value="SENIOR">地政士/資深助理</option><option value="CEO">執行長</option></select></div>
+              <div class="input-group"><label>到職日</label><input type="date" id="emp-onboard"></div>
+              <div class="input-group"><label>初始/重設密碼</label><input type="text" id="emp-pass" placeholder="可留空，只建主檔"></div>
+            </div>
+            <div class="input-group"><label>備註</label><input type="text" id="emp-note" placeholder="職務、專長、注意事項"></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button class="btn btn-green" id="btnSaveEmployee"><i class="fa-solid fa-floppy-disk"></i> 新增 / 更新人員</button><button class="btn btn-gold" id="btnMakeCode"><i class="fa-solid fa-ticket"></i> 產生開通碼</button><span id="generated-code-area" class="hidden"><span class="code-display" id="display-code"></span></span></div>
+            <p class="small-muted">建議流程：楊翊晟先新增人員主檔 → 產生開通碼 → 同仁用自己的裝置註冊綁定。若填入初始密碼，系統會同步建立登入帳號。</p>
+          </div>
 
-        // === ⭐ 定義儀表板項目 (已更新：移除案件流程，新增銀行選擇) ===
-        const DASHBOARD_ITEMS = [
-            { title: "員工管理", icon: "fa-users-gear", url: "https://homegoestate.github.io/Employee-management/" },
-            { title: "案件管理", icon: "fa-folder-open", url: "https://homegoestate.github.io/case/" },
-            { title: "收據系統", icon: "fa-file-invoice-dollar", url: "https://homegoestate.github.io/receipts/" },
-            { title: "報價系統", icon: "fa-calculator", url: "https://homegoestate.github.io/quotation/" },
-            { title: "AI 問答助手", icon: "fa-robot", url: "https://homegoestate.github.io/AI-question-assistant/" },
-            { title: "土地效益評估", icon: "fa-chart-pie", url: "https://yangceo-taiwan.github.io/Land-efficiency-assessment/" },
-            { title: "遺產服務", icon: "fa-hand-holding-heart", url: "https://homegoestate.github.io/inherit/" },
-            { title: "銀行選擇", icon: "fa-landmark", url: "https://homegoestate.github.io/Bank-choice/" }
-        ];
+          <div class="admin-section">
+            <h3><i class="fa-solid fa-users-gear"></i> 員工主檔與權限</h3>
+            <div class="table-responsive"><table><thead><tr><th>狀態</th><th>姓名</th><th>角色</th><th>到職日</th><th>權限摘要</th><th>登入帳號</th><th>操作</th></tr></thead><tbody id="employee-table-body"></tbody></table></div>
+          </div>
 
-        // === 裝置 ID 邏輯 (未更動) ===
-        let myDeviceId = localStorage.getItem('hg_cloud_did');
-        if (!myDeviceId) {
-            myDeviceId = 'DID-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-            localStorage.setItem('hg_cloud_did', myDeviceId);
-        }
+          <div class="admin-section">
+            <h3><i class="fa-solid fa-mobile-screen-button"></i> 雲端使用者與裝置綁定</h3>
+            <div class="table-responsive"><table><thead><tr><th>帳號</th><th>最新裝置</th><th>授權裝置數</th><th>操作</th></tr></thead><tbody id="user-table-body"></tbody></table></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </section>
 
-        // === 輔助函式 ===
-        function showLoading(show) { document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none'; }
-        function getDeviceType() {
-            const ua = navigator.userAgent;
-            if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) return "tablet";
-            if (/Mobile|Android|iP(hone|od)|IEMobile/.test(ua)) return "mobile";
-            return "desktop";
-        }
-        function getDeviceLabel(type) {
-            if(type === 'mobile') return '<span class="device-badge bg-mobile"><i class="fas fa-mobile-alt"></i> 手機</span>';
-            if(type === 'tablet') return '<span class="device-badge bg-tablet"><i class="fas fa-tablet-alt"></i> 平板</span>';
-            return '<span class="device-badge bg-desktop"><i class="fas fa-desktop"></i> 電腦</span>';
-        }
-        window.calculateActivationCode = (username) => {
-            let hash = 0, name = username.trim();
-            for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-            return (Math.abs(hash * SECRET_SALT) % 1000000).toString().padStart(6, '0');
-        }
+  <div class="modal" id="newsModal">
+    <div class="modal-card">
+      <div class="modal-head"><h3><i class="fa-solid fa-newspaper"></i> 今日不動產／金融／地政新知</h3><button class="btn btn-light" onclick="closeNewsModal()"><i class="fa-solid fa-xmark"></i></button></div>
+      <div class="modal-body" id="newsModalBody"><div class="news-loading"><div class="spinner" style="margin:auto auto 12px"></div>正在整理新聞主題連結...</div></div>
+      <div class="modal-foot"><label class="checkbox-group" style="margin:0"><input type="checkbox" id="newsDontShowToday" checked><span>今天登入不再自動跳出</span></label><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-light" id="newsSourceLink" href="#" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> 開啟完整新聞源</a><button class="btn btn-navy" onclick="closeNewsModal()">我知道了</button></div></div>
+    </div>
+  </div>
 
-        // === 頁面切換 ===
-        window.showRegister = () => { dom('login-form').style.display='none'; dom('register-form').style.display='block'; }
-        window.showLogin = () => { dom('register-form').style.display='none'; dom('admin-auth-form').style.display='none'; dom('login-form').style.display='block'; }
-        window.showAdminAuth = () => { dom('login-form').style.display='none'; dom('admin-auth-form').style.display='block'; }
-        const dom = (id) => document.getElementById(id);
+  <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, set, get, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // === 註冊邏輯 (未更動) ===
-        dom('btnRegister').addEventListener('click', async () => {
-            const user = dom('reg-user').value.trim();
-            const pass = dom('reg-pass').value.trim();
-            const code = dom('reg-code').value.trim();
-            if(BANNED_USERS.includes(user)) return alert("帳號停用");
-            if(!user||!pass||!code) return alert("請輸入完整");
-            if(code !== window.calculateActivationCode(user)) return alert("開通碼錯誤");
-            showLoading(true);
-            try {
-                const r = ref(db, 'users/'+user);
-                const s = await get(r);
-                const type = getDeviceType();
-                if(s.exists()){
-                    if(s.val().password!==pass) { showLoading(false); return alert("密碼錯誤"); }
-                    let d = s.val().authorizedDevices||[];
-                    if(!d.includes(myDeviceId)) {
-                         if(confirm("綁定此裝置?")) { d.push(myDeviceId); await update(r, {authorizedDevices:d, lastDeviceType:type}); alert("綁定成功"); }
-                    } else alert("已綁定");
-                } else {
-                    await set(r, {password:pass, lastDeviceType:type, authorizedDevices:[myDeviceId]});
-                    alert("註冊成功");
-                }
-                window.showLogin();
-            } catch(e){ alert("Error: "+e.message); }
-            showLoading(false);
-        });
+const firebaseConfig = {
+  apiKey: "AIzaSyCSOS-36oQ6hTyhtD2vrez3QGvPdvwMOIw",
+  authDomain: "mainmanagement-1f3d2.firebaseapp.com",
+  databaseURL: "https://mainmanagement-1f3d2-default-rtdb.firebaseio.com",
+  projectId: "mainmanagement-1f3d2",
+  storageBucket: "mainmanagement-1f3d2.firebasestorage.app",
+  messagingSenderId: "916729301354",
+  appId: "1:916729301354:web:11d81d965c2127b0a17d13",
+  measurementId: "G-NQ6YKGEJE9"
+};
 
-        // === 登入邏輯 (未更動) ===
-        dom('btnLogin').addEventListener('click', async (e) => {
-            e.preventDefault();
-            const user = dom('login-user').value.trim();
-            const pass = dom('login-pass').value.trim();
-            if(BANNED_USERS.includes(user)) return alert("帳號停用");
-            showLoading(true);
-            try {
-                const s = await get(ref(db, 'users/'+user));
-                if(s.exists() && s.val().password===pass) {
-                    const d = s.val().authorizedDevices||[];
-                    if(d.includes(myDeviceId)) {
-                        if(dom('keep-login').checked) localStorage.setItem('hg_cloud_session', user);
-                        await update(ref(db,'users/'+user), {lastDeviceType: getDeviceType()});
-                        window.enterDashboard(user, false);
-                    } else alert("裝置未授權");
-                } else alert("帳號或密碼錯誤");
-            } catch(e){ alert("Login Error"); }
-            showLoading(false);
-        });
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-        dom('btnAdminLogin').addEventListener('click', () => {
-            if(dom('admin-pass-input').value === ADMIN_PASS) window.enterDashboard("Administrator", true);
-            else alert("密碼錯誤");
-        });
+const ADMIN_PASS = "8888"; // 管理員密碼維持原本 8888
+const SECRET_SALT = 9527;
+const ERP_SESSION_KEY = "HG_ERP_SESSION_V1";
+const NEWS_API_URL = "https://script.google.com/macros/s/AKfycbw7VdBwWni0KY_G99u7qS-vBSTXTdKAkbf_bfG-yUAVWvDFfvzLliUAJKJDZPLqciPqYA/exec";
 
-        // === ⭐ 渲染儀表板 (已更新：質感圖示與網格) ===
-        function renderDashboardUI() {
-            const nav = dom('sidebar-nav-links');
-            const grid = dom('grid-cards-container');
-            nav.innerHTML = `<li><a href="#" onclick="loadPage(-1, this)" class="active" id="home-link"><i class="fas fa-th-large"></i> 首頁總覽</a></li>`;
-            grid.innerHTML = '';
+const ROLE_META = {
+  CEO: { label: "執行長", tag: "tag-ceo", isCEO: true, isManager: true, canReview: true, permissions: ["ALL"] },
+  MANAGER: { label: "主管", tag: "tag-manager", isCEO: false, isManager: true, canReview: true, permissions: ["CASE_ALL", "ATTENDANCE_REVIEW", "ARCHIVE"] },
+  SENIOR: { label: "地政士/資深助理", tag: "tag-manager", isCEO: false, isManager: false, canReview: true, permissions: ["CASE_CREATE", "CASE_EDIT", "CASE_REVIEW", "ARCHIVE"] },
+  ACCOUNTING: { label: "會計", tag: "tag-accounting", isCEO: false, isManager: false, canReview: false, permissions: ["CASE_CREATE", "CASE_EDIT", "QUOTE", "RECEIPT", "ACCOUNTING"] },
+  OPS: { label: "一般助理", tag: "tag-ops", isCEO: false, isManager: false, canReview: false, permissions: ["CASE_CREATE", "CASE_EDIT", "QUOTE", "RECEIPT", "TOGGLE_CLOSED"] },
+  STAFF: { label: "一般人員", tag: "tag-ops", isCEO: false, isManager: false, canReview: false, permissions: ["QUOTE", "RECEIPT"] }
+};
 
-            DASHBOARD_ITEMS.forEach((item, idx) => {
-                // 側邊欄
-                nav.innerHTML += `<li><a href="#" onclick="loadPage(${idx}, this)"><i class="fas ${item.icon}"></i> ${item.title}</a></li>`;
-                // 網格卡片
-                grid.innerHTML += `
-                    <div class="dashboard-card" onclick="loadPage(${idx}, null); if(window.innerWidth<=768) toggleSidebar();">
-                        <div class="card-icon-wrapper"><i class="fas ${item.icon}"></i></div>
-                        <h3>${item.title}</h3>
-                    </div>
-                `;
-            });
+const DEFAULT_EMPLOYEES = [
+  { name: "張淑玲", roleCode: "MANAGER", onboardDate: "2017-07-01", note: "負責送件、資料整理", loginAliases: ["Ling"], primaryLogin: "Ling" },
+  { name: "李宜婷", roleCode: "MANAGER", onboardDate: "2024-06-17", note: "可審核請假", loginAliases: ["Jessica"], primaryLogin: "Jessica" },
+  { name: "呂蕙蓁", roleCode: "OPS", onboardDate: "2024-07-01", note: "負責送件、資料整理", loginAliases: ["Misso"], primaryLogin: "Misso" },
+  { name: "楊雅婷", roleCode: "ACCOUNTING", onboardDate: "2025-08-01", note: "負責送件、資料整理、會計方向", loginAliases: ["YATING"], primaryLogin: "YATING" },
+  { name: "周美汎", roleCode: "OPS", onboardDate: "2025-05-02", note: "負責送件、資料整理", loginAliases: ["fan"], primaryLogin: "fan" },
+  { name: "楊翊晟", roleCode: "CEO", onboardDate: "2018-03-01", note: "擁有所有權限", loginAliases: ["Yi cheng", "YiCheng"], primaryLogin: "Yi cheng" },
+  { name: "楊欣樺", roleCode: "ACCOUNTING", onboardDate: "", note: "會計身分", loginAliases: ["Hua"], primaryLogin: "Hua" }
+];
 
-            nav.innerHTML += `<li id="admin-link" style="display:none; border-top:1px solid rgba(255,255,255,0.1); margin-top:10px;"><a href="#" onclick="showAdminPanel(this)" style="color:#e74c3c;"><i class="fas fa-cogs"></i> 管理員後台</a></li>`;
-        }
+const EMPLOYEE_ALIAS_MAP = {
+  "misso": "呂蕙蓁",
+  "jessica": "李宜婷",
+  "ling": "張淑玲",
+  "yating": "楊雅婷",
+  "yi cheng": "楊翊晟",
+  "yicheng": "楊翊晟",
+  "fan": "周美汎",
+  "hua": "楊欣樺"
+};
 
-        window.enterDashboard = (user, isAdmin) => {
-            dom('auth-section').style.display='none';
-            dom('dashboard-section').style.display='flex';
-            dom('display-username').innerText = user;
-            dom('grid-username').innerText = isAdmin ? "管理員" : user;
-            
-            renderDashboardUI();
-            
-            if(isAdmin) {
-                dom('admin-link').style.display='block';
-                window.showAdminPanel(dom('admin-link').querySelector('a'));
-            } else {
-                dom('admin-link').style.display='none';
-                window.loadPage(-1, dom('home-link'));
-            }
-        }
+const DASHBOARD_ITEMS = [
+  { title: "員工管理", desc: "打卡、請假、補登、出勤月報", icon: "fa-users-gear", url: "https://homegoestate.github.io/Employee-management/", module: "employee" },
+  { title: "案件管理", desc: "案件 SOP、承辦、留痕、結案", icon: "fa-folder-open", url: "https://homegoestate.github.io/case/", module: "case" },
+  { title: "收據系統", desc: "代辦費、規費、收據留痕", icon: "fa-file-invoice-dollar", url: "https://homegoestate.github.io/receipts/", module: "receipts" },
+  { title: "報價系統", desc: "服務報價、折扣原因、版本紀錄", icon: "fa-calculator", url: "https://homegoestate.github.io/quotation/", module: "quotation" },
+  { title: "AI 問答助手", desc: "內部新知與 SOP 輔助", icon: "fa-robot", url: "https://homegoestate.github.io/AI-question-assistant/", module: "ai" },
+  { title: "土地效益評估", desc: "土地、容積、效益試算", icon: "fa-chart-pie", url: "https://yangceo-taiwan.github.io/Land-efficiency-assessment/", module: "land" },
+  { title: "遺產服務", desc: "繼承、文件、稅務節點", icon: "fa-hand-holding-heart", url: "https://homegoestate.github.io/inherit/", module: "inherit" },
+  { title: "銀行選擇", desc: "貸款條件、銀行策略、客戶分析", icon: "fa-landmark", url: "https://homegoestate.github.io/Bank-choice/", module: "bank" }
+];
 
-        window.loadPage = (idx, el) => {
-            dom('admin-panel').style.display='none';
-            const frame = dom('content-frame');
-            const grid = dom('dashboard-grid-view');
-            
-            if(idx === -1) {
-                frame.style.display='none';
-                grid.style.display='block';
-                if(el) updateActive(el);
-            } else {
-                grid.style.display='none';
-                frame.style.display='block';
-                frame.src = DASHBOARD_ITEMS[idx].url;
-                if(!el) el = document.querySelectorAll('#sidebar-nav-links a')[idx+1];
-                updateActive(el);
-            }
-            if(window.innerWidth<=768 && dom('sidebar').classList.contains('active')) window.toggleSidebar();
-        }
+let currentSession = null;
+let employeesCache = {};
+let usersCache = {};
+let currentFrameItem = null;
+let unsubs = [];
+let myDeviceId = localStorage.getItem("hg_cloud_did");
+if (!myDeviceId) {
+  myDeviceId = "DID-" + Math.random().toString(36).slice(2, 11).toUpperCase();
+  localStorage.setItem("hg_cloud_did", myDeviceId);
+}
 
-        function updateActive(el) {
-            document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
-            if(el) el.classList.add('active');
-        }
+const $ = (id) => document.getElementById(id);
+const showLoading = (show, text = "連線雲端資料庫中...") => { $("loadingText").innerText = text; $("loading-overlay").style.display = show ? "flex" : "none"; };
+const safeKey = (name) => String(name || "").trim();
+const todayKey = () => new Date().toISOString().slice(0, 10);
 
-        window.toggleSidebar = () => {
-            dom('sidebar').classList.toggle('active');
-            document.querySelector('.sidebar-overlay').classList.toggle('active');
-        }
+function roleMeta(roleCode) { return ROLE_META[roleCode] || ROLE_META.STAFF; }
+function roleLabel(roleCode) { return roleMeta(roleCode).label; }
+function isCEOName(name) { return normalizeName(name) === "楊翊晟"; }
+function normalizeName(v) { return String(v || "").replace(/\s+/g, "").trim(); }
+function normalizeLogin(v) { return String(v || "").trim().toLowerCase().replace(/\s+/g, " "); }
+function defaultEmployeeByName(name) { return DEFAULT_EMPLOYEES.find(e => normalizeName(e.name) === normalizeName(name)); }
+function defaultEmployeeByLogin(login) {
+  const key = normalizeLogin(login);
+  const mapped = EMPLOYEE_ALIAS_MAP[key];
+  if (mapped) return defaultEmployeeByName(mapped);
+  return DEFAULT_EMPLOYEES.find(e => normalizeName(e.name) === normalizeName(login) || (e.loginAliases || []).some(a => normalizeLogin(a) === key));
+}
+function employeeAliases(name, base = {}) {
+  const def = defaultEmployeeByName(base.name || name);
+  const aliases = [...(base.loginAliases || []), ...((def && def.loginAliases) || [])];
+  return [...new Set(aliases.filter(Boolean))];
+}
+function primaryLoginForEmployee(emp) {
+  const aliases = employeeAliases(emp.name, emp);
+  return emp.primaryLogin || aliases[0] || emp.name;
+}
+function findUserForEmployee(emp) {
+  const rec = buildEmployeeRecord(emp);
+  const keys = [rec.primaryLogin, rec.name, ...(rec.loginAliases || [])].filter(Boolean);
+  for (const key of keys) if (usersCache[key]) return { key, user: usersCache[key] };
+  return null;
+}
+function hasPermission(session, code) { return session?.isCEO || session?.permissions?.includes("ALL") || session?.permissions?.includes(code); }
 
-        window.logout = () => {
-            if(confirm("登出?")) { localStorage.removeItem('hg_cloud_session'); location.reload(); }
-        }
+function buildEmployeeRecord(base) {
+  const def = defaultEmployeeByName(base.name) || defaultEmployeeByLogin(base.name) || {};
+  const merged = { ...def, ...base };
+  const meta = roleMeta(merged.roleCode || "STAFF");
+  const aliases = employeeAliases(merged.name, merged);
+  return {
+    name: merged.name,
+    roleCode: merged.roleCode || "STAFF",
+    role: meta.label,
+    onboardDate: merged.onboardDate || "",
+    note: merged.note || "",
+    loginAliases: aliases,
+    primaryLogin: merged.primaryLogin || aliases[0] || merged.name,
+    isActive: merged.isActive !== false,
+    isCEO: !!meta.isCEO || isCEOName(merged.name),
+    isManager: !!meta.isManager,
+    canReview: !!meta.canReview,
+    permissions: meta.permissions,
+    updatedAt: new Date().toISOString()
+  };
+}
 
-        // === 管理後台邏輯 (未更動) ===
-        window.showAdminPanel = (el) => {
-            dom('content-frame').style.display='none';
-            dom('dashboard-grid-view').style.display='none';
-            dom('admin-panel').style.display='block';
-            if(el) updateActive(el);
-            
-            onValue(ref(db, 'users'), sn => {
-                const tb = dom('user-table-body');
-                tb.innerHTML = '';
-                if(sn.exists()){
-                    sn.forEach(c => {
-                        const u = c.val();
-                        tb.innerHTML += `<tr><td>${c.key}</td><td>${getDeviceLabel(u.lastDeviceType||'desktop')}</td><td><span class="device-badge" style="background:#95a5a6;">${(u.authorizedDevices||[]).length}台</span></td><td><button class="btn btn-danger" style="padding:4px 8px;font-size:12px" onclick="window.delUser('${c.key}')">刪除</button></td></tr>`;
-                    });
-                } else tb.innerHTML='<tr><td colspan="4">無資料</td></tr>';
-            });
-        }
+async function seedDefaultEmployees() {
+  const snap = await get(ref(db, "employees"));
+  const existing = snap.exists() ? snap.val() : {};
+  const updates = {};
+  for (const emp of DEFAULT_EMPLOYEES) {
+    const key = safeKey(emp.name);
+    const old = existing[key] || {};
+    const rec = buildEmployeeRecord({ ...emp, ...old, name: emp.name, roleCode: old.roleCode || emp.roleCode, onboardDate: old.onboardDate || emp.onboardDate, note: old.note || emp.note, isActive: old.isActive !== false });
+    if (!existing[key] || JSON.stringify(existing[key].loginAliases || []) !== JSON.stringify(rec.loginAliases) || existing[key].primaryLogin !== rec.primaryLogin || existing[key].roleCode !== rec.roleCode) {
+      updates[`employees/${key}`] = rec;
+    }
+  }
+  if (Object.keys(updates).length) await update(ref(db), updates);
+}
 
-        window.delUser = async u => { if(confirm("刪除使用者?")) await remove(ref(db,'users/'+u)); }
-        window.generateCode = () => {
-            const n = dom('admin-generate-name').value.trim();
-            if(n){ dom('generated-code-area').style.display='block'; dom('display-code').innerText=window.calculateActivationCode(n); }
-        }
+function calculateActivationCode(username) {
+  let hash = 0;
+  const name = String(username || "").trim();
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return (Math.abs(hash * SECRET_SALT) % 1000000).toString().padStart(6, "0");
+}
+window.calculateActivationCode = calculateActivationCode;
 
-        window.onload = () => {
-             const sess = localStorage.getItem('hg_cloud_session');
-             if(sess && !BANNED_USERS.includes(sess)) window.enterDashboard(sess, false);
-        }
-        
-        // 暴露給 HTML onClick 使用
-        window.toggleSidebar = toggleSidebar;
-    </script>
+function getDeviceType() {
+  const ua = navigator.userAgent;
+  if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) return "tablet";
+  if (/Mobile|Android|iP(hone|od)|IEMobile/.test(ua)) return "mobile";
+  return "desktop";
+}
+function deviceLabel(type) {
+  if (type === "mobile") return `<span class="device-badge bg-mobile"><i class="fa-solid fa-mobile-screen"></i> 手機</span>`;
+  if (type === "tablet") return `<span class="device-badge bg-tablet"><i class="fa-solid fa-tablet-screen-button"></i> 平板</span>`;
+  return `<span class="device-badge bg-desktop"><i class="fa-solid fa-desktop"></i> 電腦</span>`;
+}
+
+window.showRegister = () => { $("login-form").classList.add("hidden"); $("admin-auth-form").classList.add("hidden"); $("register-form").classList.remove("hidden"); };
+window.showLogin = () => { $("register-form").classList.add("hidden"); $("admin-auth-form").classList.add("hidden"); $("login-form").classList.remove("hidden"); };
+window.showAdminAuth = () => { $("login-form").classList.add("hidden"); $("register-form").classList.add("hidden"); $("admin-auth-form").classList.remove("hidden"); };
+
+function sessionFromEmployee(emp, source = "login", loginAccount = null) {
+  const record = buildEmployeeRecord(emp);
+  const account = loginAccount || record.primaryLogin || record.name;
+  return {
+    type: "HG_ERP_SESSION",
+    name: record.name,
+    displayName: record.name,
+    username: account,
+    loginAccount: account,
+    legacyName: account,
+    employeeName: record.name,
+    aliases: record.loginAliases || [],
+    role: record.role,
+    roleCode: record.roleCode,
+    isCEO: record.isCEO,
+    isAdmin: record.isCEO,
+    isManager: record.isManager,
+    canReview: record.canReview,
+    canApprove: record.canReview,
+    permissions: record.permissions,
+    deviceId: myDeviceId,
+    sessionId: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    loginAt: new Date().toISOString(),
+    source
+  };
+}
+
+function storeSession(session, keepUser = false) {
+  currentSession = session;
+  localStorage.setItem(ERP_SESSION_KEY, JSON.stringify(session));
+  sessionStorage.setItem(ERP_SESSION_KEY, JSON.stringify(session));
+  localStorage.setItem("hg_current_operator", session.name);
+  localStorage.setItem("hg_current_role", session.roleCode);
+  if (keepUser) localStorage.setItem("hg_cloud_session", session.loginAccount || session.name);
+}
+
+async function getEmployee(name) {
+  const canonicalDefault = defaultEmployeeByLogin(name) || defaultEmployeeByName(name);
+  const candidateNames = [name, canonicalDefault?.name].filter(Boolean);
+  for (const candidate of candidateNames) {
+    const snap = await get(ref(db, "employees/" + safeKey(candidate)));
+    if (snap.exists()) return buildEmployeeRecord(snap.val());
+  }
+  if (canonicalDefault) {
+    const rec = buildEmployeeRecord(canonicalDefault);
+    await set(ref(db, "employees/" + safeKey(rec.name)), rec);
+    return rec;
+  }
+  const all = await get(ref(db, "employees"));
+  if (all.exists()) {
+    const key = normalizeLogin(name);
+    const found = Object.values(all.val()).find(emp => normalizeName(emp.name) === normalizeName(name) || (emp.loginAliases || []).some(a => normalizeLogin(a) === key) || normalizeLogin(emp.primaryLogin) === key);
+    if (found) return buildEmployeeRecord(found);
+  }
+  return null;
+}
+
+async function resolveLoginIdentity(inputName) {
+  const emp = await getEmployee(inputName);
+  if (!emp) throw new Error("此帳號尚未建立員工主檔，請先由楊翊晟新增人員。 ");
+  if (emp.isActive === false) throw new Error("此員工主檔已停用，無法登入。 ");
+  const possibleAccounts = [inputName, emp.primaryLogin, emp.name, ...(emp.loginAliases || [])].filter(Boolean);
+  for (const account of possibleAccounts) {
+    const snap = await get(ref(db, "users/" + safeKey(account)));
+    if (snap.exists()) return { emp, account: safeKey(account), userRecord: snap.val() };
+  }
+  return { emp, account: safeKey(inputName || emp.primaryLogin || emp.name), userRecord: null };
+}
+
+async function ensureCanUseEmployee(name) {
+  const { emp } = await resolveLoginIdentity(name);
+  return emp;
+}
+
+async function register() {
+  const user = $("reg-user").value.trim();
+  const pass = $("reg-pass").value.trim();
+  const code = $("reg-code").value.trim();
+  if (!user || !pass || !code) return alert("請輸入完整資料");
+  if (code !== calculateActivationCode(user)) return alert("開通碼錯誤");
+  showLoading(true, "註冊並綁定裝置中...");
+  try {
+    const { emp, account, userRecord } = await resolveLoginIdentity(user);
+    const userRef = ref(db, "users/" + safeKey(account));
+    const type = getDeviceType();
+    if (userRecord) {
+      if (userRecord.password !== pass) throw new Error("密碼錯誤，請確認原密碼或請楊翊晟重設。 ");
+      const devices = Array.isArray(userRecord.authorizedDevices) ? userRecord.authorizedDevices : [];
+      if (!devices.includes(myDeviceId)) devices.push(myDeviceId);
+      await update(userRef, { authorizedDevices: devices, lastDeviceType: type, lastBoundAt: new Date().toISOString(), employeeName: emp.name });
+      alert("裝置綁定成功");
+    } else {
+      await set(userRef, { password: pass, employeeName: emp.name, authorizedDevices: [myDeviceId], lastDeviceType: type, createdAt: new Date().toISOString() });
+      alert(`註冊成功，已用「${account}」綁定到「${emp.name}」`);
+    }
+    window.showLogin();
+  } catch (err) {
+    alert(err.message || "註冊失敗");
+  } finally { showLoading(false); }
+}
+
+async function login() {
+  const user = $("login-user").value.trim();
+  const pass = $("login-pass").value.trim();
+  if (!user || !pass) return alert("請輸入帳號密碼");
+  showLoading(true, "登入驗證中...");
+  try {
+    const { emp, account, userRecord } = await resolveLoginIdentity(user);
+    if (!userRecord || userRecord.password !== pass) throw new Error("帳號或密碼錯誤");
+    const devices = userRecord.authorizedDevices || [];
+    if (!devices.includes(myDeviceId)) throw new Error("此裝置尚未授權，請用開通碼註冊並綁定此裝置。 ");
+    await update(ref(db, "users/" + safeKey(account)), { lastDeviceType: getDeviceType(), lastLoginAt: new Date().toISOString(), employeeName: emp.name });
+    const session = sessionFromEmployee(emp, "login", account);
+    storeSession(session, $("keep-login").checked);
+    enterDashboard(session, false);
+  } catch (err) { alert(err.message || "登入失敗"); }
+  finally { showLoading(false); }
+}
+
+async function adminLogin() {
+  if ($("admin-pass-input").value !== ADMIN_PASS) return alert("管理密碼錯誤");
+  const emp = await getEmployee("楊翊晟") || buildEmployeeRecord({ name: "楊翊晟", roleCode: "CEO", onboardDate: "2018-03-01" });
+  const session = sessionFromEmployee(emp, "admin-password", primaryLoginForEmployee(emp));
+  session.systemAdmin = true;
+  storeSession(session, false);
+  enterDashboard(session, true);
+}
+
+function enterDashboard(session, openAdmin = false) {
+  currentSession = session;
+  $("auth-section").style.display = "none";
+  $("dashboard-section").style.display = "flex";
+  $("display-username").innerText = session.name;
+  $("display-role").innerText = `${session.role}｜${session.isCEO ? "最高權限" : "一般權限"}`;
+  $("grid-username").innerText = session.name;
+  renderDashboardUI();
+  updateSessionSummary();
+  renderTickerPlaceholder();
+  subscribeAdminData();
+  if (openAdmin || session.isCEO) {
+    $("admin-link").style.display = "block";
+    if (openAdmin) showAdminPanel(); else loadPage(-1);
+  } else {
+    $("admin-link").style.display = "none";
+    loadPage(-1);
+  }
+  fetchNews({ auto: true });
+}
+
+function renderDashboardUI() {
+  const nav = $("sidebar-nav-links");
+  const grid = $("grid-cards-container");
+  nav.innerHTML = `<li><a href="#" onclick="loadPage(-1,this)" id="home-link"><i class="fa-solid fa-table-cells-large"></i> 首頁總覽</a></li>`;
+  grid.innerHTML = "";
+  DASHBOARD_ITEMS.forEach((item, idx) => {
+    nav.insertAdjacentHTML("beforeend", `<li><a href="#" onclick="loadPage(${idx},this)"><i class="fa-solid ${item.icon}"></i> ${item.title}</a></li>`);
+    grid.insertAdjacentHTML("beforeend", `<div class="dashboard-card" onclick="loadPage(${idx})"><div class="card-icon-wrapper"><i class="fa-solid ${item.icon}"></i></div><h3>${item.title}</h3><p>${item.desc}</p></div>`);
+  });
+  nav.insertAdjacentHTML("beforeend", `<li id="admin-link" style="display:none;border-top:1px solid rgba(255,255,255,.12);margin-top:8px"><a href="#" onclick="showAdminPanel(this)" style="color:#facc15"><i class="fa-solid fa-crown"></i> CEO 人員管理</a></li>`);
+}
+
+function updateSessionSummary() {
+  if (!currentSession) return;
+  $("sessionSummary").innerHTML = `
+    <b>${currentSession.name}</b>｜${currentSession.role}<br>
+    裝置：${myDeviceId}<br>
+    權限：${currentSession.permissions?.join("、") || "-"}<br>
+    登入時間：${new Date(currentSession.loginAt).toLocaleString("zh-TW", { hour12: false })}
+  `;
+}
+
+function setActive(el) {
+  document.querySelectorAll(".nav-links a").forEach(a => a.classList.remove("active"));
+  if (el) el.classList.add("active");
+}
+
+function sessionParams(url) {
+  const u = new URL(url, window.location.href);
+  const s = currentSession || {};
+  const isEmployeeModule = currentFrameItem?.module === "employee";
+  const moduleName = isEmployeeModule ? (s.loginAccount || s.legacyName || s.name || "") : (s.name || "");
+  u.searchParams.set("name", moduleName);
+  u.searchParams.set("displayName", s.name || "");
+  u.searchParams.set("employeeName", s.name || "");
+  u.searchParams.set("alias", s.loginAccount || s.legacyName || "");
+  u.searchParams.set("legacyName", s.loginAccount || s.legacyName || "");
+  u.searchParams.set("role", s.role || "");
+  u.searchParams.set("roleCode", s.roleCode || "");
+  u.searchParams.set("operator", s.name || "");
+  u.searchParams.set("hg_session", s.sessionId || "");
+  u.searchParams.set("session", encodeURIComponent(JSON.stringify(s)));
+  return u.toString();
+}
+
+function sendSessionToFrame() {
+  const frame = $("content-frame");
+  if (!frame.contentWindow || !currentSession) return;
+  const sessionForModule = { ...currentSession };
+  if (currentFrameItem?.module === "employee") {
+    sessionForModule.name = currentSession.loginAccount || currentSession.legacyName || currentSession.name;
+    sessionForModule.displayName = currentSession.name;
+    sessionForModule.employeeName = currentSession.name;
+  }
+  const payload = { type: "HG_ERP_SESSION", session: sessionForModule };
+  try { frame.contentWindow.postMessage(payload, "*"); } catch (err) { console.warn("postMessage failed", err); }
+}
+
+window.loadPage = function(idx, el) {
+  $("admin-panel").style.display = "none";
+  const frame = $("content-frame");
+  const grid = $("dashboard-grid-view");
+  const toolbar = $("iframeToolbar");
+  if (idx === -1) {
+    currentFrameItem = null;
+    frame.style.display = "none";
+    toolbar.style.display = "none";
+    grid.style.display = "block";
+    if (!el) el = $("home-link");
+    setActive(el);
+  } else {
+    currentFrameItem = DASHBOARD_ITEMS[idx];
+    grid.style.display = "none";
+    frame.style.display = "block";
+    toolbar.style.display = "flex";
+    frame.src = sessionParams(currentFrameItem.url);
+    frame.onload = () => setTimeout(sendSessionToFrame, 250);
+    if (!el) el = document.querySelectorAll("#sidebar-nav-links a")[idx + 1];
+    setActive(el);
+  }
+  if (window.innerWidth <= 768 && $("sidebar").classList.contains("active")) toggleSidebar();
+};
+
+window.showAdminPanel = function(el) {
+  if (!currentSession?.isCEO && !currentSession?.systemAdmin) return alert("只有楊翊晟可進入人員管理。 ");
+  $("content-frame").style.display = "none";
+  $("dashboard-grid-view").style.display = "none";
+  $("iframeToolbar").style.display = "none";
+  $("admin-panel").style.display = "block";
+  setActive(el || document.querySelector("#admin-link a"));
+};
+
+function renderEmployeeTable() {
+  const tb = $("employee-table-body");
+  const list = Object.values(employeesCache || {}).sort((a, b) => (a.isActive === b.isActive ? a.name.localeCompare(b.name, "zh-Hant") : (a.isActive ? -1 : 1)));
+  if (!list.length) { tb.innerHTML = `<tr><td colspan="7">尚無人員主檔</td></tr>`; return; }
+  tb.innerHTML = list.map(emp => {
+    const rec = buildEmployeeRecord(emp);
+    const loginInfo = findUserForEmployee(rec);
+    const user = loginInfo?.user;
+    const loginKey = loginInfo?.key || rec.primaryLogin || rec.name;
+    const tagClass = rec.isActive ? roleMeta(rec.roleCode).tag : "tag-off";
+    const perms = rec.permissions.includes("ALL") ? "全部權限" : rec.permissions.join("、");
+    return `<tr>
+      <td><span class="status-dot ${rec.isActive ? "" : "off"}"></span> ${rec.isActive ? "啟用" : "停用"}</td>
+      <td><b>${rec.name}</b><div class="small-muted">登入別名：${(rec.loginAliases || []).join("、") || rec.primaryLogin || rec.name}</div><div class="small-muted">${rec.note || ""}</div></td>
+      <td><span class="tag ${tagClass}">${rec.role}</span></td>
+      <td>${rec.onboardDate || "-"}</td>
+      <td class="small-muted">${perms}</td>
+      <td>${user ? `<span class="tag tag-ops">${escapeHtml(loginKey)}</span><div class="small-muted">裝置 ${(user.authorizedDevices || []).length} 台</div>` : `<span class="tag tag-off">未建立</span><div class="small-muted">建議帳號：${escapeHtml(loginKey)}</div>`}</td>
+      <td><div class="row-actions">
+        <button class="btn btn-light" onclick="editEmployee('${rec.name}')">編輯</button>
+        <button class="btn btn-gold" onclick="showCodeFor('${rec.name}')">開通碼</button>
+        ${rec.isActive ? `<button class="btn btn-orange" onclick="deactivateEmployee('${rec.name}')">停用</button>` : `<button class="btn btn-green" onclick="reactivateEmployee('${rec.name}')">啟用</button>`}
+        <button class="btn btn-red" onclick="hardDeleteEmployee('${rec.name}')">刪除</button>
+      </div></td>
+    </tr>`;
+  }).join("");
+}
+
+function renderUsersTable() {
+  const tb = $("user-table-body");
+  const list = Object.entries(usersCache || {}).sort((a, b) => a[0].localeCompare(b[0], "zh-Hant"));
+  if (!list.length) { tb.innerHTML = `<tr><td colspan="4">尚無登入帳號</td></tr>`; return; }
+  tb.innerHTML = list.map(([name, user]) => `<tr><td><b>${name}</b></td><td>${deviceLabel(user.lastDeviceType || "desktop")}</td><td><span class="device-badge" style="background:#64748b">${(user.authorizedDevices || []).length} 台</span></td><td><div class="row-actions"><button class="btn btn-light" onclick="clearDevices('${name}')">清裝置</button><button class="btn btn-red" onclick="deleteLoginUser('${name}')">刪登入</button></div></td></tr>`).join("");
+}
+
+function subscribeAdminData() {
+  if (unsubs.length) return;
+  unsubs.push(onValue(ref(db, "employees"), snap => { employeesCache = snap.exists() ? snap.val() : {}; renderEmployeeTable(); }));
+  unsubs.push(onValue(ref(db, "users"), snap => { usersCache = snap.exists() ? snap.val() : {}; renderEmployeeTable(); renderUsersTable(); }));
+}
+
+async function saveEmployee() {
+  if (!currentSession?.isCEO && !currentSession?.systemAdmin) return alert("只有楊翊晟可以新增或修改人員。 ");
+  const name = $("emp-name").value.trim();
+  const roleCode = $("emp-role").value;
+  const onboardDate = $("emp-onboard").value;
+  const note = $("emp-note").value.trim();
+  const pass = $("emp-pass").value.trim();
+  if (!name) return alert("請輸入姓名/帳號");
+  const rec = buildEmployeeRecord({ ...(employeesCache[name] || {}), name, roleCode, onboardDate, note, isActive: true });
+  showLoading(true, "儲存人員資料中...");
+  try {
+    await set(ref(db, "employees/" + safeKey(name)), rec);
+    if (pass) {
+      const accountName = primaryLoginForEmployee(rec);
+      const uref = ref(db, "users/" + safeKey(accountName));
+      const old = await get(uref);
+      const devices = old.exists() ? (old.val().authorizedDevices || []) : [];
+      await set(uref, { password: pass, employeeName: rec.name, authorizedDevices: devices, lastDeviceType: old.exists() ? old.val().lastDeviceType || "desktop" : "desktop", updatedAt: new Date().toISOString() });
+    }
+    $("emp-pass").value = "";
+    alert("人員資料已更新");
+  } catch (err) { alert("儲存失敗：" + err.message); }
+  finally { showLoading(false); }
+}
+
+window.editEmployee = function(name) {
+  const emp = employeesCache[name];
+  if (!emp) return;
+  $("emp-name").value = emp.name || name;
+  $("emp-role").value = emp.roleCode || "OPS";
+  $("emp-onboard").value = emp.onboardDate || "";
+  $("emp-note").value = emp.note || "";
+  $("emp-pass").value = "";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+window.showCodeFor = function(name) {
+  const emp = buildEmployeeRecord(employeesCache[name] || defaultEmployeeByName(name) || { name });
+  const account = primaryLoginForEmployee(emp);
+  $("emp-name").value = emp.name;
+  $("generated-code-area").classList.remove("hidden");
+  $("display-code").innerText = `${account}｜${calculateActivationCode(account)}`;
+};
+
+async function setActiveEmployee(name, isActive) {
+  if (!currentSession?.isCEO && !currentSession?.systemAdmin) return alert("只有楊翊晟可以調整人員狀態。 ");
+  await update(ref(db, "employees/" + safeKey(name)), { isActive, updatedAt: new Date().toISOString() });
+}
+window.deactivateEmployee = async function(name) {
+  if (name === "楊翊晟") return alert("不可停用楊翊晟帳號。 ");
+  if (!confirm(`確定停用「${name}」？系統也會移除登入帳號，避免離職後登入。`)) return;
+  await setActiveEmployee(name, false);
+  const emp = buildEmployeeRecord(employeesCache[name] || defaultEmployeeByName(name) || { name });
+  for (const account of [emp.name, emp.primaryLogin, ...(emp.loginAliases || [])].filter(Boolean)) await remove(ref(db, "users/" + safeKey(account)));
+};
+window.reactivateEmployee = async function(name) { await setActiveEmployee(name, true); };
+window.hardDeleteEmployee = async function(name) {
+  if (name === "楊翊晟") return alert("不可刪除楊翊晟。 ");
+  if (!confirm(`永久刪除「${name}」員工主檔與登入帳號？建議離職人員通常用停用即可。`)) return;
+  await remove(ref(db, "employees/" + safeKey(name)));
+  const emp = buildEmployeeRecord(employeesCache[name] || defaultEmployeeByName(name) || { name });
+  for (const account of [emp.name, emp.primaryLogin, ...(emp.loginAliases || [])].filter(Boolean)) await remove(ref(db, "users/" + safeKey(account)));
+};
+window.deleteLoginUser = async function(name) { if (confirm(`刪除「${name}」登入帳號？員工主檔會保留。`)) await remove(ref(db, "users/" + safeKey(name))); };
+window.clearDevices = async function(name) { if (confirm(`清除「${name}」所有授權裝置？下次需重新綁定。`)) await update(ref(db, "users/" + safeKey(name)), { authorizedDevices: [] }); };
+
+function makeCodeFromForm() {
+  const name = $("emp-name").value.trim();
+  if (!name) return alert("請先輸入姓名/帳號");
+  const emp = buildEmployeeRecord(employeesCache[name] || defaultEmployeeByLogin(name) || defaultEmployeeByName(name) || { name });
+  const account = primaryLoginForEmployee(emp);
+  $("generated-code-area").classList.remove("hidden");
+  $("display-code").innerText = `${account}｜${calculateActivationCode(account)}`;
+}
+
+function normalizeNewsTitle(text) {
+  return String(text || "")
+    .replace(/<!\[CDATA\[/g, "")
+    .replace(/\]\]>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\s+/g, " ")
+    .replace(/^[-•●◆◇▪▫\d\.、\)\(\[\]]+\s*/, "")
+    .trim();
+}
+function absoluteNewsUrl(href) {
+  try { return new URL(href || NEWS_API_URL, NEWS_API_URL).toString(); }
+  catch { return NEWS_API_URL; }
+}
+function googleNewsSearchUrl(topic) {
+  return "https://news.google.com/search?q=" + encodeURIComponent(topic + " 台灣 不動產 地政 房貸") + "&hl=zh-TW&gl=TW&ceid=TW:zh-Hant";
+}
+function uniqueNewsItems(items) {
+  const seen = new Set();
+  return (items || [])
+    .map(item => ({
+      title: normalizeNewsTitle(item.title || item.標題 || item.headline || item.name || ""),
+      link: absoluteNewsUrl(item.link || item.url || item.網址 || ""),
+      source: normalizeNewsTitle(item.source || item.來源 || item.media || "每日新聞"),
+      date: normalizeNewsTitle(item.date || item.pubDate || item.日期 || item.time || ""),
+      summary: normalizeNewsTitle(item.summary || item.description || item.摘要 || item.content || "")
+    }))
+    .filter(item => item.title && item.title.length >= 3)
+    .filter(item => item.link && item.link !== NEWS_API_URL)
+    .filter(item => {
+      const key = item.title.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}
+function parseXmlNews(xmlText) {
+  const items = [];
+  try {
+    const clean = String(xmlText || "").trim();
+    const xml = new DOMParser().parseFromString(clean, "text/xml");
+    if (xml.querySelector("parsererror")) return [];
+    const nodes = Array.from(xml.getElementsByTagName("item"));
+    nodes.forEach(node => {
+      const getTag = (tag) => {
+        const el = node.getElementsByTagName(tag)[0];
+        return el ? el.textContent : "";
+      };
+      const title = getTag("title");
+      const link = getTag("link");
+      const date = getTag("pubDate") || getTag("date");
+      const desc = getTag("description");
+      if (title && link) items.push({ title, link, source: "每日新聞", date, summary: desc });
+    });
+  } catch (err) { console.warn("parseXmlNews failed", err); }
+  return uniqueNewsItems(items).slice(0, 80);
+}
+function parseHtmlNews(htmlText) {
+  const xmlItems = parseXmlNews(htmlText);
+  if (xmlItems.length) return xmlItems;
+  const items = [];
+  try {
+    const doc = new DOMParser().parseFromString(String(htmlText || ""), "text/html");
+    Array.from(doc.querySelectorAll("a[href]")).forEach(a => {
+      const title = normalizeNewsTitle(a.textContent || a.getAttribute("title") || "");
+      const href = a.getAttribute("href") || "";
+      if (title && href && !/^開啟|^更多|^read more$/i.test(title)) items.push({ title, link: absoluteNewsUrl(href), source: "每日新聞" });
+    });
+  } catch (err) { console.warn("parseHtmlNews failed", err); }
+  return uniqueNewsItems(items).slice(0, 80);
+}
+function parseNewsPayload(payload) {
+  let raw = payload;
+  if (typeof raw === "string") {
+    const text = raw.trim();
+    if (/^<\?xml|<rss|<channel|<item[\s>]/i.test(text)) return parseXmlNews(text);
+    try { raw = JSON.parse(text); }
+    catch {
+      if (/<[a-z][\s\S]*>/i.test(text)) return parseHtmlNews(text);
+      const urlRegex = /(https?:\/\/[^\s)）]+)$/i;
+      return uniqueNewsItems(text.split(/\n+/).map(line => {
+        const cleaned = normalizeNewsTitle(line.replace(urlRegex, ""));
+        const match = line.match(urlRegex);
+        return { title: cleaned, link: match ? match[1] : "", source: "每日新聞" };
+      })).slice(0, 80);
+    }
+  }
+  const arr = Array.isArray(raw) ? raw : (raw?.data || raw?.news || raw?.items || raw?.articles || raw?.results || raw?.rows || []);
+  if (!Array.isArray(arr)) return [];
+  return uniqueNewsItems(arr.map((item, i) => {
+    if (typeof item === "string") return { title: item, link: "", source: "每日新聞" };
+    return {
+      title: item.title || item.標題 || item.headline || item.name || item.subject || `新聞 ${i + 1}`,
+      link: item.link || item.url || item.網址 || "",
+      source: item.source || item.來源 || item.media || "每日新聞",
+      date: item.date || item.pubDate || item.日期 || item.time || "",
+      summary: item.summary || item.description || item.摘要 || ""
+    };
+  })).slice(0, 80);
+}
+
+const NEWS_TOPIC_RULES = [
+  { title: "央行信用管制與金融市場", keywords: ["央行", "信用管制", "利率", "房貸", "銀行", "金融", "台股", "股", "Fed", "美元", "匯率"] },
+  { title: "房貸核貸、成數與資金壓力", keywords: ["核貸", "成數", "貸款", "房貸", "寬限", "撥款", "估價", "收支比"] },
+  { title: "台南房市與區域成交觀察", keywords: ["台南", "南科", "安南", "北區", "東區", "永康", "新市", "善化", "歸仁", "高雄"] },
+  { title: "土地開發、重劃與都市計畫", keywords: ["土地", "重劃", "都更", "危老", "容積", "建地", "開發", "都市計畫", "區段徵收"] },
+  { title: "稅務、繼承與交易安全提醒", keywords: ["稅", "繼承", "贈與", "遺產", "房地合一", "登記", "地政", "履保", "合約"] },
+  { title: "買房風險與市場趨勢", keywords: ["房市", "買房", "預售", "中古", "交易", "房價", "租金", "投資", "不動產"] }
+];
+function buildNewsTopics(items) {
+  const normalized = uniqueNewsItems(items);
+  const used = new Set();
+  const topics = NEWS_TOPIC_RULES.map(rule => {
+    const matched = normalized.filter(item => {
+      const text = `${item.title} ${item.summary}`;
+      return rule.keywords.some(k => text.includes(k));
+    });
+    matched.forEach(i => used.add(i.title));
+    return { title: rule.title, items: matched.slice(0, 5) };
+  });
+  const leftovers = normalized.filter(i => !used.has(i.title)).slice(0, 5);
+  if (leftovers.length) topics.push({ title: "其他重要新聞", items: leftovers });
+  return topics.filter(t => t.items.length).slice(0, 7);
+}
+function fallbackTopics() {
+  return NEWS_TOPIC_RULES.slice(0, 6).map(rule => ({
+    title: rule.title,
+    items: [{ title: `查看「${rule.title}」相關新聞`, link: googleNewsSearchUrl(rule.title), source: "Google 新聞搜尋" }],
+    fallback: true
+  }));
+}
+function newsSeenKey() { return `hg_news_seen_${currentSession?.name || "guest"}_${todayKey()}`; }
+function renderTickerPlaceholder(items = []) {
+  const inner = $("newsTickerInner");
+  const topics = items.length ? buildNewsTopics(items) : fallbackTopics();
+  inner.innerHTML = topics.slice(0, 6).map(topic => {
+    const first = topic.items[0] || { link: googleNewsSearchUrl(topic.title) };
+    return `<a href="${escapeAttr(first.link)}" target="_blank">${escapeHtml(topic.title)}</a>`;
+  }).join("");
+}
+function newsUrlWithCacheBust() {
+  const u = new URL(NEWS_API_URL, window.location.href);
+  u.searchParams.set("_t", Date.now().toString());
+  return u.toString();
+}
+async function fetchTextWithFallbacks() {
+  const targets = [
+    newsUrlWithCacheBust(),
+    "https://api.allorigins.win/raw?url=" + encodeURIComponent(newsUrlWithCacheBust()),
+    "https://corsproxy.io/?" + encodeURIComponent(newsUrlWithCacheBust())
+  ];
+  let lastErr = null;
+  for (const target of targets) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 8000);
+      const res = await fetch(target, { cache: "no-store", signal: controller.signal });
+      clearTimeout(timer);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      if (text && text.trim()) return text;
+    } catch (err) { lastErr = err; }
+  }
+  throw lastErr || new Error("新聞來源暫時無法讀取");
+}
+function renderNewsList(items, { fallback = false } = {}) {
+  const topics = (!fallback && items && items.length) ? buildNewsTopics(items) : fallbackTopics();
+  $("newsSourceLink").href = NEWS_API_URL;
+  $("newsModalBody").innerHTML = `
+    <div class="news-compact-tip">以下整理成「可吸收的新知主題」。先看主題，再點新聞標題看原文；不用再看整頁 RSS 原始碼。</div>
+    ${fallback ? `<div class="topic-empty">目前無法自動解析每日新聞源，系統先提供主題式 Google 新聞連結。右下角仍可開啟完整新聞源供備查。</div>` : ""}
+    <div class="topic-list">
+      ${topics.map((topic, idx) => {
+        const list = topic.items && topic.items.length ? topic.items : [{ title: `查看「${topic.title}」相關新聞`, link: googleNewsSearchUrl(topic.title), source: "Google 新聞搜尋" }];
+        const first = list[0];
+        return `<div class="topic-card learning">
+          <div class="topic-header-row">
+            <div class="topic-title-block">
+              <div class="topic-link">${idx + 1}. ${escapeHtml(topic.title)}</div>
+              <div class="topic-source-line">${topic.fallback || fallback ? "主題搜尋" : `已整理 ${list.length} 則新聞`}</div>
+            </div>
+            <a class="topic-action" href="${escapeAttr(first.link)}" target="_blank">看代表新聞</a>
+          </div>
+          <div class="topic-news-list">
+            ${list.slice(0, 4).map((item, j) => `<a class="topic-news-link" href="${escapeAttr(item.link)}" target="_blank"><span class="idx">${j + 1}</span><span>${escapeHtml(item.title)}</span></a>`).join("")}
+          </div>
+        </div>`;
+      }).join("")}
+    </div>`;
+  $("newsModal").classList.add("show");
+}
+async function fetchNews({ auto = false, force = false } = {}) {
+  $("newsSourceLink").href = NEWS_API_URL;
+  if (auto && localStorage.getItem(newsSeenKey()) === "1" && !force) {
+    tryLoadTickerOnly();
+    return;
+  }
+  if (auto || force) {
+    $("newsModalBody").innerHTML = `<div class="news-loading"><div class="spinner" style="margin:auto auto 12px"></div>正在整理今日新聞主題...</div>`;
+    $("newsModal").classList.add("show");
+  }
+  try {
+    const text = await fetchTextWithFallbacks();
+    const items = parseNewsPayload(text).slice(0, 80);
+    window.__latestNews = items;
+    renderTickerPlaceholder(items);
+    if (auto || force) renderNewsList(items, { fallback: !items.length });
+  } catch (err) {
+    console.warn("news fetch failed", err);
+    renderTickerPlaceholder([]);
+    if (auto || force) renderNewsList([], { fallback: true });
+  }
+}
+async function tryLoadTickerOnly() {
+  try {
+    const text = await fetchTextWithFallbacks();
+    const items = parseNewsPayload(text).slice(0, 80);
+    renderTickerPlaceholder(items);
+  } catch { renderTickerPlaceholder([]); }
+}
+function openNewsModal(loading = false, items = null) {
+  if (loading) {
+    $("newsModalBody").innerHTML = `<div class="news-loading"><div class="spinner" style="margin:auto auto 12px"></div>正在整理新聞主題連結...</div>`;
+  }
+  if (items) renderNewsList(items);
+  else $("newsModal").classList.add("show");
+}
+window.closeNewsModal = function() {
+  if ($("newsDontShowToday")?.checked && currentSession) localStorage.setItem(newsSeenKey(), "1");
+  $("newsModal").classList.remove("show");
+};
+function escapeHtml(v) { return String(v ?? "").replace(/[&<>'"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[ch])); }
+function escapeAttr(v) { return escapeHtml(v).replace(/\n/g, ""); }
+
+function logout() {
+  if (!confirm("確定登出？")) return;
+  localStorage.removeItem("hg_cloud_session");
+  localStorage.removeItem(ERP_SESSION_KEY);
+  sessionStorage.removeItem(ERP_SESSION_KEY);
+  location.reload();
+}
+window.logout = logout;
+window.toggleSidebar = () => { $("sidebar").classList.toggle("active"); document.querySelector(".sidebar-overlay").classList.toggle("active"); };
+
+async function restoreSession() {
+  const sessName = localStorage.getItem("hg_cloud_session");
+  if (!sessName) return;
+  try {
+    showLoading(true, "恢復登入狀態...");
+    const { emp, account, userRecord } = await resolveLoginIdentity(sessName);
+    if (!userRecord) throw new Error("登入帳號不存在");
+    if (!(userRecord.authorizedDevices || []).includes(myDeviceId)) throw new Error("裝置授權已失效");
+    const session = sessionFromEmployee(emp, "restore", account);
+    storeSession(session, true);
+    enterDashboard(session, false);
+  } catch (err) {
+    localStorage.removeItem("hg_cloud_session");
+    console.warn("restore failed", err);
+  } finally { showLoading(false); }
+}
+
+window.addEventListener("message", (event) => {
+  const data = event.data || {};
+  if (data.type === "HG_ERP_REQUEST_SESSION" || data.type === "HG_MODULE_READY") sendSessionToFrame();
+});
+
+$("btnLogin").addEventListener("click", (e) => { e.preventDefault(); login(); });
+$("btnRegister").addEventListener("click", (e) => { e.preventDefault(); register(); });
+$("btnAdminLogin").addEventListener("click", (e) => { e.preventDefault(); adminLogin(); });
+$("btnSaveEmployee").addEventListener("click", saveEmployee);
+$("btnMakeCode").addEventListener("click", makeCodeFromForm);
+$("btnOpenNews").addEventListener("click", () => fetchNews({ force: true }));
+$("btnRefreshSession").addEventListener("click", () => { storeSession(currentSession, !!localStorage.getItem("hg_cloud_session")); alert("登入身份已重新寫入，請重新點選模組。 "); });
+$("btnSendSession").addEventListener("click", sendSessionToFrame);
+$("btnBackHome").addEventListener("click", () => loadPage(-1));
+$("btnOpenExternal").addEventListener("click", () => { if (currentFrameItem) window.open(sessionParams(currentFrameItem.url), "_blank"); });
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./service-worker.js").then(reg => {
+    reg.update?.();
+  }).catch(console.warn);
+}
+
+(async function init() {
+  showLoading(true, "初始化 ERP 總控制管理...");
+  try {
+    await seedDefaultEmployees();
+    await restoreSession();
+  } catch (err) {
+    console.error(err);
+  } finally {
+    showLoading(false);
+  }
+})();
+
+  </script>
 </body>
 </html>
