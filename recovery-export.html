@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-iC5Ph6+PbJ9Ti2Ol8evS8YFBiVYuSaRSXH9Qw17qR9o='; style-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'none'; frame-src 'none'">
+<meta name="referrer" content="no-referrer">
+<title>宏國｜瀏覽器本機資料加密備份</title>
+<style>
+:root{font-family:system-ui,"Microsoft JhengHei",sans-serif;color:#173046;background:#eef3f6;line-height:1.65}body{margin:0}main{max-width:900px;margin:auto;padding:24px}h1{font-size:27px;margin:0}h2{font-size:20px;margin:0 0 12px}section{background:white;border:1px solid #d6e0e6;border-radius:12px;padding:22px;margin:18px 0}.badge{color:#075f64;font-weight:700}.notice{background:#fff6d9;border-left:4px solid #b68000;padding:12px}.muted{color:#516575;font-size:14px}label{display:block;font-weight:650;margin:14px 0 5px}input{box-sizing:border-box;width:100%;font:inherit;padding:10px;border:1px solid #aab8c3;border-radius:6px}button{font:inherit;background:#075f64;color:white;padding:10px 16px;border:0;border-radius:6px;cursor:pointer;margin-top:14px}button:disabled{opacity:.5;cursor:not-allowed}button.secondary{background:#526a7a;margin-left:8px}pre{font:inherit;white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0}table{border-collapse:collapse;width:100%;font-size:14px}td,th{text-align:left;border-bottom:1px solid #e1e7eb;padding:8px;overflow-wrap:anywhere}td:first-child{max-width:360px}#status{min-height:28px;font-weight:700}details{margin-top:12px}footer{font-size:13px;color:#516575}.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:600px){main{padding:14px}section{padding:16px}.row{grid-template-columns:1fr}h1{font-size:22px}}
+</style>
+</head>
+<body><main>
+<span class="badge">只讀工具 · 加密下載 · 不含還原功能</span>
+<h1>瀏覽器本機資料備份</h1>
+<p>此頁只讀取目前這台電腦、目前瀏覽器設定檔、指定網站來源的業務資料。其他電腦、瀏覽器設定檔與雲端資料庫不在範圍內。</p>
+<p class="notice">請先停止其他業務分頁的編輯。備份不會凍結其他分頁；資料若在讀取期間變動，本工具會停止並請您重試。</p>
+<section>
+<h2>1. 確認來源並讀取資料</h2>
+<pre id="originInfo"></pre>
+<label for="deviceLabel">來源電腦／瀏覽器標籤（請自行命名，勿填客戶資料）</label>
+<input id="deviceLabel" maxlength="100" autocomplete="off" placeholder="例如：櫃台電腦／Chrome／工作設定檔">
+<button id="capture" disabled>讀取本機業務資料</button>
+<p class="muted">範圍：案件主資料、表單與草稿、承辦名單、報表備註、履保選項、收據、報價與報價稽核、服務／稅費選項、銀行方案，以及已知格式的案件備份鍵。未儲存於這些鍵的收據／報價草稿不包含在內。</p>
+<p class="muted">登入狀態、工作階段、驗證權杖、API 金鑰、密碼及連線設定鍵均不讀取。已存在的業務原始字串不做欄位刪改，請勿在業務備註中儲存憑證。本頁不寫入 localStorage、sessionStorage、IndexedDB 或快取，不註冊服務工作程式，不傳送資料到網路。</p>
+<pre id="summary">尚未讀取。</pre>
+<details><summary>查看資料鍵與筆數（不顯示內容）</summary><table><thead><tr><th>資料鍵</th><th>JSON 陣列筆數</th><th>位元組</th></tr></thead><tbody id="keyRows"></tbody></table></details>
+</section>
+<section>
+<h2>2. 設定密碼並下載加密檔</h2>
+<p class="notice"><strong>先檢查備份，再保存密碼；忘記無法復原。</strong><br>下載後請到下方選取剛下載的檔案並解密驗證。請將密碼另行保存在可信任的密碼管理工具；不要只憑檔案已下載就認定可用。</p>
+<div class="row"><div><label for="password">密碼（至少 12 字）</label><input id="password" type="password" autocomplete="off" maxlength="1024"></div><div><label for="confirmation">再次輸入相同密碼</label><input id="confirmation" type="password" autocomplete="off" maxlength="1024"></div></div>
+<button id="download" disabled>加密並下載備份</button><button id="clear" class="secondary">清除本頁暫存</button>
+<p class="muted">AES-GCM 256 位元；PBKDF2-SHA256、600,000 次；每次獨立隨機 salt 與 IV。每個原始字串與整份快照皆有 SHA-256 校驗。單值上限 5 MiB，完整加密檔上限 10 MiB；超限會整份拒絕，不靜默略過資料。</p>
+</section>
+<section>
+<h2>3. 檢查備份（只驗證，不寫回）</h2>
+<label for="backupFile">選取剛下載的加密 JSON 檔（上限 10 MiB）</label><input id="backupFile" type="file" accept=".json,application/json">
+<label for="verifyPassword">備份密碼</label><input id="verifyPassword" type="password" autocomplete="off" maxlength="1024">
+<button id="verify">解密並檢查備份</button>
+<pre id="verifyResult">尚未檢查檔案。檢查成功也不會執行資料還原。</pre>
+</section>
+<p id="status" role="status" aria-live="polite"></p>
+<footer>筆數是各鍵頂層陣列，或 cases／payload／staff 陣列長度。草稿與一般物件顯示「—」。歷史備份可能重複含同一案件，合計不等於不重複案件数。重新整理或關閉分頁會放棄本頁參照；JavaScript 記憶體與瀏覽器擴充功能的管理不受本頁控制。</footer>
+</main>
+<script type="module">
+/* CORE_BEGIN */
+const ORIGIN = 'https://homegoestate.github.io';
+const MAX_FILE = 10 * 1024 * 1024;
+const MAX_VALUE = 5 * 1024 * 1024;
+const MAX_KEYS = 2000;
+const ITERATIONS = 600000;
+const FIXED_KEYS = Object.freeze([
+  'HG_RECEIPT_RECORDS_V1', 'HG_QUOTATION_RECORDS_V1', 'HG_QUOTATION_AUDIT_V1',
+  'serviceOpts_v4', 'taxOpts_v4', 'mortgageBankData_PRO',
+  'nexus_cases_db', 'nexus_form_draft_v33', 'nexus_form_v33',
+  'nexus_staff_draft_v33', 'nexus_roadmap_type_v33', 'nexus_report_notes_v33',
+  'nexus_escrow_options', 'nexus_staff_directory_v2_round3'
+]);
+const encoder = new TextEncoder();
+const decoder = new TextDecoder('utf-8', { fatal: true });
+const AAD = encoder.encode('HG_BROWSER_RECOVERY|1|AES-GCM|256|PBKDF2|SHA-256|600000');
+const RAW_ENCODING = 'SHA-256(UTF-8(JSON.stringify(raw)))';
+function requireCondition(ok, message = '備份格式或完整性不符合規格。') { if (!ok) throw new Error(message); }
+function allowedKey(key) {
+  return typeof key === 'string' && (FIXED_KEYS.includes(key)
+    || /^nexus_cases_(?:backup_|before_cloud_)\d{13}$/.test(key)
+    || /^nexus_cases_before_csv_import_\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z$/.test(key));
+}
+function byteLength(value) { return encoder.encode(value).length; }
+function object(fields) { return Object.assign(Object.create(null), fields); }
+function exactShape(value, fields) {
+  requireCondition(value !== null && typeof value === 'object' && !Array.isArray(value));
+  const keys = Object.keys(value);
+  requireCondition(keys.length === fields.length && keys.every(k => fields.includes(k)));
+}
+function parseSafe(text) {
+  requireCondition(typeof text === 'string' && byteLength(text) <= MAX_FILE, '備份超過 10 MiB 上限。');
+  return JSON.parse(text, (key, value) => {
+    requireCondition(!['__proto__', 'prototype', 'constructor'].includes(key));
+    if (value && typeof value === 'object' && !Array.isArray(value)) return object(value);
+    return value;
+  });
+}
+function countRecords(raw) {
+  try {
+    const value = JSON.parse(raw);
+    if (Array.isArray(value)) return value.length;
+    if (value && typeof value === 'object') {
+      for (const field of ['cases', 'payload', 'staff']) {
+        if (Object.hasOwn(value, field) && Array.isArray(value[field])) return value[field].length;
+      }
+    }
+  } catch { /* Non-JSON values remain exact strings. */ }
+  return null;
+}
+async function sha256(text) {
+  return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', encoder.encode(text))), b => b.toString(16).padStart(2, '0')).join('');
+}
+function baseSnapshot(snapshot) {
+  return object({ format: snapshot.format, version: snapshot.version, sourceOrigin: snapshot.sourceOrigin,
+    captureTime: snapshot.captureTime, deviceLabel: snapshot.deviceLabel, rawHashEncoding: snapshot.rawHashEncoding,
+    entries: snapshot.entries.map(e => object({ key: e.key, raw: e.raw, sha256: e.sha256, records: e.records })) });
+}
+function labelValid(label) { return typeof label === 'string' && label.trim().length > 0 && Array.from(label).length <= 100 && !/[\x00-\x1f\x7f]/.test(label); }
+function listKeys(storage) {
+  const found = [];
+  requireCondition(storage.length <= 100000, '本機鍵數過多，停止讀取。');
+  for (let i = 0; i < storage.length; i++) {
+    const key = storage.key(i);
+    if (allowedKey(key)) found.push(key);
+  }
+  found.sort();
+  requireCondition(found.length <= MAX_KEYS && new Set(found).size === found.length, '業務資料鍵超過上限或讀取期間變動。');
+  return found;
+}
+async function captureStorage({ origin, getStorage, deviceLabel, now = new Date().toISOString() }) {
+  requireCondition(origin === ORIGIN, '來源不符：僅能在指定網站來源讀取本機資料。');
+  requireCondition(labelValid(deviceLabel), '請填入 1–100 字的電腦／瀏覽器標籤。');
+  const storage = getStorage(); // Called only after origin validation; never receives other stores.
+  const keys = listKeys(storage);
+  const entries = [];
+  let total = 0;
+  for (const key of keys) {
+    const raw = storage.getItem(key);
+    requireCondition(typeof raw === 'string', '讀取期間資料已變動，請停止其他頁面的操作後重試。');
+    const size = byteLength(raw);
+    total += size;
+    requireCondition(size <= MAX_VALUE && total <= MAX_FILE, '單筆超過 5 MiB 或總資料超過 10 MiB；未產生部分備份。');
+    entries.push(object({ key, raw, sha256: await sha256(JSON.stringify(raw)), records: countRecords(raw) }));
+  }
+  requireCondition(JSON.stringify(keys) === JSON.stringify(listKeys(storage)), '讀取期間資料已變動，請重試。');
+  for (const entry of entries) requireCondition(storage.getItem(entry.key) === entry.raw, '讀取期間資料已變動，請重試。');
+  const snapshot = object({ format: 'HG_BROWSER_SNAPSHOT', version: 1, sourceOrigin: origin,
+    captureTime: now, deviceLabel, rawHashEncoding: RAW_ENCODING, entries });
+  snapshot.snapshotSha256 = await sha256(JSON.stringify(baseSnapshot(snapshot)));
+  await validateSnapshot(snapshot);
+  return snapshot;
+}
+async function validateSnapshot(snapshot) {
+  exactShape(snapshot, ['format', 'version', 'sourceOrigin', 'captureTime', 'deviceLabel', 'rawHashEncoding', 'entries', 'snapshotSha256']);
+  requireCondition(snapshot.format === 'HG_BROWSER_SNAPSHOT' && snapshot.version === 1 && snapshot.sourceOrigin === ORIGIN);
+  requireCondition(typeof snapshot.captureTime === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(snapshot.captureTime) && Number.isFinite(Date.parse(snapshot.captureTime)));
+  requireCondition(labelValid(snapshot.deviceLabel) && snapshot.rawHashEncoding === RAW_ENCODING);
+  requireCondition(Array.isArray(snapshot.entries) && snapshot.entries.length <= MAX_KEYS);
+  const seen = new Set();
+  let total = 0;
+  for (const entry of snapshot.entries) {
+    exactShape(entry, ['key', 'raw', 'sha256', 'records']);
+    requireCondition(allowedKey(entry.key) && !seen.has(entry.key));
+    seen.add(entry.key);
+    requireCondition(typeof entry.raw === 'string' && byteLength(entry.raw) <= MAX_VALUE);
+    total += byteLength(entry.raw);
+    requireCondition(total <= MAX_FILE);
+    requireCondition(typeof entry.sha256 === 'string' && /^[a-f0-9]{64}$/.test(entry.sha256));
+    requireCondition(entry.sha256 === await sha256(JSON.stringify(entry.raw)) && entry.records === countRecords(entry.raw));
+  }
+  requireCondition(typeof snapshot.snapshotSha256 === 'string' && /^[a-f0-9]{64}$/.test(snapshot.snapshotSha256));
+  requireCondition(snapshot.snapshotSha256 === await sha256(JSON.stringify(baseSnapshot(snapshot))));
+  requireCondition(byteLength(JSON.stringify(snapshot)) <= MAX_FILE, '快照超過 10 MiB 上限。');
+  return snapshot;
+}
+function checkPassword(password) {
+  requireCondition(typeof password === 'string' && Array.from(password).length >= 12 && Array.from(password).length <= 1024, '密碼須為 12–1024 字。');
+}
+function toBase64(bytes) {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(binary);
+}
+function fromBase64(value, maxBytes) {
+  requireCondition(typeof value === 'string' && value.length <= Math.ceil(maxBytes / 3) * 4 && /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(value));
+  const binary = atob(value);
+  requireCondition(binary.length <= maxBytes);
+  const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+  requireCondition(toBase64(bytes) === value);
+  return bytes;
+}
+async function derive(password, salt, usage) {
+  const material = await crypto.subtle.importKey('raw', encoder.encode(password), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations: ITERATIONS }, material,
+    { name: 'AES-GCM', length: 256 }, false, [usage]);
+}
+async function encryptSnapshot(snapshot, password, confirmation) {
+  checkPassword(password);
+  requireCondition(password === confirmation, '兩次密碼不一致。');
+  await validateSnapshot(snapshot);
+  const plaintext = encoder.encode(JSON.stringify(snapshot));
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await derive(password, salt, 'encrypt');
+  let ciphertext;
+  try { ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: AAD, tagLength: 128 }, key, plaintext); }
+  finally { plaintext.fill(0); }
+  const envelope = object({ format: 'HG_ENCRYPTED_BROWSER_BACKUP', version: 1,
+    kdf: object({ name: 'PBKDF2', hash: 'SHA-256', iterations: ITERATIONS, salt: toBase64(salt) }),
+    cipher: object({ name: 'AES-GCM', keyBits: 256, tagBits: 128, iv: toBase64(iv) }),
+    ciphertext: toBase64(new Uint8Array(ciphertext)) });
+  const text = JSON.stringify(envelope, null, 2);
+  requireCondition(byteLength(text) <= MAX_FILE, '加密檔（含 Base64）超過 10 MiB 上限，未下載部分備份。');
+  return text;
+}
+async function decryptBackup(text, password) {
+  checkPassword(password);
+  const envelope = parseSafe(text);
+  exactShape(envelope, ['format', 'version', 'kdf', 'cipher', 'ciphertext']);
+  requireCondition(envelope.format === 'HG_ENCRYPTED_BROWSER_BACKUP' && envelope.version === 1);
+  exactShape(envelope.kdf, ['name', 'hash', 'iterations', 'salt']);
+  exactShape(envelope.cipher, ['name', 'keyBits', 'tagBits', 'iv']);
+  requireCondition(envelope.kdf.name === 'PBKDF2' && envelope.kdf.hash === 'SHA-256' && envelope.kdf.iterations === ITERATIONS);
+  requireCondition(envelope.cipher.name === 'AES-GCM' && envelope.cipher.keyBits === 256 && envelope.cipher.tagBits === 128);
+  const salt = fromBase64(envelope.kdf.salt, 16);
+  const iv = fromBase64(envelope.cipher.iv, 12);
+  requireCondition(salt.length === 16 && iv.length === 12);
+  const ciphertext = fromBase64(envelope.ciphertext, MAX_FILE);
+  requireCondition(ciphertext.length >= 16);
+  const key = await derive(password, salt, 'decrypt');
+  let plaintext;
+  try {
+    plaintext = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv, additionalData: AAD, tagLength: 128 }, key, ciphertext));
+  } catch { throw new Error('解密失敗：密碼不符或檔案已損壞／遭竄改。'); }
+  try { return await validateSnapshot(parseSafe(decoder.decode(plaintext))); }
+  finally { plaintext.fill(0); }
+}
+function summarize(snapshot) {
+  return { keyCount: snapshot.entries.length, arrayKeys: snapshot.entries.filter(e => e.records !== null).length,
+    records: snapshot.entries.reduce((n, e) => n + (e.records ?? 0), 0),
+    entries: snapshot.entries.map(e => ({ key: e.key, records: e.records, bytes: byteLength(e.raw) })) };
+}
+
+/* CORE_END */
+const $ = id => document.getElementById(id);
+let snapshot = null;
+let busy = false;
+function setStatus(message) { $('status').textContent = message; }
+function clearPasswords() { for (const id of ['password', 'confirmation', 'verifyPassword']) $(id).value = ''; }
+function updateButtons() {
+  $('capture').disabled = busy || location.origin !== ORIGIN || !crypto?.subtle;
+  $('download').disabled = busy || !snapshot;
+  $('verify').disabled = busy || !crypto?.subtle;
+  $('clear').disabled = busy;
+}
+async function run(action) {
+  if (busy) return;
+  busy = true; updateButtons();
+  try { await action(); }
+  catch (error) { setStatus('未完成：' + (error instanceof Error ? error.message : '處理失敗。')); }
+  finally { clearPasswords(); busy = false; updateButtons(); }
+}
+function renderSummary(value) {
+  const stats = summarize(value);
+  $('summary').textContent = `讀取時間：${value.captureTime}\n來源標籤：${value.deviceLabel}\n業務資料鍵：${stats.keyCount} 個；可計陣列：${stats.arrayKeys} 個；陣列筆數合計：${stats.records}（含歷史重複）。`;
+  $('keyRows').replaceChildren();
+  for (const entry of stats.entries) {
+    const row = document.createElement('tr');
+    for (const text of [entry.key, entry.records === null ? '—' : String(entry.records), String(entry.bytes)]) {
+      const cell = document.createElement('td'); cell.textContent = text; row.append(cell);
+    }
+    $('keyRows').append(row);
+  }
+}
+$('originInfo').textContent = `目前來源：${location.origin}\n允許來源：${ORIGIN}\n` +
+  (location.origin === ORIGIN ? '来源符合；按鈕操作後才讀取。' : '目前來源不符，已停用本機讀取；仍可離線檢查加密檔。');
+$('capture').addEventListener('click', () => run(async () => {
+  snapshot = null; $('keyRows').replaceChildren(); $('summary').textContent = '讀取中…';
+  snapshot = await captureStorage({ origin: location.origin, getStorage: () => window.localStorage, deviceLabel: $('deviceLabel').value.trim() });
+  renderSummary(snapshot); setStatus(snapshot.entries.length ? '讀取完成。請設定密碼並下載。' : '目前此瀏覽器沒有找到白名單業務資料；零筆備份不能代替其他來源的備份。');
+}));
+$('download').addEventListener('click', () => run(async () => {
+  if (!snapshot) throw new Error('請先讀取資料。');
+  setStatus('正在加密並執行記憶體內解密校驗…');
+  const text = await encryptSnapshot(snapshot, $('password').value, $('confirmation').value);
+  await decryptBackup(text, $('password').value);
+  const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+  const link = document.createElement('a'); link.href = url;
+  link.download = `hongguo-browser-backup-${new Date().toISOString().replace(/[:.]/g, '-')}.encrypted.json`;
+  document.body.append(link); link.click(); link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  snapshot = null; $('summary').textContent += '\n已釋放快照參照；如需重新下載請重新讀取。';
+  setStatus('已發出加密檔下載。尚未確認磁碟檔案：請在第 3 步選取剛下載的檔案驗證，再保存密碼。');
+}));
+$('verify').addEventListener('click', () => run(async () => {
+  $('verifyResult').textContent = '檢查中…';
+  try {
+    const file = $('backupFile').files[0];
+    if (!file) throw new Error('請選取加密備份檔。');
+    if (file.size > MAX_FILE) throw new Error('檔案超過 10 MiB 上限。');
+    const checked = await decryptBackup(await file.text(), $('verifyPassword').value);
+    const stats = summarize(checked);
+    $('verifyResult').textContent = `驗證成功：加密驗證、逐值校驗與快照校驗皆通過。\n資料鍵 ${stats.keyCount} 個；可計陣列 ${stats.arrayKeys} 個；陣列筆數合計 ${stats.records}。\n未寫回任何網站資料。`;
+    setStatus('備份檔檢查成功。請妥善保存密碼與加密檔。');
+  } catch (error) { $('verifyResult').textContent = '驗證未通過。未寫回任何網站資料。'; throw error; }
+  finally { $('backupFile').value = ''; }
+}));
+$('clear').addEventListener('click', () => {
+  snapshot = null; clearPasswords(); $('deviceLabel').value = ''; $('backupFile').value = '';
+  $('keyRows').replaceChildren(); $('summary').textContent = '已清除本頁快照參照。';
+  $('verifyResult').textContent = '尚未檢查檔案。'; setStatus('本頁暫存已清除，網站原資料不變。'); updateButtons();
+});
+addEventListener('pagehide', () => { snapshot = null; clearPasswords(); });
+updateButtons();
+if (!crypto?.subtle) setStatus('目前瀏覽器未提供 Web Crypto。無法加密或驗證；請使用支援的安全來源或本機檔案環境。');
+</script>
+</body></html>
