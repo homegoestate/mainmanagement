@@ -166,6 +166,28 @@
     </div>
   </div>
 
+<div id="portal-startup-error" role="alert" hidden style="position:fixed;inset:0;z-index:100000;background:#f3f6f8;padding:10vh 8vw;color:#0f2e46">
+<h2>系統暫時無法完成載入</h2><p>請確認網路連線後重新載入。此提示不會清除您的資料或登入紀錄。</p><button type="button" id="portal-startup-retry">重新載入</button></div>
+<div id="portal-startup-notice" role="status" hidden style="position:fixed;bottom:12px;left:12px;right:12px;z-index:99999;padding:12px;background:#fff7ed;color:#9a3412;border:1px solid #fdba74;border-radius:8px"></div>
+<script>
+(() => {
+  let finished = false;
+  const fail = () => {
+    if (finished) return;
+    document.getElementById('portal-startup-error').hidden = false;
+    document.getElementById('loading-overlay').style.display = 'none';
+  };
+  const timer = setTimeout(fail, 15000);
+  window.addEventListener('error', event => {
+    if (event.target === window || event.target?.tagName === 'SCRIPT') fail();
+  }, true);
+  document.getElementById('portal-startup-retry').addEventListener('click', () => location.reload());
+  window.__portalStartup = {
+    finish() { finished = true; clearTimeout(timer); document.getElementById('portal-startup-error').hidden = true; },
+    notice(message) { const box = document.getElementById('portal-startup-notice'); box.textContent = message; box.hidden = false; }
+  };
+})();
+</script>
   <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, set, get, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -1113,12 +1135,19 @@ if ("serviceWorker" in navigator) {
 (async function init() {
   showLoading(true, "初始化 ERP 總控制管理...");
   try {
-    await seedDefaultEmployees();
+    try {
+      await seedDefaultEmployees();
+    } catch (err) {
+      console.error('Employee initialization failed', err);
+      window.__portalStartup.notice('員工名單初始化未完成；仍會嘗試恢復原登入。若資料無法載入，請確認網路後重新整理。');
+    }
     await restoreSession();
   } catch (err) {
     console.error(err);
+    window.__portalStartup.notice('初始化未完成，請確認連線後重新載入。');
   } finally {
     showLoading(false);
+    window.__portalStartup.finish();
   }
 })();
 
