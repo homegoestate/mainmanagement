@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-iC5Ph6+PbJ9Ti2Ol8evS8YFBiVYuSaRSXH9Qw17qR9o='; style-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-9UWCwrj/OyWheTIh4YAweNuAuZwDxTVgo0rOHbVbbHo='; style-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'none'; frame-src 'none'">
 <meta name="referrer" content="no-referrer">
 <title>宏國｜瀏覽器本機資料加密備份</title>
 <style>
@@ -21,7 +21,7 @@
 <label for="deviceLabel">來源電腦／瀏覽器標籤（請自行命名，勿填客戶資料）</label>
 <input id="deviceLabel" maxlength="100" autocomplete="off" placeholder="例如：櫃台電腦／Chrome／工作設定檔">
 <button id="capture" disabled>讀取本機業務資料</button>
-<p class="muted">範圍：案件主資料、表單與草稿、承辦名單、報表備註、履保選項、收據、報價與報價稽核、服務／稅費選項、銀行方案，以及已知格式的案件備份鍵。未儲存於這些鍵的收據／報價草稿不包含在內。</p>
+<p class="muted">範圍：案件主資料、表單與草稿、承辦名單、報表備註、履保選項、舊版及新版收據與已儲存草稿、收據費用目錄、報價與報價稽核、服務／稅費選項、銀行方案，以及已知格式的案件備份鍵。未儲存於這些鍵的草稿不包含在內。</p>
 <p class="muted">登入狀態、工作階段、驗證權杖、API 金鑰、密碼及連線設定鍵均不讀取。已存在的業務原始字串不做欄位刪改，請勿在業務備註中儲存憑證。本頁不寫入 localStorage、sessionStorage、IndexedDB 或快取，不註冊服務工作程式，不傳送資料到網路。</p>
 <pre id="summary">尚未讀取。</pre>
 <details><summary>查看資料鍵與筆數（不顯示內容）</summary><table><thead><tr><th>資料鍵</th><th>JSON 陣列筆數</th><th>位元組</th></tr></thead><tbody id="keyRows"></tbody></table></details>
@@ -53,6 +53,8 @@ const ITERATIONS = 600000;
 const FIXED_KEYS = Object.freeze([
   'HG_RECEIPT_RECORDS_V1', 'HG_QUOTATION_RECORDS_V1', 'HG_QUOTATION_AUDIT_V1',
   'serviceOpts_v4', 'taxOpts_v4', 'mortgageBankData_PRO',
+  'HG_FREE_RECEIPTS_20260916_V1', 'HG_FREE_RECEIPT_DRAFTS_V1',
+  'HG_RECEIPT_FEE_CATALOG_V2', 'serviceOpts_free_receipts_v1', 'taxOpts_free_receipts_v1',
   'nexus_cases_db', 'nexus_form_draft_v33', 'nexus_form_v33',
   'nexus_staff_draft_v33', 'nexus_roadmap_type_v33', 'nexus_report_notes_v33',
   'nexus_escrow_options', 'nexus_staff_directory_v2_round3'
