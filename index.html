@@ -61,7 +61,7 @@
       <div class="alert-box">登入一次後，案件、打卡、報價、收據等模組會自動帶入同一位操作人，不需要各系統重複登入。</div>
       <div class="input-group"><label>使用者名稱</label><input type="text" id="login-user" autocomplete="username" placeholder="例如：楊翊晟"></div>
       <div class="input-group"><label>密碼</label><input type="password" id="login-pass" autocomplete="current-password" placeholder="輸入密碼"></div>
-      <div class="checkbox-group"><input type="checkbox" id="keep-login"><label for="keep-login">保持登入</label></div>
+      <div class="checkbox-group"><input type="checkbox" id="keep-login" checked><label for="keep-login">保持登入（固定裝置；共用裝置請取消）</label></div>
       <button id="btnLogin" class="btn btn-primary btn-block"><i class="fa-solid fa-right-to-bracket"></i> 登入系統</button>
       <div class="switch-link" onclick="showRegister()"><i class="fa-solid fa-mobile-screen-button"></i> 新員工？使用開通碼註冊並綁定裝置</div>
       <div class="switch-link" onclick="showResetPassword()"><i class="fa-solid fa-unlock-keyhole"></i> 忘記密碼？用開通碼自行重設</div>
@@ -393,6 +393,7 @@ function storeSession(session, keepUser = false) {
   localStorage.setItem("hg_current_operator", session.name);
   localStorage.setItem("hg_current_role", session.roleCode);
   if (keepUser) localStorage.setItem("hg_cloud_session", session.loginAccount || session.name);
+  else localStorage.removeItem("hg_cloud_session");
 }
 
 async function getEmployee(name) {
@@ -1087,6 +1088,8 @@ function logout() {
   localStorage.removeItem("hg_cloud_session");
   localStorage.removeItem(ERP_SESSION_KEY);
   sessionStorage.removeItem(ERP_SESSION_KEY);
+  localStorage.removeItem("hg_current_operator");
+  localStorage.removeItem("hg_current_role");
   location.reload();
 }
 window.logout = logout;
@@ -1104,8 +1107,8 @@ async function restoreSession() {
     storeSession(session, true);
     enterDashboard(session, false);
   } catch (err) {
-    localStorage.removeItem("hg_cloud_session");
     console.warn("restore failed", err);
+    window.__portalStartup.notice("上次登入暫時無法恢復；保持登入紀錄仍在這台裝置。若是網路問題，稍後重新整理即可；若帳號或裝置已停用，請由管理者處理。");
   } finally { showLoading(false); }
 }
 
