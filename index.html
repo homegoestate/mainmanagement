@@ -192,7 +192,7 @@
 </script>
   <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, get, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, set, get, update, remove, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCSOS-36oQ6hTyhtD2vrez3QGvPdvwMOIw",
@@ -518,6 +518,38 @@ function showLoginFeedback(error) {
   el.hidden = false;
 }
 
+// Preserve the original 2026-09 device authorization when the portal's device-key
+// storage name was changed from hg_did to hg_cloud_did. This is NOT new enrollment,
+// and must never run until the original password has been checked for this account.
+async function requirePreviouslyApprovedDevice(account, userRecord) {
+  const known = Array.isArray(userRecord?.authorizedDevices) ? userRecord.authorizedDevices : [];
+  if (known.includes(myDeviceId)) return;
+  let historical = "";
+  try { historical = localStorage.getItem("hg_did") || ""; } catch {}
+  if (!historical || historical === myDeviceId || !known.includes(historical)) {
+    throw new Error("這台裝置尚未獲得此帳號的原有授權。請由管理者核對裝置；不需重建 Firebase 帳號或重設密碼。");
+  }
+
+  // Only add the new device ID if the account's *current server record* still
+  // contains the original approved ID. Abort atomically if authorization
+  // changed while this request was in flight.
+  const deviceRef = ref(db, "users/" + safeKey(account) + "/authorizedDevices");
+  let result;
+  try {
+    result = await runTransaction(deviceRef, existing => {
+      if (!Array.isArray(existing) || !existing.includes(historical)) return;
+      if (existing.includes(myDeviceId)) return existing;
+      return [...existing, myDeviceId];
+    }, { applyLocally: false });
+  } catch {
+    throw new Error("原裝置授權資料更新未成功，登入尚未完成。請管理者檢查資料庫權限，不要重新建帳。");
+  }
+  const confirmed = result?.snapshot?.val();
+  if (!Array.isArray(confirmed) || !confirmed.includes(myDeviceId)) {
+    throw new Error("原裝置授權已變更，這次未新增任何裝置。請由管理者重新核准。");
+  }
+}
+
 async function login() {
   const user = $("login-user").value.trim();
   const pass = $("login-pass").value.trim();
@@ -529,8 +561,16 @@ async function login() {
     if (!userRecord) throw new Error("員工主檔存在，但舊系統找不到對應的登入紀錄。已建立 Firebase Auth 不代表此舊入口已完成授權，請勿重新建帳或改密碼。");
     if (userRecord.legacyPortalDisabled === true) throw new Error("舊系統登入已停用，請由管理員確認正式帳號與授權狀態。");
     if (userRecord.password !== pass) throw new Error("此入口仍在比對舊系統密碼；Firebase Auth 的驗證結果尚未接入公司授權，請勿重設既有密碼。");
-    const devices = Array.isArray(userRecord.authorizedDevices) ? userRecord.authorizedDevices : [];
-    if (!devices.includes(myDeviceId)) throw new Error("這台裝置尚未列入舊系統授權。請管理員核對裝置；勿自行複製其他人的裝置代碼。");
+    await requirePreviouslyApprovedDevice(account, userRecord);
+    // A successful local compatibility check never substitutes for server readback.
+    const freshUser = await get(ref(db, "users/" + safeKey(account)));
+    const confirmedUser = freshUser.exists() ? freshUser.val() : null;
+    if (!confirmedUser || confirmedUser.legacyPortalDisabled === true || confirmedUser.password !== pass ||
+        !Array.isArray(confirmedUser.authorizedDevices) || !confirmedUser.authorizedDevices.includes(myDeviceId)) {
+      throw new Error("原帳號、密碼或裝置授權已變更；本次登入未完成。請重新核對。");
+    }
+    const freshEmployee = await getEmployee(emp.name);
+    if (!freshEmployee || freshEmployee.isActive === false) throw new Error("員工主檔已停用或無法再次確認，不能登入。");
     try {
       await update(ref(db, "users/" + safeKey(account)), { lastDeviceType: getDeviceType(), lastLoginAt: new Date().toISOString(), employeeName: emp.name });
     } catch (auditError) {
@@ -847,7 +887,7 @@ async function restoreSession() {
     enterDashboard(session, false);
   } catch (err) {
     console.warn("restore failed", err);
-    window.__portalStartup.notice("上次登入暫時無法恢復；保持登入紀錄仍在這台裝置。若是網路問題，稍後重新整理即可；若帳號或裝置已停用，請由管理者處理。");
+    window.__portalStartup.notice("上次登入暫時無法恢復。若曾使用舊版同一台電腦，請以原帳號密碼手動登入一次；系統只會在原授權裝置與密碼都有效時進行相容核對。離職或撤權帳號不會重新開通。");
   } finally { showLoading(false); }
 }
 
