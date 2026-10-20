@@ -4,11 +4,15 @@ on:
     paths:
       - 'news.html'
       - 'news-reader.mjs'
+      - 'portal-news.mjs'
       - 'login-check.html'
       - 'login-check.mjs'
       - 'tools/refresh_news.py'
+      - 'tools/integrate_portal.py'
+      - 'tools/runtime_preflight.py'
       - 'tests/news.test.mjs'
       - 'tests/test_refresh_news.py'
+      - 'tests/test_portal_patch.py'
       - '.github/workflows/portal-news.yml'
   pull_request:
   workflow_dispatch:
@@ -31,8 +35,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: node --check login-check.mjs && node --test tests/news.test.mjs
+      - run: node --check login-check.mjs && node --check portal-news.mjs && node --test tests/news.test.mjs
       - run: python tests/test_refresh_news.py
+      - run: python tests/test_portal_patch.py && python tools/integrate_portal.py --check
   refresh:
     needs: test
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
@@ -48,15 +53,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Public read-only availability check
+        run: python tools/runtime_preflight.py
+      - name: Apply only the exact approved UI and message-origin patch
+        run: python tests/test_portal_patch.py && python tools/integrate_portal.py
       - name: Fetch public RSS metadata only
         run: python tools/refresh_news.py
-      - name: Commit only the news snapshot
+      - name: Commit only the approved portal UI and news snapshot
         run: |
           git config user.name 'HomeGo News Automation'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add news/latest.json
+          git add index.html news/latest.json
           if ! git diff --cached --quiet; then
-            git commit -m 'news: refresh dated public RSS snapshot'
+            git commit -m 'portal: verified news UI integration and dated RSS snapshot'
             git push origin HEAD:main
           fi
       - name: Request Pages build after automation commit

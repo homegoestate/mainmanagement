@@ -5,8 +5,11 @@ import unittest
 spec=importlib.util.spec_from_file_location('news',Path(__file__).resolve().parents[1]/'tools/refresh_news.py')
 n=importlib.util.module_from_spec(spec);spec.loader.exec_module(n)
 NOW=datetime(2026,10,20,1,tzinfo=timezone.utc)
-ROW=dict(title='測試新聞消息',link='https://example.test/one',date='2026-10-19T20:00:00+00:00',source='測試',categories=['law'])
+ROW=dict(title='土地登記房地合一稅測試消息',link='https://example.test/one',date='2026-10-19T20:00:00+00:00',source='測試',categories=['law'])
 class NewsTests(unittest.TestCase):
+ def test_filter_irrelevant_source_news(self):
+  self.assertEqual(n.relevant_categories('出口貨物通關宣導 - 財政部全球資訊網',['tax']),[])
+  self.assertEqual(n.relevant_categories('房地合一稅自住房屋新知',['tax']),['tax'])
  def test_timezone_required(self):
   self.assertIsNone(n.instant('2026-10-20T01:00:00'))
   self.assertIsNotNone(n.instant('Tue, 20 Oct 2026 00:00:00 GMT'))
@@ -32,7 +35,7 @@ class NewsTests(unittest.TestCase):
   def fetch(entry,now):
    if entry[0]=='law':return [ROW]
    raise OSError('offline')
-  previous={'items':[{**ROW,'title':'前次消息','link':'https://example.test/previous','categories':['tax']}]}
+  previous={'items':[{**ROW,'title':'前次房地合一稅消息','link':'https://example.test/previous','categories':['tax']}]}
   r=n.collect(fetch,previous,NOW);self.assertEqual(r['status'],'partial');self.assertEqual(r['total'],2)
  def test_empty_feed_does_not_replace(self):
   with self.assertRaises(RuntimeError):n.collect(lambda *_:[],{'items':[ROW]},NOW)
