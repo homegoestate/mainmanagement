@@ -1,0 +1,65 @@
+name: ERP public news and regression checks
+on:
+  push:
+    paths:
+      - 'news.html'
+      - 'news-reader.mjs'
+      - 'login-check.html'
+      - 'login-check.mjs'
+      - 'tools/refresh_news.py'
+      - 'tests/news.test.mjs'
+      - 'tests/test_refresh_news.py'
+      - '.github/workflows/portal-news.yml'
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */3 * * *'
+permissions:
+  contents: read
+concurrency:
+  group: portal-news-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: node --check login-check.mjs && node --test tests/news.test.mjs
+      - run: python tests/test_refresh_news.py
+  refresh:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: write
+      pages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch public RSS metadata only
+        run: python tools/refresh_news.py
+      - name: Commit only the news snapshot
+        run: |
+          git config user.name 'HomeGo News Automation'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add news/latest.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'news: refresh dated public RSS snapshot'
+            git push origin HEAD:main
+          fi
+      - name: Request Pages build after automation commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds"
