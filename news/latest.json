@@ -1,0 +1,476 @@
+{
+  "schemaVersion": 2,
+  "fetchedAt": "2026-10-20T04:53:21.234255+00:00",
+  "status": "partial",
+  "feedsSucceeded": 14,
+  "feedsChecked": 16,
+  "errors": [
+    "tax: ParseError syntax error: line 16, column 0",
+    "tax: ValueError RSS exceeds size limit"
+  ],
+  "fetchedItems": 46,
+  "total": 46,
+  "latestPublishedAt": "2026-10-20T04:26:29+00:00",
+  "items": [
+    {
+      "title": "海關籲請業者「非櫃裝之轉運及轉口貨物，應裝載於保稅運貨工具或其他經海關核准之運貨工具後始得載運」，以維通關安全 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPdk5GaEt6V0s5anB3cUo5NFphWFlDbFpxUWV0R1JHUHlFTGxYcDRIc1h6NFBEZjF6eGtFODlVZE1ya0tLT1RLcDRWalJPclB6T0kzSWZVaGFQUlBNMlhwbUlodnNNTUFqb0cwcEM4cDJpV2pkUkRNRUV0c1I0Q25ET3FmVlZiMDhrTlViUG52VlhVYkU2RGZiU2FMa0dfcmpmd2RWZGlRTlM?oc=5",
+      "date": "2026-10-20T04:26:29+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "籲請業者出口舊機動車輛及引擎，務必檢附保三總隊核發非贓車查證報告，以維通關權益 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxObF9sTzRzelB3QkNjbVZkLVF1MFNIdlBwWXg4Mm4zbDhYRm0xc0YwSFc0NjFmZHpycEZUWjMwdHVXbm5OdkhkaS1yYmREbnpDT2xlOU1GNU1CV1ExYXBwRm00SXRudkJya0JuSVpfbFp2Rk93ektmX3JGdHo0OVJQaElIQVNIV21aREtVSExzaEdMUkJwcnBRSnhWS21TUlYyV19aSUN4LXI?oc=5",
+      "date": "2026-10-20T04:01:28+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "財政部發行「115甲10期」30年期公債 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPTnduMUxyZi1OcGdHX2JOTks0ZXhDR21wdDVKWmt3QTlQbFhHTlhnLXc4NTNkMld6NU53dUZiaFA0d1RPU3hYNEVtdDdkMS1fMlVBQnlvVGtMSno0anhwS1JGUGstQnZlM1cwN0JUejNDZFRKY0pJYTdmRHFiZXBUNmlYdFRMLTMwUjZTQkptaUg1VE44RGhmd3p4TE9xSDNJV3l3aXNtVVg?oc=5",
+      "date": "2026-10-20T03:12:32+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "土地複丈規費試算（鑑界、分割） - 內政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE95QXZsSS00S1VfU295Z0ExVXdtRHpFN1E5bUw3ZFk1aXRzQXFCU1JHUThoU2tDcnBWd2xlZVNOYzVBOXRGWlJRSjNubGZWaHc?oc=5",
+      "date": "2026-10-20T03:02:28+00:00",
+      "source": "內政部全球資訊網",
+      "sourceUrl": "https://easymap.land.moi.gov.tw",
+      "categories": [
+        "law"
+      ]
+    },
+    {
+      "title": "115年10月20日活動公告 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxPQUN5Q3M0YXZwdU1xdGRRbm5OMW5lTU9fSkE1RWQxV3pWN3ZNSEx1cGRnbmFoZG5TU2Z1RnNfVzB0MlpvT1VwQlhlNW10MVh4a1pLRlBEbjNpdmk1bjcwR1VEOEM4dGhtUHgwWjRzVFpHWGlXQ1Z2TWxJNVE2QUUzMg?oc=5",
+      "date": "2026-10-20T01:42:55+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "- 內政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiV0FVX3lxTE1kLW1wdzdiaWo0SXNhU18taG5VYzhuQ2wwd1QxZHh3eUs5TTRzamxnMnJRNUdoN19oSlp5dUN3VFlsZm9BclhIbWZGMXlJTDJWSUFsSFFIUQ?oc=5",
+      "date": "2026-10-19T22:22:46+00:00",
+      "source": "內政部全球資訊網",
+      "sourceUrl": "https://www.land.moi.gov.tw",
+      "categories": [
+        "law"
+      ]
+    },
+    {
+      "title": "民間參與公建持續推動！促參界奧斯卡-金擘獎頒獎典禮10月23日隆重登場！ - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPcE9vX1lLejFRdzlsRnJpZHp3bVo2Q0dBdm9JUWttaWcwZjRLOTBXX0dCMlh4TFBuQzNGbzBFeENKd2YySlczeEo0dzRMeTdvT1RjNFpmYW5qS1FMSUhlbHhodlNaaWFTUUNKcHpMSmptRXJlcUt5WVNnZlJHUWRvcy1IVzZkTnJRMVN2XzNwOFdBaThTYmd0N3VpZGN5ekJ0by0xX0ZHUmE?oc=5",
+      "date": "2026-10-19T09:02:38+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "財政部115年度單位預算 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiggFBVV95cUxQMGFMUXpmeHg0MDZxaS05ZVdRVTllVUdQMncwaFNHSVBPbjJSdTRuWnkzSlh0NURIaGZ2Tnl6aTgyeVJXVXhHRGJuN256czRqdGd5VU5PeHBCaXBQTFNhVXZBYTk3bVRFeVdEUmNjSzE0bWNZNlh4b256dVM1dlZsS2F3?oc=5",
+      "date": "2026-10-19T07:37:01+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "營業人預售房地約定以銀行貸款抵繳尾款之統一發票開立時限 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxQRW9GRnU5UFFlak5qZzZyeVNYelU2LXZjQVN5WEY3LTMxZTRwZzBqbXZiUF9HRGZWVXAxdlNoUTlrcGpXZFJFbjhXX01EODQycmllMndhX2gtcWdsZ285QzlEMzVnYldlNURELUVnV3UwOHZkNFZVYVZ3Y2hwUS15ZUdzZUJqMmVVRmppNmFHSGJuaFJmbFlKQ0lKN09RVy1KbVlQMzdEX2I?oc=5",
+      "date": "2026-10-19T06:35:47+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "營業人兼營銷售免稅貨物或勞務，可評估有利選擇申請放棄適用免稅 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPU0ZKRGg0dkZjdnd2eVlicEk2S1RSaTZsRHFjUm9ENmRhMktoZkhxZGpadUs2UTNXbnFtOHJoVk9JSUZtLWdRVENvSVRBMnoyQmdydmRzUUI1ekNFXzUxYTBTNnBrWlZxT0dLcFVidXViZG96MDEyMksyVFNhTFlBLTQteDZJSG16NDdLNDJWbFdxQ3JlX1dqTWxnQlJOc19reVl6X2NDcmw?oc=5",
+      "date": "2026-10-19T06:34:07+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "海外所得達100萬元應併入個人基本所得額申報 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNb2dKV0JWc3ZLRVhwZ1ZURDRDZk1vTk5xaG1OcHQ5RGJFRlZteFRxWmNKLTVneHVvTFNHYmk5c3pQTnRVNXpKaUlJOTBHSlZtVU1KQlp1Tm1qeTBZNUdXdENtV0hwcngyNng1eVUxZ1Y3SHRseE8xNzgxR3lTanNoMXB3Q0VMRjJLSk9yTUFGbkNBVDhyWVNFdjJGa2tQdDRvUVpVUkdoajg?oc=5",
+      "date": "2026-10-19T02:08:32+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "網紅應辦理稅籍登記及報繳營業稅者，請儘速辦理補報補繳，符合規定者仍得免罰 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxQVjUtbEwzMHpubTNzeFZMdmFocVFiVFV3OVNDUDM1S0otTlo0eXNLTHB5eS1QeFF2Z1NDX2daWnpCSW5UNlBxLS1QNmtadGw0V01KZVJrRFJndl9hbFJ1bFRNYkFjcmplbjlEZGNQbHRZeTNiZTFCTFRESDFZUzNfS1p5VzVVU0FJQUVSTXVIalMyY0hzMWRIMFdRMUI1TGYtYjlabGhMRkY?oc=5",
+      "date": "2026-10-19T02:08:32+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "直系尊親屬已自行申報綜合所得稅，他人不得再列報扶養扣除 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxOOWRSSFNUUmVvQTgyRDNXbWNkbU5scTYybzA5V1ZJcHotOVZfOEdFRUR1U25UbHY2c3RHaGhIcGhXZm5vN0ttdkd6X3gzY3FtekdZbDZUVERTSEs4czJiRTJia2staDFlbnFhYWhySVdKT1NvSExLNHRyU1oyc01DQVhwN2tvWWZTVndhQVB0N2NydkJGTkpDbWVRSTItcmEyelJKZ2U5RHc?oc=5",
+      "date": "2026-10-19T01:48:30+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "法規檢索結果 - 財政部主管法規查詢系統",
+      "link": "https://news.google.com/rss/articles/CBMi6wFBVV95cUxPaFNxaTdocWt2VUpFSDUzSVNRUFROYy1QcEJXaVlHV1Q0SE52blpfQXc3MEhjSVQ2ZUZXdnlIbHJNc0VRSTFRYmxuVzZ3NnY1ckJoRjNNTEQ3LTR1UmxHS1JOVjlaTXB4RkJ4cXlNMFZhSVRNNzRvQ1JfMmpKbnRpRXlLX1pmS2tTVnhueVduVnBIc09ybEVvbVJ0Vk5HVEpaSjlBSWI2ZXdiUVUzRno3bHNxc2paNGhoSkZaX2pRanBDcHhBQVF3QVVkOWtQbm9CVzl0N1MyYzVRR1BCUm81eEE0UnNvY1N3SDNn?oc=5",
+      "date": "2026-10-17T00:12:25+00:00",
+      "source": "財政部主管法規查詢系統",
+      "sourceUrl": "https://law-out.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "死亡前2年內贈與財產併計遺產課稅，已修法由「受贈人」按比例負擔稅額 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNaXVnelpJUnplSmhLLUtUWkJCQjRRYTlEem1ZOVlFUnhWRndPbklUUGdJYTYtdkNqSmlFT05mbWZRMzY1YlMxTm1KNE1rR0tPUGE1bWJ1ZUJGRVNLS0FON1dpcHk0RUpTd0Z0QlRKdlNIVFJnc3FtWnROZnVtSThtSDhwa0VIREtVY21IME4xM2poY2hUZ0lreHVYZDJ0eF9PcllOeTgtOFE?oc=5",
+      "date": "2026-10-16T08:34:53+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "影音宣導 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiRkFVX3lxTE9kNEJIRl9WOEJteTVDcHhMZHB2U0NQZnpKX1ZSVUtYWkdTaGViWmVOZ0NRcXBzeEVVWVJFdFZvS2JsZlFHZ2c?oc=5",
+      "date": "2026-10-16T07:00:00+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "國有基地續租真便民，民眾權益保障好安心 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNUzF2M1FoeVoyWVBnYmQ5WUhfbkJPV0lQd2dLcGtkUlRBSVhDc0kwb2ZrMEhkRVdKLXNCMkE4MkJMSkt6VEE2RzVCakUxM1NjSFZ3ZVdzRmd3enpFcnlsM0o5dXJpNDJadzZRNEhqZFdlTGJqNHo5NnY3cExfZGtyV19tOVRicmNzUm9HckJrWW8wa3dDcFFxUXgwenQ5SlEwbUpkNlhsU0Y?oc=5",
+      "date": "2026-10-16T07:00:00+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "財政部莊翠雲部長率團參加2026年亞太經濟合作（APEC）財政部長會議（FMM） - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxOQU9zcEhpcTVreUktakZaX0I5dGhGdTZockFFUGIwR2JLTENMQ1RwcGZCaHVSU3BEWThpSEVWbHBlMzBVLWZVT1lsRUtvN2FmTHU0LVZWS2R5OUFueHg5SGVVMHFzSGpPSXk4dmlETUV1Uzd4aVpNR1d6R0NibEJTemZXSWtIdDBGZ1BXTkpWZ3EtejZvYTBUN3RHMlVaVGxBQVNBV2R4S0M?oc=5",
+      "date": "2026-10-16T07:00:00+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "國有公用財產活化亮點 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxOcHNTTWItRTV1MGZUbGVidHpaSkVHQ0w2YWNYbWNFdlAzVXdKc0x0a2NSNC1rbDZCVkFIZ3g4RldiS0wzR3dZYkJmTE9EUnRJOEV5TW81b3JCcWZfbjM5UTRocEQ4YjU2dWlTQ0N5ajlYellFRXZoanhNeFg1TmpndQ?oc=5",
+      "date": "2026-10-16T07:00:00+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "高雄國稅局全國首創「AI稅務知識包」 打造專屬稅務助理，智慧服務再升級 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNODZ1RkRya3RmWWVNSzVvOG44UXR1eXNxM0lVV1FxUWxid1I2VWhBWGJMWnE1SmtaeUhkeGZMaG1xM0VRd1pNQldla1hhbXJLeDE4QldWQ3UwWF9qMnRad0pmaDlMMXo5ang3dzUyS29jQWQyeW1QOEQ1WW5qbjZZNjY2QWFmVVRteVlOdzR5RFp5VkhCSTROMFN4X25TZ3lLWjAyVXZralk?oc=5",
+      "date": "2026-10-16T06:32:23+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "小心！稅務詐騙郵件層出不窮 請注意防範！ - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxQTXpSVE4tdS02Q2ZFYmg2YngzcGJPMlB0Wm5xVkhRVzlBS0VjX2p0T3JQLV9SaU0zSFB2U2k0dDBvZ2R3aFJnSndISGZhRU1NZ19TVTd2R2J6d19KUTZIam9RN2pxU0dLUWFCYzhaT3BXTHJwYWFlQWExc3pTdGFiMFloNjduZUx3b0dBQWtZanhMYzN2UUI2RWVoaEp4U0M3QTRtSDluVlY?oc=5",
+      "date": "2026-10-16T05:52:16+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "高雄關提醒船舶需用物品裝船前，務必依海關批註內容辦理，以免受罰 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxQVGdrZkJRNHBLa1pHQTdQTG9VYmdVMDdwOGo5ZlhvWF94MVJBQXRWV2stSTg4WmJYbTA4S3VJNnJXd1VfWnhQTjlJcHhjc1pKalYydTNqYlFUMjBZZ3l2bjI4M29TQXZ4X1BXemkwb2x4UjNUZzl3N2puSk1sbDBXdmU0SnV4R2pMNWhELU42VnAzdjNTVXVFYkgzWEh3VWhYU3dtektSNDQ?oc=5",
+      "date": "2026-10-16T04:34:07+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "選購節能電器更省錢！最高可申請退還貨物稅2,000元！ - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxPN1NSMDYtUVprMDZLckJDb01IQ2lBVTBkN0gyV29QV2I5M0poZTJ2cGxmSk5oaDZtTmE5amQxYjJVbWgtUVRHNmduU3FXeV9zbUM3QWN2b1dHa3c0NzJqT1RIQWw4azdoajNFWEw0dGJJUmRhc2JzMGdaMHUtVDc0SQ?oc=5",
+      "date": "2026-10-15T11:06:11+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "開車族看過來！政府幫你大省荷包啦！ - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxOelA2ZERpUDhaaFJoN0IxdjFZeXAzSHVrUV91bHl6RnVnZkNTRVpjbXI1bHBhblpJNzJUNlRDTFZ2cmZBaHVLSFpnVzZNTGRMR3B4Y0M4dWRaNDd3eUJNZi1EX1dqZUloRUNEVVNGTHZaNzhfdUEzaFpsN1QxcERRcg?oc=5",
+      "date": "2026-10-15T11:06:11+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "綠能先鋒看過來！想入主電動車就趁現在！ - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxPWHE3bXgwdWhvRV9aeW1jbW8xWTZKOVNBdU5oVDdZQnZ2MXBOUHlWTVBJX3R5OTFDbzN6dnUtSWFlbTJ4allhdkR0eWhxSnlrY3dLSTF5SmNFTXBiUzlpN0w5a1FqWkFfZUhkdkhyU0Mwdk1ZMHBQdVJaSzFlT0Zueg?oc=5",
+      "date": "2026-10-15T11:06:10+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "換新車不用吃土！政府大方幫你省錢啦！ - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxPRTN0WV80bTdEZzRlWmtuS3RGRWdTVWZwY1pzN2w3T2pfU1dFZjVzRGprVFFTcUVvUGZGLUFaMjFkTTRPWUVQZWFTem04YUVjLTJmUmZrUkxXa2YxMU1Gb1JTd1owc2Z5dlJkTzBjek1VNVVXc2RoZ04xX0tYZW9VVg?oc=5",
+      "date": "2026-10-15T11:06:10+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "115年度營利事業所得稅暫繳還沒辦？10/31前補報補繳可以減輕利息負擔！ - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxQRk42NjJLbDJndzhST1lVQ09jN3ZhTlZLdVFCVC1ER0FNY1pIczNPN2RzNUtoSTdfQW1XamRheGxTYXZhREk0d2FsaFdVZldIdDh5MXZ3OGZ6dHNrVVB3bHZhUWJzMTB6REFXbzRqRWl4b1MwZXRDSFl4WURrQTZseTZFNllSdFZBVHQyX3FfSElCZm9yd3RQcmJrM28xdUV0bm1WU0NPLTk?oc=5",
+      "date": "2026-10-15T07:38:50+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "太平洋敦南麗舍房地預定買賣契約書 - 內政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMioAJBVV95cUxNTGZVTjlaVzJBaFR2TlAwbktrVk1tdEZ5YmxfRGF2VEFxVVBOVGZPOTI5MTJuT0xraU9xNkt5dXgxZncxRTdlcmNuNmhWZVlwd0EwSUZreUNhUDJocG5jUWFmX29uZjNrUm1VYjUxRk1WSmdMSlZXUHVfTk51aU8yRXZlM3I4WjRIRkJvb3RoREpDOHAxTG5MUlNMdDBHT2xRRC1XOGUwOWFsYmtMTHUtOWVfeXdIaU5MZmc2dUlBcEY0NHhpem0yYW0wMldzWlNYZlV4SnI5eUZyWGxDTDllWVVpenZsQ2ZLZTBWSUlxUGl2bVJoMWdEd3c1WVZBdXlVT1ZMYmQwREVwYWZJUmIycDN5SGZDY2MwM19vZVdiOVE?oc=5",
+      "date": "2026-10-15T03:52:14+00:00",
+      "source": "內政部全球資訊網",
+      "sourceUrl": "https://mlvr.land.moi.gov.tw",
+      "categories": [
+        "law"
+      ]
+    },
+    {
+      "title": "115年度財政部主管預算 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiggFBVV95cUxOSVd2S1VhQlkwcUdubV9oT1QyWlB5SFhWU0Q2MGFWZnlyeWlYeUExNVNaai1GRm15QzMtZUhPUk5SQUdjZjVHZnVteWJtLWhJcVVLUThMUXNBTEJFME5CanBJemNiWlVqbGhoRE93aVR3dHNhaU1tZ1Ywd0dxQmxoMEV3?oc=5",
+      "date": "2026-10-15T03:00:46+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "變更保單要保人可能涉及贈與稅或遺產稅 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxQMGdtbHFRM3VUN1pPUnN6NGxqcmhYMEdWVENpVXFDNUNPYURYUlU5WXVBUk54WTRzWWpBTjh4eklCNGs1aW9Sa1VNekVPMWppc0RtYW1LdTNBRVlaT1JtZ0ZndnJPXy0xMUlxQjJ6M3IwTUEwTnItZDA5YkhlVlgzMkxVYXp3bzh4cXM2OHlNRHhKU1F5Z0RfenpmYmVxTHhkcHNYbVlXWGk?oc=5",
+      "date": "2026-10-15T02:58:04+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "欠繳稅捐提起行政救濟仍得禁止財產處分 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPMG1tMjNDNmdPSllEOHh5TVBiZXhYaUd5OEcwZlNIV2dRUERMVWRxN1k5LTdSZGRIQ1lTcEV3MUJoR0RQZVc4aTdVZDROeWFOaF95X3dFZ1Fqa21hVl9BVWlwUEpwMzNHaHRXTG1MR19Cc2s5WDQ4V1VtcWY5RENBSHdISEV3b2NwbzR2X2xzZ0s4ZWFybWZJZjl2U1JFVjNoWkk2aEhmUUc?oc=5",
+      "date": "2026-10-15T02:03:02+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "營業成本、營業費用應按支出性質正確區分，國稅局提醒營利事業申報留意 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxORE1KN0FLT1M4THdaQ21RdDJrTlN3eUxmd1BVaEl4UE5ScEY3azJaSXh1cUNxT28tQWFsWHNCaDFlWGhaQ2xFeXBWanpmcVlRM2k3dWFkRUZDekZKeDZ5QmdpWEN3M1JCMkJzMVFEQnBHNFN4bHMzX0tTNjh5TVFSWkNuY1djT3MwSVNnMmV4aGF2VkpHWU80dnpMUzNPTWZrdWVrejhvNlM?oc=5",
+      "date": "2026-10-15T00:07:58+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "結合AI新趨勢！高雄國稅局舉辦「AI開拍！30秒稅出新視界！」短影音挑戰賽，總獎金豐富等你來挑戰！ - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPamc0NmRrZlUxLWpfNWE4NGV1MlVfQTlpdUhjek12Y2lFV01XMkxlOWpadGFkSVkySXhVbTEzclJHUWZES1VjNkJ2ZWY3Q1hFVk9xVl9Xd2lsWVFLZEZIQkl4aFdQTm81NEZCT0Nnd2ZxRHZ6VHVSZjdXVmVJejlHeWlaRVZpdHJyaUVNYjBwR1dZVUljZ0JGekFrVERSWW5FQVhfMHZ6MWQ?oc=5",
+      "date": "2026-10-14T09:33:41+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "財政部補助地方政府促參前置作業費用執行情形表(115年第3季) - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiggFBVV95cUxPTWVzTTV6bzVHTFdYSU5iLXhRU2RZRWluc0RfSEUzODRoVFhJaE9SU0o1bjRkTkJ0Z3kyRkItYVdTSEhOVVd1M1A1V1J2c2lQZUNWMzYweS1MalRPTmg4WnkwUHJfQnJBekhtNC1PVkpmQWUxNndibzB5NjJnbVBkZWlB?oc=5",
+      "date": "2026-10-14T09:26:45+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "「房屋買新賣新」不適用房地合一重購租稅優惠 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNMjZUTE8zQTVtLWJhWE1KYUhBVTFnSnViQ0lydFdyMU9GZldpVVRzSWppdWU0THU0blowczJySlFkTndCSjM5dE03djd2TERjMi16SUJmTGFPTkkxYWd0bDBpRjBpWDY5UkdVQk1ZNnJ6YWthUldmVFZnZ0xjbmF1NWt5aHQtcl9CQm5UcWtGMWZnRUhJR21qVWRZcHZmMDFzMWs2SG80ei0?oc=5",
+      "date": "2026-10-14T08:43:49+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "外國營利事業取得境內服務報酬，符合條件可享免稅！ - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPSDhFX1RraHJGaTFjU1FNYUY1N3VPcDlNZU9xZzFDRXNiV0VKektfLTl4U0hkUXlEMEszUENmNWZQdzFaempRZkUxdG4wNXNNTlEzUlVjZzgxSU11OEtSZjQwMl9YeVJ3bk9EZURNVnJYX2hqelphMU10czI3eGtFY05qblpfRk1JX0w0c25YRUt4LW11aktja1hzcTRxMEtIS3FNWjB0Z0Q?oc=5",
+      "date": "2026-10-14T08:43:49+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "納稅義務人捐贈政治獻金，應注意捐贈資格及金額限制 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPcU1IUTFGSGZXUVBNTTE4TENkMEFORUZ4bWZiQU40bzU1Y0tsTnRTR0NFdl9RcFFZaGYxRk1kbFlLSUpVeHpnQTE0dks2LUN2Y1JnWFJDRS1SZVR6aWRySlhBeE1uVk5fZWJxMXBweVgxYk9WelVQbHdjTmtrYzgxZ3NOM1AxVS1fOHhWYW1YeG95SkFEYzVSUW1weWNiVXFHQ2ZVRVVUV2Y?oc=5",
+      "date": "2026-10-14T08:43:49+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "房地合一重購退抵稅後，5年內不得再移轉或移作他用 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNemp2MVVLbHNjRmY4b3dGeGFyNGNUYWR0U1gzOHJ4c3UxdXFXVVFWSDdLWmVjZUJzUkZsX29SWGhjRV9QSjRHVW96ei1JRUROLURSWmowOTN0VzdpQ1BwUlNQQmhyWXBZdS1WRkNWOHd4ckZsQlhJQ0hIdnQwNU1CamozNGZaaF9HY0g5WjZCOTBhQ09jdDdxcXVTMFJBbVhFSlZUSzRfWUc?oc=5",
+      "date": "2026-10-14T08:43:49+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "電動車輛自116年1月1日起得具結免徵貨物稅出廠或進口 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxQd21VcDk5ckl6R29Lc3dzc01iYWxmY1VDZmZmdUhROFgwVldNcWJ5VXRKWDB3eFZpeklEV0pCeUtXdUQ2WjR0d3duSmk3WkZJWlV0MWtReXFPVEpVckROd09YZENkeEtkcmN4WTB4SEtyVUlYVEl1eV85a1V6QnJpYmc3enMyOGRXV1VkNmZUNE9hSVNYM0ZYZ0t2aFpFdlZFaWJramx0bW0?oc=5",
+      "date": "2026-10-14T08:43:49+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "營業人銷售虛擬資產服務法所定之虛擬資產及穩定幣，不課徵營業稅 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxQLWtoXzhmTEFZcldwdzY0T1BrdUJNUm9Zb0JDcllybDByQnVBdFNlQlZLUXk5Z2ZKMXFfa2VIaGFkS3ZiM1RCa1ZHN3BLeEluTTQzNWZFLVZud2pWRHlMXzIyZElMU1RGU0lnay1ZZE93RUlKeHhUczVwbjAtcHhmQkxEOE9BNngzdldGOVhpZUY3MF9yYXJBWjM2UTB5TE45TVFXaFFTaHQ?oc=5",
+      "date": "2026-10-14T08:43:49+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "營利事業列報廣告費，應以已實現為原則 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPbDNyaWoxNTVTNDNSa1Atb29NLW1NSktWd2ppTWhRRmlKQ0hmOXRWbTgyOGpZZk82dzAzbU5jaWNHMmZHN0liZzlua1NfOGI3Z1VUNFZfNEh0X1oxYUhmY3JiaWVab0dXSGtGN0dTMlZEUnllTF84VVc5Q3Q0dkE0SEJNSXlDcDRSdzVrX0IxY2VWTVJRV0RnTzJ2WFFnYnhHcmNXZ2pYRTI?oc=5",
+      "date": "2026-10-14T06:27:21+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "營利事業列報已達耐用年限固定資產報廢損失，應提示確實毀滅或廢棄的證明文件 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPRlJvM091NFBkU1VFcVlvbTI2eUdEeE5HNDhPNDU3M1A0enl0bXNEbm5qRzFCenc4VzhVR1dRTG1VN0JCRXlMc3VQU3pieFN3M25MaTdDRVlnQzlJU2k1elB1ZEFCTVNPVHRuUGlMYVBZT19DS01ObVhRWF9idW9sdnhIdEwtejJva1RIRXVESHJMTnZ5TEpJeTV6TzFmcVlLZS11NkpuOWY?oc=5",
+      "date": "2026-10-14T06:27:21+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "媒體報導「國稅局竟要檢舉人自己交合約，包庇權貴」，非屬事實，特予澄清 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNOEZiZjRfRUx6UnF5YTZwT1FTQV9vMWZLNDY0V1B1dzgzdDJjcS1Mem10eHFVUjY3dkZnUy1sQ3I1Wk5HbEM0bkhIMEZJemR1UDlrUUFnTHRKNU11QmhYOVJpZkZkSVUzRnBERGljWE9HVXY2S1dVWm9iSm5FM1dFRnAtZHpYN29PdWF0dnRzLUZhUEZGTnZnUk9OR3BWRVRuR201dWFqQTY?oc=5",
+      "date": "2026-10-14T06:11:55+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "房屋稅條例 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTFBleWk3ZnBma2pBLUFkNzA0cWdLb1RLRjlVa1JkWUVOemdFek5KTVlKdzM4LU40VlBNMk1uMjRMeWZOVF8yc3J4Qld3NWZ6QQ?oc=5",
+      "date": "2026-10-14T05:15:27+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://ttc.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "財政部新聞稿 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxOZUE0bUczVTZ5cUNDSWJESWdSRkI4SUR3bmV0RVJXU0lPZkhCb0dyM01HY1pwRS0yME4xODlpd3dTTEJlcGhhaFlzckNmSHVlUVhldk9XVldqSlpFZW81MTBqUlN3aU82OGE4RGJPc1JhZFIwLW93eWMxek9PcFNzbkxvZ3p3SDc0?oc=5",
+      "date": "2026-10-13T13:08:36+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://service.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "115年9月全國賦稅收入初步統計 - 財政部全球資訊網",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNcmtmOEhjTWxjbkYwTm9zMFUyWTdiMTRDZ0xwWGN6ckE3eW8wX1lsTXo0REMzZ1dfVC04cVZ0NDYwSThzZHNCVWs5akQ3Mk41c0h5aUMxS0xqTlp0NVRRN1ZrWEJkWjBKSHZfLXNBWjN3bXFyenNqZ0t5bGZZVDdHNFFxWG11UE82RXpNcEpHZ0RRdTNrU2oxc25uYWhmS09NRnZmUFRCOFY?oc=5",
+      "date": "2026-10-13T08:06:08+00:00",
+      "source": "財政部全球資訊網",
+      "sourceUrl": "https://www.mof.gov.tw",
+      "categories": [
+        "tax"
+      ]
+    }
+  ]
+}
