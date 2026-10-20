@@ -58,13 +58,14 @@
     <div id="login-form" class="auth-box">
       <div class="auth-brand"><div class="brand-logo">宏</div><div><h1>宏國地政｜易丞地政</h1><p>內部 ERP 總控制管理</p></div></div>
       <h2><i class="fa-solid fa-shield-halved"></i> 員工安全登入</h2>
-      <div class="alert-box">登入一次後，案件、打卡、報價、收據等模組會自動帶入同一位操作人，不需要各系統重複登入。</div>
+      <div class="alert-box">總管理與各模組目前保留既有權限驗證。傳遞操作人資訊不等於完成跨系統授權；若已驗證仍無法登入，可先使用下方帳號檢查。</div>
       <div class="input-group"><label>使用者名稱</label><input type="text" id="login-user" autocomplete="username" placeholder="例如：楊翊晟"></div>
       <div class="input-group"><label>密碼</label><input type="password" id="login-pass" autocomplete="current-password" placeholder="輸入密碼"></div>
       <div class="checkbox-group"><input type="checkbox" id="keep-login" checked><label for="keep-login">保持登入（固定裝置；共用裝置請取消）</label></div>
       <button id="btnLogin" class="btn btn-primary btn-block"><i class="fa-solid fa-right-to-bracket"></i> 登入系統</button>
       <div class="switch-link" onclick="showRegister()"><i class="fa-solid fa-mobile-screen-button"></i> 新員工？使用開通碼註冊並綁定裝置</div>
       <div class="switch-link" onclick="showResetPassword()"><i class="fa-solid fa-unlock-keyhole"></i> 忘記密碼？用開通碼自行重設</div>
+      <div style="margin-top:12px"><a class="switch-link" href="./login-check.html" target="_blank" rel="noopener noreferrer">已驗證仍無法登入？檢查既有 Firebase 帳號</a><br><a class="switch-link" href="./news.html" target="_blank" rel="noopener noreferrer">開啟新聞新知中心</a></div>
       <div style="margin-top:12px"><span class="switch-link" onclick="showAdminAuth()" style="color:#94a3b8"><i class="fa-solid fa-screwdriver-wrench"></i> 系統管理驗證</span></div>
     </div>
 
@@ -600,7 +601,7 @@ function sessionParams(url) {
 
 function sendSessionToFrame() {
   const frame = $("content-frame");
-  if (!frame.contentWindow || !currentSession) return;
+  if (!frame.contentWindow || !currentSession || !currentFrameItem) return;
   const sessionForModule = { ...currentSession };
   if (currentFrameItem?.module === "employee") {
     sessionForModule.name = currentSession.loginAccount || currentSession.legacyName || currentSession.name;
@@ -608,7 +609,7 @@ function sendSessionToFrame() {
     sessionForModule.employeeName = currentSession.name;
   }
   const payload = { type: "HG_ERP_SESSION", session: sessionForModule };
-  try { frame.contentWindow.postMessage(payload, "*"); } catch (err) { console.warn("postMessage failed", err); }
+  try { frame.contentWindow.postMessage(payload, new URL(currentFrameItem.url, location.href).origin); } catch (err) { console.warn("postMessage failed", err); }
 }
 
 window.loadPage = function(idx, el) {
@@ -628,8 +629,8 @@ window.loadPage = function(idx, el) {
     grid.style.display = "none";
     frame.style.display = "block";
     toolbar.style.display = "flex";
-    frame.src = sessionParams(currentFrameItem.url);
     frame.onload = () => setTimeout(sendSessionToFrame, 250);
+    frame.src = sessionParams(currentFrameItem.url);
     if (!el) el = document.querySelectorAll("#sidebar-nav-links a")[idx + 1];
     setActive(el);
   }
@@ -761,325 +762,32 @@ function makeCodeFromForm() {
   $("display-code").innerText = `${account}｜${calculateActivationCode(account)}`;
 }
 
-function normalizeNewsTitle(text) {
-  return String(text || "")
-    .replace(/<!\[CDATA\[/g, "")
-    .replace(/\]\]>/g, "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/\s+/g, " ")
-    .replace(/^[-•●◆◇▪▫\d\.、\)\(\[\]]+\s*/, "")
-    .trim();
+// HG_PUBLIC_NEWS_BRIDGE_20261020
+let portalNewsModule = null;
+function newsSeenKey() {
+  const date = new Intl.DateTimeFormat('sv-SE', {timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  return `hg_news_seen_${currentSession?.name || 'guest'}_${date}`;
 }
-function absoluteNewsUrl(href) {
-  try { return new URL(href || NEWS_API_URL, NEWS_API_URL).toString(); }
-  catch { return NEWS_API_URL; }
+function renderTickerPlaceholder() {
+  const host = $("newsTickerInner"); host.replaceChildren();
+  const link = document.createElement('a'); link.href='./news.html';link.target='_blank';link.rel='noopener noreferrer';link.textContent='新聞中心載入中；可在新分頁開啟';host.append(link);
 }
-function googleNewsSearchUrl(topic) {
-  return "https://news.google.com/search?q=" + encodeURIComponent(topic + " 台灣 不動產 地政 房貸") + "&hl=zh-TW&gl=TW&ceid=TW:zh-Hant";
-}
-function uniqueNewsItems(items) {
-  const seen = new Set();
-  return (items || [])
-    .map(item => ({
-      title: normalizeNewsTitle(item.title || item.標題 || item.headline || item.name || ""),
-      link: absoluteNewsUrl(item.link || item.url || item.網址 || ""),
-      source: normalizeNewsTitle(item.source || item.來源 || item.media || "每日新聞"),
-      date: normalizeNewsTitle(item.date || item.pubDate || item.日期 || item.time || ""),
-      summary: normalizeNewsTitle(item.summary || item.description || item.摘要 || item.content || "")
-    }))
-    .filter(item => item.title && item.title.length >= 3)
-    .filter(item => item.link && item.link !== NEWS_API_URL)
-    .filter(item => {
-      const key = item.title.toLowerCase();
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-}
-function parseXmlNews(xmlText) {
-  const items = [];
+async function fetchNews({auto=false,force=false}={}) {
+  let seen=false;try{seen=localStorage.getItem(newsSeenKey())==='1';}catch{}
   try {
-    const clean = String(xmlText || "").trim();
-    const xml = new DOMParser().parseFromString(clean, "text/xml");
-    if (xml.querySelector("parsererror")) return [];
-    const nodes = Array.from(xml.getElementsByTagName("item"));
-    nodes.forEach(node => {
-      const getTag = (tag) => {
-        const el = node.getElementsByTagName(tag)[0];
-        return el ? el.textContent : "";
-      };
-      const title = getTag("title");
-      const link = getTag("link");
-      const date = getTag("pubDate") || getTag("date");
-      const desc = getTag("description");
-      if (title && link) items.push({ title, link, source: "每日新聞", date, summary: desc });
-    });
-  } catch (err) { console.warn("parseXmlNews failed", err); }
-  return uniqueNewsItems(items).slice(0, 80);
-}
-function parseHtmlNews(htmlText) {
-  const xmlItems = parseXmlNews(htmlText);
-  if (xmlItems.length) return xmlItems;
-  const items = [];
-  try {
-    const doc = new DOMParser().parseFromString(String(htmlText || ""), "text/html");
-    Array.from(doc.querySelectorAll("a[href]")).forEach(a => {
-      const title = normalizeNewsTitle(a.textContent || a.getAttribute("title") || "");
-      const href = a.getAttribute("href") || "";
-      if (title && href && !/^開啟|^更多|^read more$/i.test(title)) items.push({ title, link: absoluteNewsUrl(href), source: "每日新聞" });
-    });
-  } catch (err) { console.warn("parseHtmlNews failed", err); }
-  return uniqueNewsItems(items).slice(0, 80);
-}
-function parseNewsPayload(payload) {
-  let raw = payload;
-  if (typeof raw === "string") {
-    const text = raw.trim();
-    if (/^<\?xml|<rss|<channel|<item[\s>]/i.test(text)) return parseXmlNews(text);
-    try { raw = JSON.parse(text); }
-    catch {
-      if (/<[a-z][\s\S]*>/i.test(text)) return parseHtmlNews(text);
-      const urlRegex = /(https?:\/\/[^\s)）]+)$/i;
-      return uniqueNewsItems(text.split(/\n+/).map(line => {
-        const cleaned = normalizeNewsTitle(line.replace(urlRegex, ""));
-        const match = line.match(urlRegex);
-        return { title: cleaned, link: match ? match[1] : "", source: "每日新聞" };
-      })).slice(0, 80);
-    }
+    portalNewsModule ||= import('./portal-news.mjs?v=20261020.1');
+    const ui=await portalNewsModule;
+    return ui.refresh({open:force||(auto&&!seen)});
+  } catch(error) {
+    portalNewsModule=null;renderTickerPlaceholder();
+    window.__portalStartup?.notice('新聞介面未完成載入；可另開新聞中心。原登入與案件資料未變更。');
   }
-  const arr = Array.isArray(raw) ? raw : (raw?.data || raw?.news || raw?.items || raw?.articles || raw?.results || raw?.rows || []);
-  if (!Array.isArray(arr)) return [];
-  return uniqueNewsItems(arr.map((item, i) => {
-    if (typeof item === "string") return { title: item, link: "", source: "每日新聞" };
-    return {
-      title: item.title || item.標題 || item.headline || item.name || item.subject || `新聞 ${i + 1}`,
-      link: item.link || item.url || item.網址 || "",
-      source: item.source || item.來源 || item.media || "每日新聞",
-      date: item.date || item.pubDate || item.日期 || item.time || "",
-      summary: item.summary || item.description || item.摘要 || ""
-    };
-  })).slice(0, 80);
-}
-
-const NEWS_TOPIC_RULES = [
-  { title: "央行信用管制與金融市場", keywords: ["央行", "信用管制", "利率", "房貸", "銀行", "金融", "台股", "股", "Fed", "美元", "匯率"] },
-  { title: "房貸核貸、成數與資金壓力", keywords: ["核貸", "成數", "貸款", "房貸", "寬限", "撥款", "估價", "收支比"] },
-  { title: "台南房市與區域成交觀察", keywords: ["台南", "南科", "安南", "北區", "東區", "永康", "新市", "善化", "歸仁", "高雄"] },
-  { title: "土地開發、重劃與都市計畫", keywords: ["土地", "重劃", "都更", "危老", "容積", "建地", "開發", "都市計畫", "區段徵收"] },
-  { title: "稅務、繼承與交易安全提醒", keywords: ["稅", "繼承", "贈與", "遺產", "房地合一", "登記", "地政", "履保", "合約"] },
-  { title: "買房風險與市場趨勢", keywords: ["房市", "買房", "預售", "中古", "交易", "房價", "租金", "投資", "不動產"] }
-];
-function buildNewsTopics(items) {
-  const normalized = uniqueNewsItems(items);
-  const used = new Set();
-  const topics = NEWS_TOPIC_RULES.map(rule => {
-    const matched = normalized.filter(item => {
-      const text = `${item.title} ${item.summary}`;
-      return rule.keywords.some(k => text.includes(k));
-    });
-    matched.forEach(i => used.add(i.title));
-    return { title: rule.title, items: matched.slice(0, 5) };
-  });
-  const leftovers = normalized.filter(i => !used.has(i.title)).slice(0, 5);
-  if (leftovers.length) topics.push({ title: "其他重要新聞", items: leftovers });
-  return topics.filter(t => t.items.length).slice(0, 7);
-}
-function fallbackTopics() {
-  return NEWS_TOPIC_RULES.slice(0, 6).map(rule => ({
-    title: rule.title,
-    items: [{ title: `查看「${rule.title}」相關新聞`, link: googleNewsSearchUrl(rule.title), source: "Google 新聞搜尋" }],
-    fallback: true
-  }));
-}
-function newsSeenKey() { return `hg_news_seen_${currentSession?.name || "guest"}_${todayKey()}`; }
-function itemDateKey(item) {
-  const raw = item?.date || item?.pubDate || "";
-  if (!raw) return "";
-  const d = new Date(raw);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
-}
-function newsSortTime(item) {
-  const d = new Date(item?.date || "");
-  return Number.isNaN(d.getTime()) ? 0 : d.getTime();
-}
-function sortedNewsItems(items) {
-  return uniqueNewsItems(items).sort((a, b) => newsSortTime(b) - newsSortTime(a));
-}
-function todayNewsItems(items) {
-  const today = todayKey();
-  return sortedNewsItems(items).filter(item => itemDateKey(item) === today);
-}
-function renderTickerPlaceholder(items = []) {
-  const inner = $("newsTickerInner");
-  const todays = todayNewsItems(items).slice(0, 5);
-  if (todays.length) {
-    inner.innerHTML = todays.map((item, idx) => `<a href="${escapeAttr(item.link)}" target="_blank">${idx + 1}. ${escapeHtml(item.title)}</a>`).join("");
-    return;
-  }
-  const latest = sortedNewsItems(items).slice(0, 5);
-  if (latest.length) {
-    inner.innerHTML = latest.map((item, idx) => `<a href="${escapeAttr(item.link)}" target="_blank">最新 ${idx + 1}. ${escapeHtml(item.title)}</a>`).join("");
-    return;
-  }
-  const topics = fallbackTopics();
-  inner.innerHTML = topics.slice(0, 6).map(topic => `<a href="${escapeAttr(topic.items[0].link)}" target="_blank">${escapeHtml(topic.title)}</a>`).join("");
-}
-function newsUrlWithCacheBust() {
-  const u = new URL(NEWS_API_URL, window.location.href);
-  u.searchParams.set("_t", Date.now().toString());
-  return u.toString();
-}
-function rss2JsonUrl() {
-  return "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(NEWS_API_URL) + "&_=" + Date.now();
-}
-async function fetchTextWithFallbacks() {
-  // 先用 RSS 轉 JSON 服務，避免 Apps Script RSS 被瀏覽器 CORS 擋住；失敗再嘗試其他備援。
-  const targets = [
-    rss2JsonUrl(),
-    "https://api.allorigins.win/get?url=" + encodeURIComponent(newsUrlWithCacheBust()),
-    "https://api.allorigins.win/raw?url=" + encodeURIComponent(newsUrlWithCacheBust()),
-    "https://corsproxy.io/?" + encodeURIComponent(newsUrlWithCacheBust()),
-    newsUrlWithCacheBust()
-  ];
-  let lastErr = null;
-  for (const target of targets) {
-    try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 9000);
-      const res = await fetch(target, { cache: "no-store", signal: controller.signal });
-      clearTimeout(timer);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const text = await res.text();
-      if (!text || !text.trim()) continue;
-      // allOrigins / rss2json 回 JSON；allOrigins 會把原文放在 contents。
-      try {
-        const obj = JSON.parse(text);
-        if (obj && typeof obj.contents === "string") return obj.contents;
-        return JSON.stringify(obj);
-      } catch {
-        return text;
-      }
-    } catch (err) { lastErr = err; }
-  }
-  throw lastErr || new Error("新聞來源暫時無法讀取");
-}
-function dailyFallbackItems() {
-  const qs = [
-    "今日 台灣 不動產 房市 地政 房貸",
-    "今日 台南 房市 南科 不動產",
-    "今日 央行 信用管制 房貸",
-    "今日 房地合一稅 繼承 贈與 不動產",
-    "今日 土地開發 重劃 都市計畫"
-  ];
-  return qs.map(q => ({ title: `搜尋：${q}`, link: googleNewsSearchUrl(q), source: "Google 新聞搜尋", date: todayKey(), summary: "新聞來源暫時無法自動解析時，可先用這個主題入口查看今日相關新聞。" }));
-}
-function displayDateLabel(item) {
-  const raw = item?.date || "";
-  if (!raw) return item?.source || "每日新聞";
-  const d = new Date(raw);
-  if (Number.isNaN(d.getTime())) return raw;
-  return d.toLocaleString("zh-TW", { timeZone: "Asia/Taipei", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false });
-}
-function shortSummary(item) {
-  const s = normalizeNewsTitle(item?.summary || "");
-  if (!s || s === item?.title) return "";
-  return s.length > 90 ? s.slice(0, 90) + "…" : s;
-}
-function newsCardHtml(item, idx) {
-  return `<a class="news-readable-card" href="${escapeAttr(item.link)}" target="_blank">
-    <span class="num">${idx + 1}</span>
-    <span><span class="title">${escapeHtml(item.title)}</span><div class="meta">${escapeHtml(item.source || "每日新聞")}｜${escapeHtml(displayDateLabel(item))}</div>${shortSummary(item) ? `<div class="summary">${escapeHtml(shortSummary(item))}</div>` : ""}</span>
-  </a>`;
-}
-function renderNewsList(items, { fallback = false } = {}) {
-  let normalized = sortedNewsItems(items || []);
-  const noRealItems = fallback || !normalized.length;
-  if (!normalized.length) normalized = dailyFallbackItems();
-  const todays = todayNewsItems(normalized);
-  const latestForDisplay = (todays.length ? todays : normalized).slice(0, 12);
-  const topicBase = (todays.length ? todays : normalized).slice(0, 36);
-  const topics = (!noRealItems && topicBase.length) ? buildNewsTopics(topicBase) : fallbackTopics();
-  const mainSearch = googleNewsSearchUrl("今日 台灣 不動產 地政 房貸 台南");
-  $("newsSourceLink").href = mainSearch;
-  $("newsSourceLink").innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> 搜尋更多今日新聞`;
-  $("newsModalBody").innerHTML = `
-    <div class="news-reading-intro">
-      <b>閱讀方式：</b>先看「每日最新新聞」，再看「主題延伸」。同仁只要點新聞標題就能開原文；系統不再顯示 RSS/XML 原始碼。
-    </div>
-    ${noRealItems ? `<div class="news-fallback-panel">
-      今日新聞來源暫時無法自動整理成標題清單，系統先提供「今日新聞搜尋入口」。這不是系統故障，案件、打卡、報價、收據仍可正常使用。
-      <div class="news-search-buttons">
-        ${dailyFallbackItems().map(i => `<a href="${escapeAttr(i.link)}" target="_blank">${escapeHtml(i.title.replace("搜尋：", ""))}</a>`).join("")}
-      </div>
-    </div>` : ""}
-    <div class="latest-news-section">
-      <div class="news-section-label">
-        <h4><i class="fa-solid fa-calendar-day"></i> 每日最新新聞${todays.length ? "（今天發布）" : "（來源最新）"}</h4>
-        <span class="hint">點標題開原文</span>
-      </div>
-      <div class="news-card-grid">
-        ${latestForDisplay.length ? latestForDisplay.map((item, idx) => newsCardHtml(item, idx)).join("") : `<div class="topic-empty">目前沒有可顯示的新聞。</div>`}
-      </div>
-    </div>
-    <div class="news-divider"></div>
-    <div class="news-section-label"><h4><i class="fa-solid fa-layer-group"></i> 主題分類延伸閱讀</h4><span class="hint">方便晨會或午休快速吸收</span></div>
-    <div class="topic-list">
-      ${topics.map((topic, idx) => {
-        const list = topic.items && topic.items.length ? topic.items : [{ title: `查看「${topic.title}」相關新聞`, link: googleNewsSearchUrl(topic.title), source: "Google 新聞搜尋" }];
-        return `<div class="news-topic-card">
-          <div class="news-topic-title">${idx + 1}. ${escapeHtml(topic.title)}<small>${topic.fallback || noRealItems ? "主題搜尋" : `本主題 ${list.length} 則`}</small></div>
-          <div class="news-topic-links">
-            ${list.slice(0, 5).map((item, j) => `<a href="${escapeAttr(item.link)}" target="_blank"><span class="idx">${j + 1}</span><span>${escapeHtml(item.title)}</span></a>`).join("")}
-          </div>
-        </div>`;
-      }).join("")}
-    </div>`;
-  $("newsModal").classList.add("show");
-}
-async function fetchNews({ auto = false, force = false } = {}) {
-  $("newsSourceLink").href = NEWS_API_URL;
-  if (auto && localStorage.getItem(newsSeenKey()) === "1" && !force) {
-    tryLoadTickerOnly();
-    return;
-  }
-  if (auto || force) {
-    $("newsModalBody").innerHTML = `<div class="news-loading"><div class="spinner" style="margin:auto auto 12px"></div>正在整理今日新聞清單...</div>`;
-    $("newsModal").classList.add("show");
-  }
-  try {
-    const text = await fetchTextWithFallbacks();
-    const items = parseNewsPayload(text).slice(0, 80);
-    window.__latestNews = items;
-    renderTickerPlaceholder(items);
-    if (auto || force) renderNewsList(items, { fallback: !items.length });
-  } catch (err) {
-    console.warn("news fetch failed", err);
-    renderTickerPlaceholder([]);
-    if (auto || force) renderNewsList([], { fallback: true });
-  }
-}
-async function tryLoadTickerOnly() {
-  try {
-    const text = await fetchTextWithFallbacks();
-    const items = parseNewsPayload(text).slice(0, 80);
-    renderTickerPlaceholder(items);
-  } catch { renderTickerPlaceholder([]); }
-}
-function openNewsModal(loading = false, items = null) {
-  if (loading) {
-    $("newsModalBody").innerHTML = `<div class="news-loading"><div class="spinner" style="margin:auto auto 12px"></div>正在整理新聞清單...</div>`;
-  }
-  if (items) renderNewsList(items);
-  else $("newsModal").classList.add("show");
 }
 window.closeNewsModal = function() {
-  if ($("newsDontShowToday")?.checked && currentSession) localStorage.setItem(newsSeenKey(), "1");
-  $("newsModal").classList.remove("show");
+  if ($("newsDontShowToday")?.checked && currentSession) {try{localStorage.setItem(newsSeenKey(),'1');}catch{}}
+  $("newsModal").classList.remove('show');
 };
+
 function escapeHtml(v) { return String(v ?? "").replace(/[&<>'"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[ch])); }
 function escapeAttr(v) { return escapeHtml(v).replace(/\n/g, ""); }
 
@@ -1113,6 +821,8 @@ async function restoreSession() {
 }
 
 window.addEventListener("message", (event) => {
+  if (!currentFrameItem || event.source !== $("content-frame").contentWindow) return;
+  if (event.origin !== new URL(currentFrameItem.url, location.href).origin) return;
   const data = event.data || {};
   if (data.type === "HG_ERP_REQUEST_SESSION" || data.type === "HG_MODULE_READY") sendSessionToFrame();
 });
