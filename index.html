@@ -521,7 +521,7 @@ function showLoginFeedback(error) {
 // Preserve the original 2026-09 device authorization when the portal's device-key
 // storage name was changed from hg_did to hg_cloud_did. This is NOT new enrollment,
 // and must never run until the original password has been checked for this account.
-async function requirePreviouslyApprovedDevice(account, userRecord) {
+async function requirePreviouslyApprovedDevice(account, userRecord, password) {
   const known = Array.isArray(userRecord?.authorizedDevices) ? userRecord.authorizedDevices : [];
   if (known.includes(myDeviceId)) return;
   let historical = "";
@@ -530,26 +530,36 @@ async function requirePreviouslyApprovedDevice(account, userRecord) {
     throw new Error("這台裝置尚未獲得此帳號的原有授權。請由管理者核對裝置；不需重建 Firebase 帳號或重設密碼。");
   }
 
-  // Only add the new device ID if the account's *current server record* still
-  // contains the original approved ID. Abort atomically if authorization
-  // changed while this request was in flight.
-  const deviceRef = ref(db, "users/" + safeKey(account) + "/authorizedDevices");
+  const userRef = ref(db, "users/" + safeKey(account));
+  // Populate the SDK cache before the transaction; it must not interpret a
+  // missing local cache as evidence that the account was revoked.
+  let before;
+  try { before = await get(userRef); }
+  catch { throw new Error("無法再次確認原授權紀錄，沒有變更任何裝置。"); }
+  const current = before.exists() ? before.val() : null;
+  if (!current || current.password !== password || current.legacyPortalDisabled === true ||
+      !Array.isArray(current.authorizedDevices) || !current.authorizedDevices.includes(historical)) {
+    throw new Error("原帳號密碼或原裝置授權已變更，不能自動沿用。請由管理者核准。");
+  }
+  // Re-check both the password and previously approved device inside one
+  // atomic transaction. Preserve EVERY other field of the existing record.
   let result;
   try {
-    result = await runTransaction(deviceRef, existing => {
-      if (!Array.isArray(existing) || !existing.includes(historical)) return;
-      if (existing.includes(myDeviceId)) return existing;
-      return [...existing, myDeviceId];
+    result = await runTransaction(userRef, value => {
+      if (!value || value.password !== password || value.legacyPortalDisabled === true ||
+          !Array.isArray(value.authorizedDevices) || !value.authorizedDevices.includes(historical)) return;
+      if (value.authorizedDevices.includes(myDeviceId)) return value;
+      return { ...value, authorizedDevices: [...value.authorizedDevices, myDeviceId] };
     }, { applyLocally: false });
   } catch {
     throw new Error("原裝置授權資料更新未成功，登入尚未完成。請管理者檢查資料庫權限，不要重新建帳。");
   }
   const confirmed = result?.snapshot?.val();
-  if (!Array.isArray(confirmed) || !confirmed.includes(myDeviceId)) {
+  if (!confirmed || confirmed.password !== password || confirmed.legacyPortalDisabled === true ||
+      !Array.isArray(confirmed.authorizedDevices) || !confirmed.authorizedDevices.includes(myDeviceId)) {
     throw new Error("原裝置授權已變更，這次未新增任何裝置。請由管理者重新核准。");
   }
 }
-
 async function login() {
   const user = $("login-user").value.trim();
   const pass = $("login-pass").value.trim();
@@ -561,7 +571,7 @@ async function login() {
     if (!userRecord) throw new Error("員工主檔存在，但舊系統找不到對應的登入紀錄。已建立 Firebase Auth 不代表此舊入口已完成授權，請勿重新建帳或改密碼。");
     if (userRecord.legacyPortalDisabled === true) throw new Error("舊系統登入已停用，請由管理員確認正式帳號與授權狀態。");
     if (userRecord.password !== pass) throw new Error("此入口仍在比對舊系統密碼；Firebase Auth 的驗證結果尚未接入公司授權，請勿重設既有密碼。");
-    await requirePreviouslyApprovedDevice(account, userRecord);
+    await requirePreviouslyApprovedDevice(account, userRecord, pass);
     // A successful local compatibility check never substitutes for server readback.
     const freshUser = await get(ref(db, "users/" + safeKey(account)));
     const confirmedUser = freshUser.exists() ? freshUser.val() : null;
