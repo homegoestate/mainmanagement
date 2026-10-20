@@ -1,0 +1,11 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {safeUrl,time,day,normalize,selectItems} from '../news-reader.mjs';
+const now=Date.parse('2026-10-20T01:00:00Z');
+const row={title:'房貸最新消息',link:'https://example.test/one',source:'測試來源',date:'2026-10-19T20:00:00Z',categories:['loan']};
+test('reject unsafe URLs and credentials',()=>{for(const s of ['javascript:alert(1)','data:text/html,a','https://u:p@example.test'])assert.equal(safeUrl(s),'');});
+test('require explicit timezone',()=>{assert.ok(Number.isNaN(time('2026-10-20 01:00:00')));});
+test('Taipei day after midnight differs from UTC',()=>{assert.equal(day(Date.parse(row.date)),'2026-10-20');});
+test('deduplicate and reject stale/future/unknown dates',()=>{const items=normalize({schemaVersion:2,items:[row,row,{...row,link:'https://example.test/old',date:'2026-10-01T01:00:00Z'},{...row,link:'https://example.test/future',date:'2026-10-21T01:00:00Z'},{...row,link:'https://example.test/unknown',date:''}]},now);assert.equal(items.length,1);});
+test('independent date category keyword filters',()=>{assert.equal(selectItems([row],'today','loan','房貸',now).length,1);assert.equal(selectItems([row],'72','law','',now).length,0);});
+test('reject malformed payload',()=>{assert.throws(()=>normalize({items:[]}));});
