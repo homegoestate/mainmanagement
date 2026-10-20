@@ -63,6 +63,7 @@
       <div class="input-group"><label>密碼</label><input type="password" id="login-pass" autocomplete="current-password" placeholder="輸入密碼"></div>
       <div class="checkbox-group"><input type="checkbox" id="keep-login" checked><label for="keep-login">保持登入（固定裝置；共用裝置請取消）</label></div>
       <button id="btnLogin" class="btn btn-primary btn-block"><i class="fa-solid fa-right-to-bracket"></i> 登入系統</button>
+      <div id="login-feedback" role="alert" hidden style="margin:12px 0 0;padding:11px 12px;border:1px solid #fbbf24;border-radius:12px;background:#fffbeb;color:#92400e;font-size:13px;line-height:1.65"></div>
       <div class="switch-link" onclick="showRegister()"><i class="fa-solid fa-mobile-screen-button"></i> 新員工？使用開通碼註冊並綁定裝置</div>
       <div class="switch-link" onclick="showResetPassword()"><i class="fa-solid fa-unlock-keyhole"></i> 忘記密碼？用開通碼自行重設</div>
       <div style="margin-top:12px"><a class="switch-link" href="./login-check.html" target="_blank" rel="noopener noreferrer">已驗證仍無法登入？檢查既有 Firebase 帳號</a><br><a class="switch-link" href="./news.html" target="_blank" rel="noopener noreferrer">開啟新聞新知中心</a></div>
@@ -168,7 +169,7 @@
   </div>
 
 <div id="portal-startup-error" role="alert" hidden style="position:fixed;inset:0;z-index:100000;background:#f3f6f8;padding:10vh 8vw;color:#0f2e46">
-<h2>系統暫時無法完成載入</h2><p>請確認網路連線後重新載入。此提示不會清除您的資料或登入紀錄。</p><button type="button" id="portal-startup-retry">重新載入</button></div>
+<h2>系統暫時無法完成載入</h2><p>請確認網路連線並從正式 HTTPS 網址進入。單獨在附件預覽器開啟時，瀏覽器可能阻擋 Firebase 模組；這不代表資料遺失。</p><button type="button" id="portal-startup-retry">重新載入</button></div>
 <div id="portal-startup-notice" role="status" hidden style="position:fixed;bottom:12px;left:12px;right:12px;z-index:99999;padding:12px;background:#fff7ed;color:#9a3412;border:1px solid #fdba74;border-radius:8px"></div>
 <script>
 (() => {
@@ -257,6 +258,8 @@ let currentSession = null;
 let employeesCache = {};
 let usersCache = {};
 let currentFrameItem = null;
+let portalNavigationSequence = 0;
+let portalFrameSendTimer = null;
 let unsubs = [];
 let myDeviceId = localStorage.getItem("hg_cloud_did");
 if (!myDeviceId) {
@@ -404,11 +407,7 @@ async function getEmployee(name) {
     const snap = await get(ref(db, "employees/" + safeKey(candidate)));
     if (snap.exists()) return buildEmployeeRecord(snap.val());
   }
-  if (canonicalDefault) {
-    const rec = buildEmployeeRecord(canonicalDefault);
-    await set(ref(db, "employees/" + safeKey(rec.name)), rec);
-    return rec;
-  }
+  // Default aliases are lookup hints only. Never recreate a missing or archived staff row.
   const all = await get(ref(db, "employees"));
   if (all.exists()) {
     const key = normalizeLogin(name);
@@ -506,21 +505,41 @@ async function register() {
   } finally { showLoading(false); }
 }
 
+function showLoginFeedback(error) {
+  const el = $("login-feedback");
+  if (!el) return;
+  const code = String(error?.code || "").toLowerCase();
+  const msg = String(error?.message || "登入暫時失敗");
+  if (code.includes("permission-denied") || code.includes("permission_denied")) {
+    el.textContent = "Firebase 資料讀取遭拒絕，這不是密碼錯誤。現有舊入口與 Firebase Auth 的正式授權尚待銜接，請勿清空資料或重設帳密。";
+  } else if (code.includes("network") || code.includes("unavailable") || code.includes("disconnected")) {
+    el.textContent = "目前無法連上登入資料服務，請確認網路後重試；未修改您的帳號或裝置紀錄。";
+  } else { el.textContent = msg; }
+  el.hidden = false;
+}
+
 async function login() {
   const user = $("login-user").value.trim();
   const pass = $("login-pass").value.trim();
   if (!user || !pass) return alert("請輸入帳號密碼");
+  $("login-feedback").hidden = true;
   showLoading(true, "登入驗證中...");
   try {
     const { emp, account, userRecord } = await resolveLoginIdentity(user);
-    if (!userRecord || userRecord.password !== pass) throw new Error("帳號或密碼錯誤");
-    const devices = userRecord.authorizedDevices || [];
-    if (!devices.includes(myDeviceId)) throw new Error("此裝置尚未授權，請用開通碼註冊並綁定此裝置。 ");
-    await update(ref(db, "users/" + safeKey(account)), { lastDeviceType: getDeviceType(), lastLoginAt: new Date().toISOString(), employeeName: emp.name });
+    if (!userRecord) throw new Error("員工主檔存在，但舊系統找不到對應的登入紀錄。已建立 Firebase Auth 不代表此舊入口已完成授權，請勿重新建帳或改密碼。");
+    if (userRecord.legacyPortalDisabled === true) throw new Error("舊系統登入已停用，請由管理員確認正式帳號與授權狀態。");
+    if (userRecord.password !== pass) throw new Error("此入口仍在比對舊系統密碼；Firebase Auth 的驗證結果尚未接入公司授權，請勿重設既有密碼。");
+    const devices = Array.isArray(userRecord.authorizedDevices) ? userRecord.authorizedDevices : [];
+    if (!devices.includes(myDeviceId)) throw new Error("這台裝置尚未列入舊系統授權。請管理員核對裝置；勿自行複製其他人的裝置代碼。");
+    try {
+      await update(ref(db, "users/" + safeKey(account)), { lastDeviceType: getDeviceType(), lastLoginAt: new Date().toISOString(), employeeName: emp.name });
+    } catch (auditError) {
+      throw new Error("舊版帳密與裝置核對通過，但登入紀錄寫入遭拒，尚未完成登入。請管理員檢查現有資料權限；請勿重設原有密碼。");
+    }
     const session = sessionFromEmployee(emp, "login", account);
     storeSession(session, $("keep-login").checked);
     enterDashboard(session, false);
-  } catch (err) { alert(err.message || "登入失敗"); }
+  } catch (err) { showLoginFeedback(err); }
   finally { showLoading(false); }
 }
 
@@ -614,7 +633,10 @@ function sendSessionToFrame() {
 
 window.loadPage = function(idx, el) {
   $("admin-panel").style.display = "none";
+  const navigationSequence = ++portalNavigationSequence;
+  if (portalFrameSendTimer) { clearTimeout(portalFrameSendTimer); portalFrameSendTimer = null; }
   const frame = $("content-frame");
+  frame.onload = null;
   const grid = $("dashboard-grid-view");
   const toolbar = $("iframeToolbar");
   if (idx === -1) {
@@ -629,8 +651,15 @@ window.loadPage = function(idx, el) {
     grid.style.display = "none";
     frame.style.display = "block";
     toolbar.style.display = "flex";
-    frame.onload = () => setTimeout(sendSessionToFrame, 250);
-    frame.src = sessionParams(currentFrameItem.url);
+    const expectedItem = currentFrameItem;
+    const expectedSrc = sessionParams(expectedItem.url);
+    frame.onload = () => {
+      if (navigationSequence !== portalNavigationSequence || currentFrameItem !== expectedItem || frame.src !== expectedSrc) return;
+      portalFrameSendTimer = setTimeout(() => {
+        if (navigationSequence === portalNavigationSequence && currentFrameItem === expectedItem && frame.src === expectedSrc) sendSessionToFrame();
+      }, 250);
+    };
+    frame.src = expectedSrc;
     if (!el) el = document.querySelectorAll("#sidebar-nav-links a")[idx + 1];
     setActive(el);
   }
@@ -668,7 +697,7 @@ function renderEmployeeTable() {
         <button class="btn btn-light" onclick="editEmployee('${rec.name}')">編輯</button>
         <button class="btn btn-gold" onclick="showCodeFor('${rec.name}')">開通碼</button>
         ${rec.isActive ? `<button class="btn btn-orange" onclick="deactivateEmployee('${rec.name}')">停用</button>` : `<button class="btn btn-green" onclick="reactivateEmployee('${rec.name}')">啟用</button>`}
-        <button class="btn btn-red" onclick="hardDeleteEmployee('${rec.name}')">刪除</button>
+        <button class="btn btn-light" onclick="hardDeleteEmployee('${rec.name}')">封存說明</button>
       </div></td>
     </tr>`;
   }).join("");
@@ -698,16 +727,17 @@ async function saveEmployee() {
   const rec = buildEmployeeRecord({ ...(employeesCache[name] || {}), name, roleCode, onboardDate, note, isActive: true });
   showLoading(true, "儲存人員資料中...");
   try {
-    await set(ref(db, "employees/" + safeKey(name)), rec);
+    await update(ref(db, "employees/" + safeKey(name)), rec);
     if (pass) {
       const accountName = primaryLoginForEmployee(rec);
       const uref = ref(db, "users/" + safeKey(accountName));
       const old = await get(uref);
       const devices = old.exists() ? (old.val().authorizedDevices || []) : [];
-      await set(uref, { password: pass, employeeName: rec.name, authorizedDevices: devices, lastDeviceType: old.exists() ? old.val().lastDeviceType || "desktop" : "desktop", updatedAt: new Date().toISOString() });
+      // Legacy RTDB credential field only; never claim this creates/updates a Firebase Auth user.
+      await update(uref, { password: pass, employeeName: rec.name, authorizedDevices: devices, lastDeviceType: old.exists() ? old.val().lastDeviceType || "desktop" : "desktop", updatedAt: new Date().toISOString() });
     }
     $("emp-pass").value = "";
-    alert("人員資料已更新");
+    alert("員工主檔已更新，既有其他欄位保留。此操作不等於 Firebase Auth 建帳或公司授權。");
   } catch (err) { alert("儲存失敗：" + err.message); }
   finally { showLoading(false); }
 }
@@ -736,21 +766,22 @@ async function setActiveEmployee(name, isActive) {
   await update(ref(db, "employees/" + safeKey(name)), { isActive, updatedAt: new Date().toISOString() });
 }
 window.deactivateEmployee = async function(name) {
-  if (name === "楊翊晟") return alert("不可停用楊翊晟帳號。 ");
-  if (!confirm(`確定停用「${name}」？系統也會移除登入帳號，避免離職後登入。`)) return;
-  await setActiveEmployee(name, false);
-  const emp = buildEmployeeRecord(employeesCache[name] || defaultEmployeeByName(name) || { name });
-  for (const account of [emp.name, emp.primaryLogin, ...(emp.loginAliases || [])].filter(Boolean)) await remove(ref(db, "users/" + safeKey(account)));
+  if (name === "楊翊晟") return alert("不可從舊前端停用執行長帳號。");
+  if (!confirm(`停用「${name}」的舊員工入口？保留原主檔、登入歷史及裝置紀錄。這不會代替 Firebase Auth 停用。`)) return;
+  try { await setActiveEmployee(name, false); alert("舊員工主檔已停用；正式 Firebase Auth 停用仍需另外核對。"); }
+  catch(err) { alert("停用未完成："+(err?.code||err?.message||"unknown")); }
 };
-window.reactivateEmployee = async function(name) { await setActiveEmployee(name, true); };
+window.reactivateEmployee = async function(name) {
+  if(!confirm(`重新啟用「${name}」的舊員工主檔？不會建立或恢復 Firebase Auth。`)) return;
+  try { await setActiveEmployee(name, true); }
+  catch(err){ alert("啟用未完成："+(err?.code||err?.message||"unknown")); }
+};
 window.hardDeleteEmployee = async function(name) {
-  if (name === "楊翊晟") return alert("不可刪除楊翊晟。 ");
-  if (!confirm(`永久刪除「${name}」員工主檔與登入帳號？建議離職人員通常用停用即可。`)) return;
-  await remove(ref(db, "employees/" + safeKey(name)));
-  const emp = buildEmployeeRecord(employeesCache[name] || defaultEmployeeByName(name) || { name });
-  for (const account of [emp.name, emp.primaryLogin, ...(emp.loginAliases || [])].filter(Boolean)) await remove(ref(db, "users/" + safeKey(account)));
+  alert("為保留原人員、薪資、案件及裝置歷史，舊前端已停用永久刪除。請使用『停用』或既有正式人事系統的核定封存流程。");
 };
-window.deleteLoginUser = async function(name) { if (confirm(`刪除「${name}」登入帳號？員工主檔會保留。`)) await remove(ref(db, "users/" + safeKey(name))); };
+window.deleteLoginUser = async function(name) {
+  alert("舊前端已停用永久刪除登入紀錄。請由正式身分管理流程撤權並保留歷史。");
+};
 window.clearDevices = async function(name) { if (confirm(`清除「${name}」所有授權裝置？下次需重新綁定。`)) await update(ref(db, "users/" + safeKey(name)), { authorizedDevices: [] }); };
 
 function makeCodeFromForm() {
@@ -849,7 +880,8 @@ if ("serviceWorker" in navigator) {
   showLoading(true, "初始化 ERP 總控制管理...");
   try {
     try {
-      await seedDefaultEmployees();
+      // Historical employees are never seeded or rewritten during a page load.
+      // The existing company roster remains the sole source of record.
     } catch (err) {
       console.error('Employee initialization failed', err);
       window.__portalStartup.notice('員工名單初始化未完成；仍會嘗試恢復原登入。若資料無法載入，請確認網路後重新整理。');
