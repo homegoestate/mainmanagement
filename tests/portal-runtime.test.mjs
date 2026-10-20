@@ -26,19 +26,36 @@ test('existing staff lookup does not write or replace id',async()=>{
   });
   assert.equal((await ctx.getEmployee('彭毅凡')).id,123);assert.equal(writes,0);
 });
-async function simulate({writeDenied=false,noUser=false,device='DID-1'}={}){
-  let enters=0,writes=0,feedback='';
-  const fields={'login-user':{value:'Yi cheng'},'login-pass':{value:'demo'},'keep-login':{checked:true},'login-feedback':{hidden:false}};
-  const ctx=sandbox(fragment('async function login() {','async function adminLogin()'),{
-    $:id=>fields[id],myDeviceId:device,db:{},ref,safeKey:x=>x,
-    resolveLoginIdentity:async()=>({emp:{name:'楊翊晟',isActive:true},account:'Yi cheng',
-      userRecord:noUser?null:{password:'demo',authorizedDevices:['DID-1']}}),
-    showLoading:()=>{},update:async()=>{writes++;if(writeDenied)throw Error('permission denied');},
-    getDeviceType:()=> 'desktop',sessionFromEmployee:()=>({name:'楊翊晟'}),
-    storeSession:()=>{},enterDashboard:()=>enters++,
-    showLoginFeedback:e=>feedback=e.message,alert:()=>{}
-  });
-  await ctx.login();return {enters,writes,feedback};
+async function simulate({
+ writeDenied=false,noUser=false,device='DID-1',historical='',storedDevices=['DID-1'],
+ password='demo',passwordChanged=false,authorizationRevoked=false,disabled=false,inactiveEmployee=false
+}={}){
+ let enters=0,writes=0,transactions=0,feedback='';
+ let remote=noUser?null:{password:'demo',authorizedDevices:[...storedDevices],legacyField:'preserve-me',legacyPortalDisabled:disabled};
+ const fields={'login-user':{value:'Yi cheng'},'login-pass':{value:password},'keep-login':{checked:true},'login-feedback':{hidden:false}};
+ const readback=async p=>snapshot(remote);
+ const transaction=async(p,callback)=>{
+   transactions++;
+   if(passwordChanged)remote={...remote,password:'new-credential'};
+   if(authorizationRevoked)remote={...remote,authorizedDevices:[]};
+   const next=callback(remote ? {...remote,authorizedDevices:[...remote.authorizedDevices]} : null);
+   if(next===undefined)return {committed:false,snapshot:snapshot(remote)};
+   remote=next;return {committed:true,snapshot:snapshot(remote)};
+ };
+ const ctx=sandbox(fragment('async function requirePreviouslyApprovedDevice(', 'async function adminLogin()'),{
+   $:id=>fields[id],myDeviceId:device,db:{},ref,safeKey:x=>x,
+   localStorage:{getItem:id=>id==='hg_did'?historical:null},
+   resolveLoginIdentity:async()=>({emp:{name:'楊翊晟',isActive:true},account:'Yi cheng',
+     userRecord:remote?{...remote,authorizedDevices:[...remote.authorizedDevices]}:null}),
+   getEmployee:async()=>({name:'楊翊晟',isActive:!inactiveEmployee}),
+   get:readback,runTransaction:transaction,showLoading:()=>{},
+   update:async()=>{writes++;if(writeDenied)throw Error('permission denied');},
+   getDeviceType:()=> 'desktop',sessionFromEmployee:()=>({name:'楊翊晟'}),
+   storeSession:()=>{},enterDashboard:()=>enters++,
+   showLoginFeedback:e=>feedback=e.message,alert:()=>{}
+ });
+ await ctx.login();
+ return {enters,writes,transactions,feedback,remote};
 }
 test('valid legacy password and device plus audit enter once',async()=>{
   const v=await simulate();assert.equal(v.enters,1);assert.equal(v.writes,1);
@@ -52,6 +69,38 @@ test('Firebase Auth identity alone is not incorrectly treated as legacy authoriz
 test('wrong device does not create a session',async()=>{
   const v=await simulate({device:'DID-OTHER'});assert.equal(v.enters,0);assert.match(v.feedback,/裝置/);
 });
+
+test('previously approved hg_did migrates after a correct original password',async()=>{
+ const v=await simulate({device:'DID-NEW',historical:'D-LEGACY-1',storedDevices:['D-LEGACY-1']});
+ assert.equal(v.enters,1);assert.equal(v.transactions,1);assert.deepEqual([...v.remote.authorizedDevices],['D-LEGACY-1','DID-NEW']);
+ assert.equal(v.remote.legacyField,'preserve-me');
+});
+test('a wrong password never triggers device migration',async()=>{
+ const v=await simulate({device:'DID-NEW',historical:'D-LEGACY-1',storedDevices:['D-LEGACY-1'],password:'invalid'});
+ assert.equal(v.enters,0);assert.equal(v.transactions,0);assert.deepEqual(v.remote.authorizedDevices,['D-LEGACY-1']);
+});
+test('a locally present but server-revoked historical device does not migrate',async()=>{
+ const v=await simulate({device:'DID-NEW',historical:'D-LEGACY-1',storedDevices:['D-LEGACY-1'],authorizationRevoked:true});
+ assert.equal(v.enters,0);assert.equal(v.transactions,1);assert.deepEqual(v.remote.authorizedDevices,[]);
+});
+test('a concurrent password change cancels device migration',async()=>{
+ const v=await simulate({device:'DID-NEW',historical:'D-LEGACY-1',storedDevices:['D-LEGACY-1'],passwordChanged:true});
+ assert.equal(v.enters,0);assert.equal(v.transactions,1);
+ assert.deepEqual(v.remote.authorizedDevices,['D-LEGACY-1']);
+});
+test('historical device from a different account is not accepted',async()=>{
+ const v=await simulate({device:'DID-NEW',historical:'D-LEGACY-OTHER',storedDevices:['D-LEGACY-1']});
+ assert.equal(v.enters,0);assert.equal(v.transactions,0);
+});
+test('explicit disabled legacy account is never restored',async()=>{
+ const v=await simulate({disabled:true});
+ assert.equal(v.enters,0);assert.equal(v.transactions,0);
+});
+test('inactive employee fails server recheck before dashboard',async()=>{
+ const v=await simulate({inactiveEmployee:true});
+ assert.equal(v.enters,0);assert.match(v.feedback,/停用/);
+});
+
 test('legacy deactivation archives but never deletes staff or credentials',async()=>{
   const writes=[];
   const ctx=sandbox(fragment('window.deactivateEmployee =','window.clearDevices ='),{
