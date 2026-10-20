@@ -15,24 +15,34 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / 'news' / 'latest.json'
 FEEDS = [
-    ('law', '(地政 OR 土地登記 OR 交易安全) (台灣 OR 臺灣)'),
-    ('law', 'site:land.moi.gov.tw (登記 OR 地政 OR 實價登錄)'),
-    ('tax', 'site:mof.gov.tw (房地合一 OR 遺產稅 OR 贈與稅 OR 房屋稅)'),
-    ('tax', '(土地增值稅 OR 地價稅 OR 契稅 OR 房地合一稅)'),
-    ('loan', '(央行 OR 中央銀行) (房貸 OR 信用管制 OR 利率)'),
-    ('loan', '(房貸 OR 新青安) (核貸 OR 成數 OR 撥款 OR 寬限期)'),
-    ('market', '(台南 OR 臺南 OR 南科) (房市 OR 房價 OR 實價登錄)'),
-    ('market', '(台灣 OR 臺灣) (預售屋 OR 買賣移轉 OR 中古屋)'),
-    ('land', '(台南 OR 臺南) (都市計畫 OR 重劃 OR 區段徵收)'),
-    ('land', '(農地變更 OR 土地開發 OR 危老 OR 都更 OR 容積)'),
-    ('inherit', '(繼承 OR 遺囑 OR 信託) (不動產 OR 財產 OR 土地)'),
-    ('finance', '(台灣 OR 臺灣) (金融 OR 通膨 OR 匯率 OR 央行)'),
-    ('finance', '(Fed OR 聯準會 OR 美債) (利率 OR 美元 OR 經濟)'),
-    ('ai', '(AI OR 人工智慧) (企業 OR 自動化 OR 資安)'),
-    ('tax', 'https://www.mof.gov.tw/Rss/384fb3077bb349ea973e7fc6f13b6974'),
-    ('tax', 'https://www.mof.gov.tw/Rss/384fb3077bb349ea973e7fc6f13b6974_CLARIFY_eGovernment')
+    ('law', '地政 台灣'), ('law', '土地登記'), ('law', '不動產 交易安全'),
+    ('tax', '房地合一稅'), ('tax', '土地增值稅'), ('tax', '遺產稅'),
+    ('tax', '贈與稅'), ('tax', '房屋稅'), ('tax', '地價稅'), ('tax', '契稅'),
+    ('tax', 'site:mof.gov.tw 稅'),
+    ('loan', '房貸'), ('loan', '信用管制'), ('loan', '新青安'),
+    ('market', '台南 房市'), ('market', '台灣 房價'),
+    ('land', '台南 都市計畫'), ('land', '土地開發'), ('land', '都更 危老'),
+    ('inherit', '繼承 不動產'), ('inherit', '信託 財產'),
+    ('finance', '央行 利率'), ('finance', '聯準會 利率'), ('finance', '台灣 匯率'),
+    ('ai', 'AI 企業'), ('ai', '人工智慧 自動化')
 ]
 CATEGORIES = {category for category, _ in FEEDS}
+KEYWORDS = {
+    'law': ['地政', '土地', '不動產', '交易安全', '產權', '詐騙', '實價登錄'],
+    'tax': ['房地合一', '土增稅', '土地增值', '地價稅', '契稅', '房屋稅', '遺產稅', '贈與稅', '財產傳承', '繼承', '不動產'],
+    'loan': ['房貸', '信用管制', '新青安', '貸款', '核貸'],
+    'market': ['房市', '房價', '預售', '中古屋', '不動產', '建商', '建案', '買賣移轉'],
+    'land': ['土地', '都市計畫', '重劃', '都更', '危老', '容積', '農地', '區段徵收'],
+    'inherit': ['繼承', '信託', '遺產', '贈與', '遺囑', '財產'],
+    'finance': ['央行', '利率', '聯準會', 'fed', '通膨', '匯率', '美元', '美債', '金融'],
+    'ai': ['ai', '人工智慧', '自動化', '資安']
+}
+
+def relevant_categories(title, categories):
+    text = plain(title).casefold()
+    if len(text) < 6 or re.fullmatch(r'[-\s]*(內政部|財政部).*全球資訊網', text):
+        return []
+    return [category for category in categories if any(word in text for word in KEYWORDS.get(category, []))]
 
 def plain(value):
     return re.sub(r'\s+', ' ', html.unescape(re.sub(r'<[^>]*>', ' ', str(value or '')))).strip()
@@ -63,7 +73,7 @@ def recent(value, now):
     dt = instant(value)
     return dt is not None and now - timedelta(days=7) <= dt <= now
 
-def parse_feed(body, category, now, publisher=""):
+def parse_feed(body, category, now, publisher=''):
     root = ET.fromstring(body)
     if root.tag.split('}')[-1] != 'rss':
         raise ValueError('Not an RSS response')
@@ -87,15 +97,14 @@ def parse_feed(body, category, now, publisher=""):
 
 def fetch_feed(entry, now):
     category, query = entry
-    direct = query.startswith('https://www.mof.gov.tw/Rss/')
-    url = query if direct else 'https://news.google.com/rss/search?' + urllib.parse.urlencode(
-        dict(q=f'({query}) when:7d', hl='zh-TW', gl='TW', ceid='TW:zh-Hant'))
+    url = 'https://news.google.com/rss/search?' + urllib.parse.urlencode(
+        dict(q=f'{query} when:7d', hl='zh-TW', gl='TW', ceid='TW:zh-Hant'))
     req = urllib.request.Request(url, headers={'User-Agent': 'HomeGoERP-RSS/2.0', 'Accept': 'application/rss+xml'})
     with urllib.request.urlopen(req, timeout=12) as response:
         body = response.read(2_000_001)
         if len(body) > 2_000_000:
             raise ValueError('RSS exceeds size limit')
-        return parse_feed(body, category, now, '財政部' if direct else '')
+        return parse_feed(body, category, now)
 
 def deduplicate(rows, now):
     by_link, by_title, result = {}, {}, []
@@ -104,7 +113,7 @@ def deduplicate(rows, now):
         if not link or not title or not recent(row.get('date'), now):
             continue
         key = re.sub(r'[\W_]+', '', title.casefold())
-        categories = sorted(set(row.get('categories', [])) & CATEGORIES)
+        categories = sorted(relevant_categories(title, set(row.get('categories', [])) & CATEGORIES))
         if not categories:
             continue
         existing = by_link.get(link) or by_title.get(key)
@@ -116,7 +125,6 @@ def deduplicate(rows, now):
                      sourceUrl=safe_url(row.get('sourceUrl')), categories=categories)
         by_link[link] = by_title[key] = clean
         result.append(clean)
-    # Give every topic up to 15 recent slots before filling with the newest overall.
     chosen = {}
     for category in sorted(CATEGORIES):
         for row in [r for r in result if category in r['categories']][:15]:
