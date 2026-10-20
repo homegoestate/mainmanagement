@@ -28,7 +28,9 @@ FEEDS = [
     ('inherit', '(繼承 OR 遺囑 OR 信託) (不動產 OR 財產 OR 土地)'),
     ('finance', '(台灣 OR 臺灣) (金融 OR 通膨 OR 匯率 OR 央行)'),
     ('finance', '(Fed OR 聯準會 OR 美債) (利率 OR 美元 OR 經濟)'),
-    ('ai', '(AI OR 人工智慧) (企業 OR 自動化 OR 資安)')
+    ('ai', '(AI OR 人工智慧) (企業 OR 自動化 OR 資安)'),
+    ('tax', 'https://www.mof.gov.tw/Rss/384fb3077bb349ea973e7fc6f13b6974'),
+    ('tax', 'https://www.mof.gov.tw/Rss/384fb3077bb349ea973e7fc6f13b6974_CLARIFY_eGovernment')
 ]
 CATEGORIES = {category for category, _ in FEEDS}
 
@@ -61,7 +63,7 @@ def recent(value, now):
     dt = instant(value)
     return dt is not None and now - timedelta(days=7) <= dt <= now
 
-def parse_feed(body, category, now):
+def parse_feed(body, category, now, publisher=""):
     root = ET.fromstring(body)
     if root.tag.split('}')[-1] != 'rss':
         raise ValueError('Not an RSS response')
@@ -75,21 +77,25 @@ def parse_feed(body, category, now):
         source = item.find('source')
         rows.append(dict(title=title, link=link,
                          date=instant(date).isoformat(),
-                         source=plain(source.text if source is not None else '')[:100] or '來源未標示',
+                         source=plain(source.text if source is not None else publisher)[:100] or '來源未標示',
                          sourceUrl=safe_url(source.get('url', '') if source is not None else ''),
                          categories=[category]))
+    print(f'Feed {publisher or category}: raw={len(root.findall("./channel/item"))}; retained={len(rows)}', flush=True)
+    if not rows:
+        print('Publication samples: ' + repr([item.findtext('pubDate') for item in root.findall('./channel/item')[:3]]), flush=True)
     return rows
 
 def fetch_feed(entry, now):
     category, query = entry
-    url = 'https://news.google.com/rss/search?' + urllib.parse.urlencode(
+    direct = query.startswith('https://www.mof.gov.tw/Rss/')
+    url = query if direct else 'https://news.google.com/rss/search?' + urllib.parse.urlencode(
         dict(q=f'({query}) when:7d', hl='zh-TW', gl='TW', ceid='TW:zh-Hant'))
     req = urllib.request.Request(url, headers={'User-Agent': 'HomeGoERP-RSS/2.0', 'Accept': 'application/rss+xml'})
     with urllib.request.urlopen(req, timeout=12) as response:
         body = response.read(2_000_001)
         if len(body) > 2_000_000:
             raise ValueError('RSS exceeds size limit')
-        return parse_feed(body, category, now)
+        return parse_feed(body, category, now, '財政部' if direct else '')
 
 def deduplicate(rows, now):
     by_link, by_title, result = {}, {}, []
@@ -131,9 +137,11 @@ def collect(fetch=fetch_feed, previous=None, now=None):
                 rows.extend(task.result())
                 succeeded += 1
             except Exception as error:
-                errors.append(pending[task] + ': ' + type(error).__name__)
+                detail = pending[task] + ': ' + type(error).__name__ + ' ' + str(error)[:160]
+                errors.append(detail)
+                print('Feed failure: ' + detail, flush=True)
     if not succeeded or not rows:
-        raise RuntimeError('No dated recent RSS items; previous snapshot left unchanged')
+        raise RuntimeError(f'No dated recent RSS items; succeeded={succeeded}/{len(FEEDS)}; previous snapshot left unchanged; errors=' + '; '.join(errors[:4]))
     old = (previous or {}).get('items', [])
     items = deduplicate(rows + (old if isinstance(old, list) else []), now)
     if not items:
