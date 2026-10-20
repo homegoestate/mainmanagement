@@ -10,7 +10,7 @@ export function renderTicker(payload,error=''){
  const status=document.createElement('div');status.style.cssText='flex-basis:100%;font-size:12px;line-height:1.7;color:#64748b';
  const fetched=timestamp(payload?.fetchedAt);status.textContent=(payload?`近72小時 ${items.length} 則；資料擷取 ${Number.isFinite(fetched)?fmt(fetched):'時間未確認'}。`:'尚未讀到有效新聞快照。')+(!Number.isFinite(fetched)||now-fetched>6*3600000?'更新時間待核對。':'')+(error?' '+error:'');host.append(status);
  for(const row of items.slice(0,10)){const a=document.createElement('a');a.href=safeUrl(row.link);a.target='_blank';a.rel='noopener noreferrer';a.textContent=`${fmt(timestamp(row.date))}｜${row.title}`;host.append(a);}
- const more=document.createElement('a');more.href='./news.html';more.target='_blank';more.rel='noopener noreferrer';more.textContent='開啟完整新聞中心（日期／主題／搜尋）';host.append(more);
+ const more=document.createElement('a');more.href='./news.html';more.target='_self';more.rel='noopener noreferrer';more.textContent='開啟完整新聞中心（日期／主題／搜尋）';host.append(more);
 }
 function openReader(){
  const body=$('newsModalBody');if(!body)return;
