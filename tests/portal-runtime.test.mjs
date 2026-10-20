@@ -72,7 +72,7 @@ test('wrong device does not create a session',async()=>{
 
 test('previously approved hg_did migrates after a correct original password',async()=>{
  const v=await simulate({device:'DID-NEW',historical:'D-LEGACY-1',storedDevices:['D-LEGACY-1']});
- assert.equal(v.enters,1);assert.equal(v.transactions,1);assert.deepEqual(v.remote.authorizedDevices,['D-LEGACY-1','DID-NEW']);
+ assert.equal(v.enters,1);assert.equal(v.transactions,1);assert.deepEqual([...v.remote.authorizedDevices],['D-LEGACY-1','DID-NEW']);
  assert.equal(v.remote.legacyField,'preserve-me');
 });
 test('a wrong password never triggers device migration',async()=>{
