@@ -2,6 +2,7 @@ name: ERP public news and regression checks
 on:
   push:
     paths:
+      - 'index.html'
       - 'news.html'
       - 'news-reader.mjs'
       - 'portal-news.mjs'
@@ -11,6 +12,7 @@ on:
       - 'tools/integrate_portal.py'
       - 'tools/runtime_preflight.py'
       - 'tests/news.test.mjs'
+      - 'tests/news-entry.test.mjs'
       - 'tests/test_refresh_news.py'
       - 'tests/test_portal_patch.py'
       - 'tests/portal-runtime.test.mjs'
@@ -36,7 +38,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: node --check login-check.mjs && node --check portal-news.mjs && node --test tests/news.test.mjs tests/portal-runtime.test.mjs
+      - run: node --check login-check.mjs && node --check portal-news.mjs && node --test tests/news.test.mjs tests/news-entry.test.mjs tests/portal-runtime.test.mjs
       - run: python tests/test_refresh_news.py
       - run: python tests/test_portal_patch.py && python tools/integrate_portal.py --check
   refresh:
