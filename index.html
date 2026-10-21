@@ -261,10 +261,37 @@ let currentFrameItem = null;
 let portalNavigationSequence = 0;
 let portalFrameSendTimer = null;
 let unsubs = [];
-let myDeviceId = localStorage.getItem("hg_cloud_did");
+let myDeviceId = "";
+try { myDeviceId = localStorage.getItem("hg_cloud_did") || ""; } catch {}
 if (!myDeviceId) {
-  myDeviceId = "DID-" + Math.random().toString(36).slice(2, 11).toUpperCase();
-  localStorage.setItem("hg_cloud_did", myDeviceId);
+  // When local storage is full, prefer the already-persisted identifier on
+  // the SAME browser. It still must be on this account's server allowlist.
+  let historicalId = "";
+  try { historicalId = localStorage.getItem("hg_did") || ""; } catch {}
+  if (historicalId) {
+    myDeviceId = historicalId;
+  } else {
+    // A new device must have a durable ID before it can be bound. Do not claim
+    // that a session-only identifier is a permanently approved device.
+    let pendingId = erpStorageReadSafeSessionDid();
+    if (!pendingId) pendingId = "DID-" + Math.random().toString(36).slice(2, 11).toUpperCase();
+    myDeviceId = pendingId;
+    try { localStorage.setItem("hg_cloud_did", myDeviceId); }
+    catch {
+      try { sessionStorage.setItem("hg_erp_pending_device_id", myDeviceId); } catch {}
+      // Registration must refuse a pending identifier that cannot be saved
+      // across browser restarts; existing authorized staff can still log in.
+    }
+  }
+}
+function erpStorageReadSafeSessionDid() {
+  try { return sessionStorage.getItem("hg_erp_pending_device_id") || ""; } catch { return ""; }
+}
+function erpDeviceIdIsDurable() {
+  try {
+    return localStorage.getItem("hg_cloud_did") === myDeviceId ||
+      localStorage.getItem("hg_did") === myDeviceId;
+  } catch { return false; }
 }
 
 const $ = (id) => document.getElementById(id);
@@ -390,14 +417,71 @@ function sessionFromEmployee(emp, source = "login", loginAccount = null) {
   };
 }
 
+
+function erpStorageRead(store, key) {
+  try { return store.getItem(key); } catch { return null; }
+}
+function erpStorageRemove(store, key) {
+  try { store.removeItem(key); return true; } catch { return false; }
+}
+function erpStorageWrite(store, key, value, replaceOwnSession = false) {
+  try { store.setItem(key, value); return true; }
+  catch {
+    // When storage is full, only the ERP's *own ephemeral session* can be
+    // replaced. Do not clear any other modules' cases, attendance, or receipts.
+    if (replaceOwnSession) {
+      try { store.removeItem(key); store.setItem(key, value); return true; }
+      catch { /* An in-tab fallback remains available. */ }
+    }
+    return false;
+  }
+}
+function erpSessionStorageNotice(message) {
+  console.warn("ERP session persistence:", message);
+  window.__portalStartup?.notice(message);
+}
 function storeSession(session, keepUser = false) {
+  // Authenticate and check device authority BEFORE invoking this function.
+  // Browser quota errors must never turn a validated login into a false
+  // password/device failure or erase other applications' saved data.
+  const encoded = JSON.stringify(session);
+  const tabSaved = erpStorageWrite(sessionStorage, ERP_SESSION_KEY, encoded, true);
+  const localSaved = erpStorageWrite(localStorage, ERP_SESSION_KEY, encoded, true);
+  if (!localSaved) erpStorageRemove(localStorage, ERP_SESSION_KEY);
+
+  const identityFields = [
+    ["hg_current_operator", String(session.name || "")],
+    ["hg_current_role", String(session.roleCode || "")]
+  ];
+  let localIdentitySaved = localSaved;
+  for (const [key, value] of identityFields) {
+    if (tabSaved) erpStorageWrite(sessionStorage, key, value);
+    const ok = localSaved && erpStorageWrite(localStorage, key, value);
+    if (!ok) { localIdentitySaved = false; erpStorageRemove(localStorage, key); }
+  }
+
+  let rememberedLocally = false;
+  if (keepUser) {
+    const account = String(session.loginAccount || session.name || "");
+    if (account) {
+      // Save in the tab first so a reload works even if the shared local quota
+      // is filled by another application under the same GitHub Pages origin.
+      erpStorageWrite(sessionStorage, "hg_cloud_session", account);
+      rememberedLocally = erpStorageWrite(localStorage, "hg_cloud_session", account);
+      if (!rememberedLocally) erpStorageRemove(localStorage, "hg_cloud_session");
+    }
+  } else {
+    erpStorageRemove(localStorage, "hg_cloud_session");
+    erpStorageRemove(sessionStorage, "hg_cloud_session");
+  }
+
   currentSession = session;
-  localStorage.setItem(ERP_SESSION_KEY, JSON.stringify(session));
-  sessionStorage.setItem(ERP_SESSION_KEY, JSON.stringify(session));
-  localStorage.setItem("hg_current_operator", session.name);
-  localStorage.setItem("hg_current_role", session.roleCode);
-  if (keepUser) localStorage.setItem("hg_cloud_session", session.loginAccount || session.name);
-  else localStorage.removeItem("hg_cloud_session");
+  if (!localSaved || !localIdentitySaved || (keepUser && !rememberedLocally)) {
+    erpSessionStorageNotice(tabSaved
+      ? "登入已完成；瀏覽器長期儲存空間不足，本分頁的身分已暫存。關閉視窗後可能需要再次輸入原帳密；跨模組若未同步，請使用「重新綁定身份」。請勿清除其他系統資料。"
+      : "登入已完成，但此瀏覽器無法保存登入狀態；重新整理後需再登入，跨模組身分可能不會自動帶入。請勿清除案件、假勤或報價資料。");
+  }
+  return { localSaved, tabSaved, rememberedLocally };
 }
 
 async function getEmployee(name) {
@@ -445,6 +529,9 @@ function isValidActivationCode(emp, inputName, code) {
 }
 
 async function resetPasswordWithCode() {
+  if (!erpDeviceIdIsDurable()) {
+    return alert("此瀏覽器無法永久保存裝置識別碼，因此未執行開通碼重設及裝置綁定；請先由管理者處理瀏覽器儲存空間。");
+  }
   const inputName = $("reset-user").value.trim();
   const code = $("reset-code").value.trim();
   const pass = $("reset-pass").value.trim();
@@ -478,6 +565,9 @@ async function resetPasswordWithCode() {
 }
 
 async function register() {
+  if (!erpDeviceIdIsDurable()) {
+    return alert("此瀏覽器的長期儲存空間已滿，無法永久保存新裝置識別碼；本次沒有變更任何裝置授權。請由管理者協助檢查瀏覽器儲存空間，勿清除其他系統資料。");
+  }
   const user = $("reg-user").value.trim();
   const pass = $("reg-pass").value.trim();
   const code = $("reg-code").value.trim();
@@ -874,18 +964,24 @@ function escapeAttr(v) { return escapeHtml(v).replace(/\n/g, ""); }
 
 function logout() {
   if (!confirm("確定登出？")) return;
-  localStorage.removeItem("hg_cloud_session");
-  localStorage.removeItem(ERP_SESSION_KEY);
-  sessionStorage.removeItem(ERP_SESSION_KEY);
-  localStorage.removeItem("hg_current_operator");
-  localStorage.removeItem("hg_current_role");
+  // Only clear ERP login hints. Never touch another HTML module's saved data.
+  const keys = ["hg_cloud_session", ERP_SESSION_KEY, "hg_current_operator", "hg_current_role"];
+  let cleared = true;
+  for (const store of [localStorage, sessionStorage]) {
+    for (const key of keys) if (!erpStorageRemove(store, key)) cleared = false;
+  }
+  currentSession = null;
+  if (!cleared) {
+    alert("登入資料無法完整清除，請關閉此視窗並檢查瀏覽器網站儲存權限；不要清除其他系統資料。");
+    return;
+  }
   location.reload();
 }
 window.logout = logout;
 window.toggleSidebar = () => { $("sidebar").classList.toggle("active"); document.querySelector(".sidebar-overlay").classList.toggle("active"); };
 
 async function restoreSession() {
-  const sessName = localStorage.getItem("hg_cloud_session");
+  const sessName = erpStorageRead(sessionStorage, "hg_cloud_session") || erpStorageRead(localStorage, "hg_cloud_session");
   if (!sessName) return;
   try {
     showLoading(true, "恢復登入狀態...");
@@ -915,7 +1011,12 @@ $("btnAdminLogin").addEventListener("click", (e) => { e.preventDefault(); adminL
 $("btnSaveEmployee").addEventListener("click", saveEmployee);
 $("btnMakeCode").addEventListener("click", makeCodeFromForm);
 $("btnOpenNewsInline").addEventListener("click", () => fetchNews({ force: true }));
-$("btnRefreshSession").addEventListener("click", () => { storeSession(currentSession, !!localStorage.getItem("hg_cloud_session")); alert("登入身份已重新寫入，請重新點選模組。 "); });
+$("btnRefreshSession").addEventListener("click", () => {
+  if (!currentSession) return;
+  const remember = !!(erpStorageRead(localStorage, "hg_cloud_session") || erpStorageRead(sessionStorage, "hg_cloud_session"));
+  const status = storeSession(currentSession, remember);
+  alert(status.localSaved ? "登入身份已更新，請重新點選模組。" : "目前只完成本分頁的登入身份更新；長期儲存空間不足，請按「重新綁定身份」後再使用模組。");
+});
 $("btnSendSession").addEventListener("click", sendSessionToFrame);
 $("btnBackHome").addEventListener("click", () => loadPage(-1));
 $("btnOpenExternal").addEventListener("click", () => { if (currentFrameItem) window.open(sessionParams(currentFrameItem.url), "_blank"); });
