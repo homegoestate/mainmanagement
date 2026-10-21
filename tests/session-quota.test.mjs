@@ -47,7 +47,7 @@ const subject={type:'HG_ERP_SESSION',name:'楊雅婷',username:'YATING',loginAcc
   roleCode:'ACCOUNTING',role:'會計',deviceId:'DID-A',permissions:['QUOTE','RECEIPT'],sessionId:'sample-id'};
 
 test('quota: valid ERP login survives without clearing other business data',()=>{
-  const caseData='x'.repeat(1950);
+  const caseData='x'.repeat(2030);
   const local=new StorageFixture({CASE_DATA:caseData,'hg_current_operator':'舊同仁', 'hg_cloud_session':'舊同仁'},2040);
   const tab=new StorageFixture();
   const {ctx,notes}=fixture({local,tab});
