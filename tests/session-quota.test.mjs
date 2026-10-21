@@ -47,7 +47,7 @@ const subject={type:'HG_ERP_SESSION',name:'楊雅婷',username:'YATING',loginAcc
   roleCode:'ACCOUNTING',role:'會計',deviceId:'DID-A',permissions:['QUOTE','RECEIPT'],sessionId:'sample-id'};
 
 test('quota: valid ERP login survives without clearing other business data',()=>{
-  const caseData='x'.repeat(1950);
+  const caseData='x'.repeat(2030);
   const local=new StorageFixture({CASE_DATA:caseData,'hg_current_operator':'舊同仁', 'hg_cloud_session':'舊同仁'},2040);
   const tab=new StorageFixture();
   const {ctx,notes}=fixture({local,tab});
@@ -59,7 +59,7 @@ test('quota: valid ERP login survives without clearing other business data',()=>
   assert.equal(local.getItem(KEY),null);
   assert.equal(local.getItem('hg_current_operator'),null);
   assert.equal(tab.getItem('hg_cloud_session'),'YATING');
-  assert.ok(notes.some(s=>s.includes('瀏覽器長期儲存空間不足')));
+  assert.ok(notes.some(s=>s.includes('長期儲存空間不足')));
 });
 test('quota: same-account stale ERP session can be replaced without touching cases',()=>{
   const prior={...subject,sessionId:'older-id'};
@@ -70,7 +70,8 @@ test('quota: same-account stale ERP session can be replaced without touching cas
   const result=ctx.storeSession(subject,true);
   assert.equal(result.tabSaved,true);
   assert.equal(result.localSaved,true);
-  assert.equal(JSON.parse(local.getItem(KEY)).name,'楊雅婷');
+  assert.equal(local.getItem(KEY),null);
+  // No persistent full-session copy is written.
   assert.equal(local.getItem('CASE_DATA'),'q'.repeat(400));
 });
 test('quota: both storage locations full allow current-page session without false password error',()=>{
@@ -83,7 +84,7 @@ test('quota: both storage locations full allow current-page session without fals
   assert.equal(ctx.currentSession?.name,'楊雅婷');
   assert.equal(local.getItem('CASE_DATA'),'x'.repeat(1000));
   assert.equal(tab.getItem('OTHER_TAB_WORK'),'y'.repeat(1500));
-  assert.ok(notes.some(s=>s.includes('無法保存登入狀態')));
+  assert.ok(notes.some(s=>s.includes('工作階段儲存也不可用')));
 });
 test('tab storage fallback takes precedence over obsolete persistent name on restore',async()=>{
   const local=new StorageFixture({'hg_cloud_session':'舊同仁'});
@@ -128,6 +129,7 @@ async function mockLogin({correct=true,deviceApproved=true,storageQuota=600}={})
  const fields={'login-user':{value:'YATING'},'login-pass':{value:correct?'original-user-password':'wrong'},
  'keep-login':{checked:true},'login-feedback':{hidden:false}};
  const {ctx,notes}=fixture({local,tab,extra:{
+  initializeErpDeviceIdentity:async()=>true,
   $:id=>fields[id],myDeviceId:'DID-A',db:{},safeKey:x=>x,ref:(db,path)=>path,
   resolveLoginIdentity:async()=>({emp:{name:'楊雅婷',isActive:true},account:'YATING',userRecord}),
   requirePreviouslyApprovedDevice:async()=>{if(!deviceApproved)throw Error('裝置未授權');},
@@ -158,7 +160,7 @@ test('real portal login function: unapproved device remains denied despite quota
  assert.equal(v.tab.getItem(KEY),null);
 });
 test('new-device registration and password reset require a durable device ID',()=>{
- assert.match(source,/async function register\(\) \{\s*if \(!erpDeviceIdIsDurable\(\)\)/);
- assert.match(source,/async function resetPasswordWithCode\(\) \{\s*if \(!erpDeviceIdIsDurable\(\)\)/);
+ assert.match(source,/async function register\(\) \{\s*await initializeErpDeviceIdentity\(\);\s*if \(!erpDeviceIdIsDurable\(\)\)/);
+ assert.match(source,/async function resetPasswordWithCode\(\) \{\s*await initializeErpDeviceIdentity\(\);\s*if \(!erpDeviceIdIsDurable\(\)\)/);
  assert.match(source,/function erpDeviceIdIsDurable\(\)/);
 });

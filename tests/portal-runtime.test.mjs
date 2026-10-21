@@ -44,6 +44,7 @@ async function simulate({
  };
  const ctx=sandbox(fragment('async function requirePreviouslyApprovedDevice(', 'async function adminLogin()'),{
    $:id=>fields[id],myDeviceId:device,db:{},ref,safeKey:x=>x,
+   initializeErpDeviceIdentity:async()=>true,
    localStorage:{getItem:id=>id==='hg_did'?historical:null},
    resolveLoginIdentity:async()=>({emp:{name:'楊翊晟',isActive:true},account:'Yi cheng',
      userRecord:remote?{...remote,authorizedDevices:[...remote.authorizedDevices]}:null}),

@@ -261,38 +261,91 @@ let currentFrameItem = null;
 let portalNavigationSequence = 0;
 let portalFrameSendTimer = null;
 let unsubs = [];
+// A GitHub Pages account shares localStorage quota across all its repository paths.
+// Keep device identity in a separate IndexedDB store, not in the quota-limited
+// Web Storage occupied by quotation records. Existing local IDs always win.
+const ERP_IDENTITY_DB = "homego-erp-device-identity-v1";
+const ERP_IDENTITY_STORE = "keys";
 let myDeviceId = "";
-try { myDeviceId = localStorage.getItem("hg_cloud_did") || ""; } catch {}
-if (!myDeviceId) {
-  // When local storage is full, prefer the already-persisted identifier on
-  // the SAME browser. It still must be on this account's server allowlist.
-  let historicalId = "";
-  try { historicalId = localStorage.getItem("hg_did") || ""; } catch {}
-  if (historicalId) {
-    myDeviceId = historicalId;
-  } else {
-    // A new device must have a durable ID before it can be bound. Do not claim
-    // that a session-only identifier is a permanently approved device.
-    let pendingId = erpStorageReadSafeSessionDid();
-    if (!pendingId) pendingId = "DID-" + Math.random().toString(36).slice(2, 11).toUpperCase();
-    myDeviceId = pendingId;
-    try { localStorage.setItem("hg_cloud_did", myDeviceId); }
-    catch {
-      try { sessionStorage.setItem("hg_erp_pending_device_id", myDeviceId); } catch {}
-      // Registration must refuse a pending identifier that cannot be saved
-      // across browser restarts; existing authorized staff can still log in.
+let erpDeviceDurable = false;
+let erpDeviceInitPromise = null;
+function erpReadBrowserValue(store, key) {
+  try { return store.getItem(key) || ""; } catch { return ""; }
+}
+function erpIdentityRecord(mode, key, value) {
+  return new Promise(resolve => {
+    let req, db, tx, result = null, complete = false;
+    let timer;
+    const finish = answer => {
+      if (complete) return;
+      complete = true;
+      clearTimeout(timer);
+      try { db?.close(); } catch {}
+      resolve(answer);
+    };
+    try {
+      if (typeof indexedDB === "undefined") return finish(null);
+      timer = setTimeout(() => finish(null), 2500);
+      req = indexedDB.open(ERP_IDENTITY_DB, 1);
+      req.onblocked = () => finish(null);
+      req.onerror = () => finish(null);
+      req.onupgradeneeded = () => {
+        const database = req.result;
+        if (!database.objectStoreNames.contains(ERP_IDENTITY_STORE)) database.createObjectStore(ERP_IDENTITY_STORE);
+      };
+      req.onsuccess = () => {
+        if (complete) { try { req.result.close(); } catch {} return; }
+        db = req.result;
+        try {
+          tx = db.transaction(ERP_IDENTITY_STORE, mode === "read" ? "readonly" : "readwrite");
+          const store = tx.objectStore(ERP_IDENTITY_STORE);
+          const operation = mode === "read" ? store.get(key) : store.put(value, key);
+          operation.onsuccess = () => { if (mode === "read") result = operation.result ?? null; };
+          operation.onerror = () => finish(null);
+          tx.oncomplete = () => finish(mode === "read" ? result : true);
+          tx.onerror = () => finish(null);
+          tx.onabort = () => finish(null);
+        } catch { finish(null); }
+      };
+    } catch { finish(null); }
+  });
+}
+async function initializeErpDeviceIdentity() {
+  if (erpDeviceInitPromise) return erpDeviceInitPromise;
+  erpDeviceInitPromise = (async () => {
+    const fromLegacy = erpReadBrowserValue(localStorage, "hg_cloud_did") ||
+      erpReadBrowserValue(localStorage, "hg_did");
+    const fromDB = await erpIdentityRecord("read", "deviceId");
+    const fromTab = erpReadBrowserValue(sessionStorage, "hg_erp_pending_device_id");
+    myDeviceId = fromLegacy || (typeof fromDB === "string" ? fromDB : "") || fromTab;
+    if (!myDeviceId) {
+      const bytes = new Uint8Array(9);
+      try { crypto.getRandomValues(bytes); }
+      catch { for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256); }
+      myDeviceId = "DID-" + Array.from(bytes, b => b.toString(16).padStart(2,"0")).join("").toUpperCase();
     }
-  }
+    let storedInDB = fromDB === myDeviceId;
+    if (!storedInDB) {
+      const written = await erpIdentityRecord("write", "deviceId", myDeviceId);
+      storedInDB = written === true && await erpIdentityRecord("read", "deviceId") === myDeviceId;
+    }
+    let storedLocally = fromLegacy === myDeviceId;
+    if (!storedLocally && !storedInDB) {
+      try {
+        localStorage.setItem("hg_cloud_did", myDeviceId);
+        storedLocally = localStorage.getItem("hg_cloud_did") === myDeviceId;
+      } catch {}
+    }
+    erpDeviceDurable = storedInDB || storedLocally;
+    if (!erpDeviceDurable) {
+      try { sessionStorage.setItem("hg_erp_pending_device_id", myDeviceId); } catch {}
+      window.__portalStartup?.notice("目前瀏覽器無法永久保存裝置識別。既有登入可以驗證，但不能註冊新裝置；沒有變更任何原裝置授權。");
+    }
+    return erpDeviceDurable;
+  })();
+  return erpDeviceInitPromise;
 }
-function erpStorageReadSafeSessionDid() {
-  try { return sessionStorage.getItem("hg_erp_pending_device_id") || ""; } catch { return ""; }
-}
-function erpDeviceIdIsDurable() {
-  try {
-    return localStorage.getItem("hg_cloud_did") === myDeviceId ||
-      localStorage.getItem("hg_did") === myDeviceId;
-  } catch { return false; }
-}
+function erpDeviceIdIsDurable() { return !!(myDeviceId && erpDeviceDurable); }
 
 const $ = (id) => document.getElementById(id);
 const showLoading = (show, text = "連線雲端資料庫中...") => { $("loadingText").innerText = text; $("loading-overlay").style.display = show ? "flex" : "none"; };
@@ -441,31 +494,38 @@ function erpSessionStorageNotice(message) {
   window.__portalStartup?.notice(message);
 }
 function storeSession(session, keepUser = false) {
-  // Authenticate and check device authority BEFORE invoking this function.
-  // Browser quota errors must never turn a validated login into a false
-  // password/device failure or erase other applications' saved data.
-  const encoded = JSON.stringify(session);
-  const tabSaved = erpStorageWrite(sessionStorage, ERP_SESSION_KEY, encoded, true);
-  const localSaved = erpStorageWrite(localStorage, ERP_SESSION_KEY, encoded, true);
-  if (!localSaved) erpStorageRemove(localStorage, ERP_SESSION_KEY);
+  // Complete server-side account/device checks BEFORE calling this function.
+  // The full current session stays in memory; only a small, replaceable
+  // attribution hint lives in this tab. Never grow shared-origin localStorage
+  // by copying the entire session on each login.
+  currentSession = session;
+  const hint = {
+    type: "HG_ERP_SESSION", name: String(session.name || ""),
+    username: String(session.loginAccount || session.name || ""),
+    role: String(session.role || ""), roleCode: String(session.roleCode || ""),
+    sessionId: String(session.sessionId || ""), loginAt: String(session.loginAt || "")
+  };
+  const tabSaved = erpStorageWrite(sessionStorage, ERP_SESSION_KEY, JSON.stringify(hint), true);
+  // Remove only the obsolete ERP session key, NOT any quotation/CASE/attendance
+  // records, and never clear all of localStorage or sessionStorage.
+  erpStorageRemove(localStorage, ERP_SESSION_KEY);
 
-  const identityFields = [
-    ["hg_current_operator", String(session.name || "")],
-    ["hg_current_role", String(session.roleCode || "")]
-  ];
-  let localIdentitySaved = localSaved;
-  for (const [key, value] of identityFields) {
-    if (tabSaved) erpStorageWrite(sessionStorage, key, value);
-    const ok = localSaved && erpStorageWrite(localStorage, key, value);
-    if (!ok) { localIdentitySaved = false; erpStorageRemove(localStorage, key); }
+  let operatorSaved = true;
+  for (const [key, value] of [
+    ["hg_current_operator", hint.name],
+    ["hg_current_role", hint.roleCode]
+  ]) {
+    erpStorageWrite(sessionStorage, key, value);
+    if (!erpStorageWrite(localStorage, key, value)) {
+      operatorSaved = false;
+      erpStorageRemove(localStorage, key);
+    }
   }
 
   let rememberedLocally = false;
   if (keepUser) {
     const account = String(session.loginAccount || session.name || "");
     if (account) {
-      // Save in the tab first so a reload works even if the shared local quota
-      // is filled by another application under the same GitHub Pages origin.
       erpStorageWrite(sessionStorage, "hg_cloud_session", account);
       rememberedLocally = erpStorageWrite(localStorage, "hg_cloud_session", account);
       if (!rememberedLocally) erpStorageRemove(localStorage, "hg_cloud_session");
@@ -475,13 +535,12 @@ function storeSession(session, keepUser = false) {
     erpStorageRemove(sessionStorage, "hg_cloud_session");
   }
 
-  currentSession = session;
-  if (!localSaved || !localIdentitySaved || (keepUser && !rememberedLocally)) {
-    erpSessionStorageNotice(tabSaved
-      ? "登入已完成；瀏覽器長期儲存空間不足，本分頁的身分已暫存。關閉視窗後可能需要再次輸入原帳密；跨模組若未同步，請使用「重新綁定身份」。請勿清除其他系統資料。"
-      : "登入已完成，但此瀏覽器無法保存登入狀態；重新整理後需再登入，跨模組身分可能不會自動帶入。請勿清除案件、假勤或報價資料。");
+  if (!tabSaved || (keepUser && !rememberedLocally)) {
+    erpSessionStorageNotice(!tabSaved
+      ? "已完成本頁登入，但工作階段儲存也不可用，重新整理後必須再次以原帳密登入。案件、假勤、報價資料未清除。"
+      : "已完成登入；長期儲存空間不足，現在可在本分頁操作。關閉瀏覽器後可能需要再輸入原帳密，不必重建員工或裝置。");
   }
-  return { localSaved, tabSaved, rememberedLocally };
+  return {localSaved: rememberedLocally, tabSaved, rememberedLocally, operatorSaved};
 }
 
 async function getEmployee(name) {
@@ -529,6 +588,7 @@ function isValidActivationCode(emp, inputName, code) {
 }
 
 async function resetPasswordWithCode() {
+  await initializeErpDeviceIdentity();
   if (!erpDeviceIdIsDurable()) {
     return alert("此瀏覽器無法永久保存裝置識別碼，因此未執行開通碼重設及裝置綁定；請先由管理者處理瀏覽器儲存空間。");
   }
@@ -565,6 +625,7 @@ async function resetPasswordWithCode() {
 }
 
 async function register() {
+  await initializeErpDeviceIdentity();
   if (!erpDeviceIdIsDurable()) {
     return alert("此瀏覽器的長期儲存空間已滿，無法永久保存新裝置識別碼；本次沒有變更任何裝置授權。請由管理者協助檢查瀏覽器儲存空間，勿清除其他系統資料。");
   }
@@ -651,6 +712,7 @@ async function requirePreviouslyApprovedDevice(account, userRecord, password) {
   }
 }
 async function login() {
+  await initializeErpDeviceIdentity();
   const user = $("login-user").value.trim();
   const pass = $("login-pass").value.trim();
   if (!user || !pass) return alert("請輸入帳號密碼");
@@ -684,6 +746,7 @@ async function login() {
 }
 
 async function adminLogin() {
+  await initializeErpDeviceIdentity();
   if ($("admin-pass-input").value !== ADMIN_PASS) return alert("管理密碼錯誤");
   const emp = await getEmployee("楊翊晟") || buildEmployeeRecord({ name: "楊翊晟", roleCode: "CEO", onboardDate: "2018-03-01" });
   const session = sessionFromEmployee(emp, "admin-password", primaryLoginForEmployee(emp));
@@ -986,7 +1049,7 @@ async function restoreSession() {
   try {
     showLoading(true, "恢復登入狀態...");
     const { emp, account, userRecord } = await resolveLoginIdentity(sessName);
-    if (!userRecord) throw new Error("登入帳號不存在");
+    if (!userRecord || userRecord.legacyPortalDisabled === true) throw new Error("登入帳號已停用或不存在");
     if (!(userRecord.authorizedDevices || []).includes(myDeviceId)) throw new Error("裝置授權已失效");
     const session = sessionFromEmployee(emp, "restore", account);
     storeSession(session, true);
@@ -1037,6 +1100,7 @@ if ("serviceWorker" in navigator) {
       console.error('Employee initialization failed', err);
       window.__portalStartup.notice('員工名單初始化未完成；仍會嘗試恢復原登入。若資料無法載入，請確認網路後重新整理。');
     }
+    await initializeErpDeviceIdentity();
     await restoreSession();
   } catch (err) {
     console.error(err);
