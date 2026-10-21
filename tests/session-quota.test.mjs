@@ -160,7 +160,7 @@ test('real portal login function: unapproved device remains denied despite quota
  assert.equal(v.tab.getItem(KEY),null);
 });
 test('new-device registration and password reset require a durable device ID',()=>{
- assert.match(source,/async function register\(\) \{\s*if \(!erpDeviceIdIsDurable\(\)\)/);
- assert.match(source,/async function resetPasswordWithCode\(\) \{\s*if \(!erpDeviceIdIsDurable\(\)\)/);
+ assert.match(source,/async function register\(\) \{\s*await initializeErpDeviceIdentity\(\);\s*if \(!erpDeviceIdIsDurable\(\)\)/);
+ assert.match(source,/async function resetPasswordWithCode\(\) \{\s*await initializeErpDeviceIdentity\(\);\s*if \(!erpDeviceIdIsDurable\(\)\)/);
  assert.match(source,/function erpDeviceIdIsDurable\(\)/);
 });
