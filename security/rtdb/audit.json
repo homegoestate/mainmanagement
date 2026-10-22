@@ -1,0 +1,11 @@
+{
+  "score": 1,
+  "summary": "原始碼層級嚴重風險；評分針對本次已查的舊入口信任邊界，不是對尚未取得的正式 Rules 宣告已驗證。候選規則已另行測試，尚未上線。",
+  "findings": [
+    {"check":"Authority Source","severity":"critical","issue":"正式入口未將登入接入 Firebase Auth；角色、管理驗證與裝置判斷主要在前端。","recommendation":"建立可信登入與兩專案 UID 對應、伺服器 ACL 和綁定 session，再切換 Rules。"},
+    {"check":"Credential confidentiality","severity":"critical","issue":"總管理來源設計會在瀏覽器讀取舊帳密；若正式 Rules 允許，將造成帳密暴露。","recommendation":"users 對所有客戶端拒絕；保留既有帳號，經受控後端核對與安全遷移。不要在 PR 複製密碼值。"},
+    {"check":"Business Logic vs Rules","severity":"major","issue":"人事根訂閱與整批交易無法直接套用逐員工最小權限。","recommendation":"替換根讀取、拆分安全投影、特休及跨列核准移往可信交易服務；尚未完成不得部署。"},
+    {"check":"Update bypass and deletion","severity":"major","issue":"前端控制無法抵擋直接 SDK/REST 改寫角色、核准或刪除；實際允許程度待正式 Rules 確認。","recommendation":"根預設拒絕、保護 ACL、員工只能新增本人待審資料、管理寫入後端驗證與稽核。"},
+    {"check":"Storage abuse","severity":"moderate","issue":"候選規則設單筆限制，但不提供每人每日筆數或總量限流。","recommendation":"部署前驗收 App Check、成本監測與服務限流；需要硬性頻率控制時改由 API 新增。"}
+  ]
+}

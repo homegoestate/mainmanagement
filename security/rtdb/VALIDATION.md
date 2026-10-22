@@ -1,0 +1,30 @@
+# 驗證紀錄｜2026-10-22（Asia/Taipei）
+
+## 已執行
+
+| 項目 | 結果 | 範圍 |
+|---|---|---|
+| Firebase RTDB emulator v4.11.2 | 53/53 通過，0 skipped，0 failed | 兩份候選規則實際載入並執行；虛構資料與 demo project；不是用 JS 模仿規則判斷 |
+| mainmanagement 原有 Node 測試 | 49/49 通過 | 含入口、原功能、配額、裝置 IndexedDB 等回歸測試 |
+| 原有 Python portal patch 測試 | 10/10 通過 | 原介面與功能保留 |
+| `tools/integrate_portal.py --check` | 通過 | 原入口 SHA256：`0d3f587b956058c2426fdebc7c0bda117645dfc0a1f05fd23477a8b936d16716` |
+| `npm run check` | 通過 | 規則 JSON 與生成來源一致 |
+| export / prepare 工具語法 | 通過 | `node --check`；未執行正式規則匯出或部署 |
+| 部署準備門檻 | 如預期拒絕，exit 2 | 所有正式驗收門檻 false；沒有產生正式部署設定 |
+| 現有正式入口檔案 | 未變更 | index.html、login-check.mjs、recovery-export.html、service-worker.js |
+
+本地測試環境：Node 24.19.0、Java 21.0.12.1、firebase-tools 15.34.1、firebase 13.1.0、rules-unit-testing 6.0.0。首次啟動發現本機 Java 17 不符新版 emulator 要求，使用暫存 Java 21 解決；本機網路代理造成 localhost rules upload 失敗，僅於測試程序移除 proxy 環境變數後成功。初輪測試 4 項因新版 SDK 不接受空字串根路徑失敗，改用 `ref(db)` 後 53 項全部通過。沒有為通過測試放寬規則。
+
+## 測試可證明什麼
+
+可證明候選規則在給定的 ACL／session／資料結構下，拒絕所測越權情境並允許必要的本人新增和分權讀取；沒有現有主檔覆寫、未知路徑放行或祖先允許覆蓋。
+
+## 尚未驗證
+
+- 最新正式 Rules、是否仍公開及是否曾外洩。
+- 現有真實 Auth UID、雙專案 token／裝置證明與權限映射。
+- 新登入橋接、投影產生器、主管核准／特休／薪資／裝置等可信後端。這些本 PR **未實作或部署**。
+- 原始庫未知欄位、舊資料型別、完整報表、超過 500 筆歷史、真實員工端到端流程。
+- 正式部署、跨專案撤權、App Check、限流、備份還原、服務中斷及回退演練。
+
+**因此本 PR 是候選規則與修補前置成果，不代表正式漏洞已封住，也不是可以直接覆蓋目前前端的上線版本。**
