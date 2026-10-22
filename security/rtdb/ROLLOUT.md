@@ -4,6 +4,8 @@
 
 2026-10-22 更新：既有 Vercel 主機 `nexus-line-bot` 已新增可執行的 HR 後端 [PR #3](https://github.com/homegoestate/nexus-line-bot/pull/3)，預覽建置 READY，雲端路由 GET 回應預期 405；23 項新隔離測試及全庫 291 項測試通過。服務預設關閉、缺 Firebase 後端憑證，且現有兩套前端尚未接線。該服務採 HR 全伺服器代理及直接客戶端拒絕規則；它與本 PR 候選雙專案 custom-token／投影規則是兩種部署方案，不可混搭。正式漏洞仍未封閉。
 
+後續來源核對更新：已找回 2026-10-20 原 `homego-native-company-v7` 後端與私密登入路由，以原 Worker 為接續部署基準。`native-worker/` 已提供可核對雜湊的原後端分權／新版特休局部補丁，113 原測試與 6 新測試、bundle 通過。Vercel 僅關閉備選；勿新建平行登入、勿混用 `_security` 與原 `_sso`，也不要把本 PR 最初 custom-token 候選規則直接貼到原 Worker。尚未取得可操作的原 Cloudflare 管理工作階段，未部署任何正式變更。
+
 ## 1. 先取得真正的正式狀態（可讀取，不先修改）
 
 以有適當 IAM 權限的管理者開啟：

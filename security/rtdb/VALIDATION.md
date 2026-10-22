@@ -34,3 +34,7 @@
 - 正式部署、跨專案撤權、App Check、限流、備份還原、服務中斷及回退演練。
 
 **因此本 PR 是候選規則與修補前置成果，不代表正式漏洞已封住，也不是可以直接覆蓋目前前端的上線版本。**
+
+## 原 Worker 接續驗證（2026-10-22）
+
+找回較新原 R3、套用已交付裝置修補，再把本 PR native-worker business core 與新版特休補丁套進隔離候選。原後端 npm test 113/113，npm run build 成功；本 PR tests/native-worker.test.mjs 6/6。這些套件有不同測試邊界，不當成同仁正式端到端驗收。原 Windows Cloudflare Device Grant／正式 Worker 設定未移轉，未開啟任一 production gate。六人私密別名及 UID 對照不提交 GitHub。

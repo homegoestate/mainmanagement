@@ -2,6 +2,16 @@
 
 本輪已從登入後的 Firebase Console 核實兩庫根讀寫仍公開；mainmanagement Auth 8 帳號（1 停用），homego-system 僅 3 個舊匿名帳號。保留所有原 UID 與停用狀態，不推定合成帳號對應哪位同仁，也不拿匿名 UID 代表員工。
 
+## 接續基準更新：原 Worker 優先
+
+本輪進一步找回較新 `Firebase登入銜接_實作與回執_20261020.zip`、原會話及裝置補丁、六人私密登入對照。原來源已記載六位 Auth 與一位離職拒絕正式回執；本輪不重建 UID、不重測或改密碼。實際部署應沿用原 `homego-native-company-v7` 的 WebAuthn／Gateway Custody／root-CAS／`_sso` 契約。先前 Vercel PR #3 保留為關閉備選，不另建立第二套正式登入，也無須為備選新增 Firebase 私鑰。
+
+可審查且已實際套用到隔離候選的修補在 `../native-worker/`：主管審核須 protected role + 假別 approvals + 指定 request-key reviewScope，讀取也限範圍；新版特休計算與核准證據時間保留原最新行為。只寫兩個 business 檔案，雜湊不符拒絕覆蓋；不碰原 Worker 金鑰／設定／啟用旗標／SQL／Rules。
+
+套用後原後端 113/113 測試通過，另新增 native 分權 6/6 通過；原 Worker 入口 bundle 成功（927937 bytes，SHA256 `606a61eb49cab7a43444551a1f44832f2ad613a1842661c02f591fc56870d0df`）。這些都是隔離候選驗證，未部署。原部署 Device Grant 位於另一個 Windows 金鑰圈，未在 ZIP；此工作階段未取得可操作的 Cloudflare 管理連線，不能以舊回執當作目前管理權。已搜尋連線目錄，這個工作階段未找到可用 Cloudflare 外掛。
+
+下列 Vercel 記錄保留供審查，但不能把兩套私密 schema、裝置證明或 rules 混用。原 Worker 的正式備份、全部寫入者、個人裝置、最新 HTML、CASE 信任／SQL 與跨模組撤權仍須按原切換流程核實。
+
 ## 已開始實作的既有主機方案
 
 2026-10-22 找回先前交付套件並核實既有 Vercel 專案 `nexus-line-bot`，不必先升級 Firebase Blaze。實際 HTTP 後端已提交 [nexus-line-bot PR #3](https://github.com/homegoestate/nexus-line-bot/pull/3)：驗證 mainmanagement 原 Auth ID token、P-256 裝置簽章、防重放 challenge、短效 session、HR 分權投影及 CAS／稽核／原子核准。沿用目前人事系統的特休計算，不使用舊 ZIP 會取消裝置綁定或要求個人 Email 的 HTML。
