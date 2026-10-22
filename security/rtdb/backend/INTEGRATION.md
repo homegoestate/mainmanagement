@@ -2,13 +2,15 @@
 
 本輪已從登入後的 Firebase Console 核實兩庫根讀寫仍公開；mainmanagement Auth 8 帳號（1 停用），homego-system 僅 3 個舊匿名帳號。保留所有原 UID 與停用狀態，不推定合成帳號對應哪位同仁，也不拿匿名 UID 代表員工。
 
-## 具體部署選項（未執行）
+## 已開始實作的既有主機方案
 
-建議維持兩個 RTDB，僅以 **mainmanagement 一個專案承載 Cloud Functions**；homego-system 暫維持 Spark。這條路需要核准 mainmanagement 的 Blaze 按量計費。Firebase 要求部署 Cloud Functions 的專案使用 Blaze；部署映像、建置、執行及網路等可能產生費用，不能保證每月零元。預算警示不是硬性支出上限，還應限制函式最大執行個體、請求大小、時間、重試及每人速率，並安排費用異常時的人工備援。正式數量與成本須按實際用量核算，本 PR 不虛構報價。
+2026-10-22 找回先前交付套件並核實既有 Vercel 專案 `nexus-line-bot`，不必先升級 Firebase Blaze。實際 HTTP 後端已提交 [nexus-line-bot PR #3](https://github.com/homegoestate/nexus-line-bot/pull/3)：驗證 mainmanagement 原 Auth ID token、P-256 裝置簽章、防重放 challenge、短效 session、HR 分權投影及 CAS／稽核／原子核准。沿用目前人事系統的特休計算，不使用舊 ZIP 會取消裝置綁定或要求個人 Email 的 HTML。
 
-未執行任何連結帳單帳戶、升級、建立函式、下載私鑰、新增跨專案 IAM、修改 Auth 或 Rules。升級後也不能直接貼上候選 Rules。
+該庫全測試 291 項通過，其中 23 項為新安全服務測試（合成資料），Vercel 分支預覽 READY，雲端路由已回應預期 405。這不等於正式員工流程驗收。Vercel 只檢查環境變數名稱，確認缺 `HGE_SSO_SERVICE_ACCOUNT_JSON`，未讀取或展示其他服務秘密、未下載私鑰或更動 IAM。
 
-若公司已有可維護的可信後端，可改承載相同服務；不能為維持 Spark 而把管理金鑰／簽章密鑰放進 GitHub Pages。
+此服務目前只代理 HR RTDB，使用伺服器驗證的 mainmanagement UID，不需讓 HR 客戶端另行 Firebase Auth 登入。它要求 HR 對直接客戶端全部拒絕，不能和本 PR 的 custom-token／投影規則直接拼接。總管理庫與完整舊介面接線、私密映射與裝置公鑰核對、生命週期／主管授權等仍待完成。以新後端庫 `docs/security/company-sso.md` 的實作狀態及切換條件為準。
+
+使用者已授權直接實作與必要驗證；目前停在真實憑證與相容性條件，不另增概括性許可門檻。仍未修改正式 Rules、Auth、IAM 或任何公司業務資料。
 
 ## 仍須完成的實際服務
 
