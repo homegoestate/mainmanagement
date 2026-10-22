@@ -1,6 +1,6 @@
 # 兩套 RTDB 權限修補候選方案｜2026-10-22
 
-**狀態：供審查及模擬器驗證，禁止直接套用現有正式前端。尚未讀取正式 Rules，尚未修復正式環境。**
+**狀態：供審查及模擬器驗證，禁止直接套用現有正式前端。已在登入後的 Firebase 控制台讀取兩庫現行 Rules，均為根節點公開讀寫；尚未修復正式環境。**
 
 這個 PR 新增規則、測試、來源盤點及切換方案；不修改現有 HTML、帳號、UID、裝置清單、員工資料、假勤、案件、收據或報價，也不自動部署。規則管理集中於 mainmanagement，兩個專案仍各自獨立部署與驗收。
 
@@ -10,7 +10,7 @@
 - GitHub PR #8 已合併；它修復瀏覽器儲存與裝置識別，未完成 Firebase Auth、Database Rules 或後端 SSO。
 - 在本次取得的 mainmanagement / Employee-management 原始碼中，正式入口均未執行 Firebase Auth 登入；總管理仍從 RTDB 讀取舊帳號再由前端比對。獨立 login-check 頁有 Auth，但沒有銜接正式入口。
 - 兩個核心儲存庫沒有 `firebase.json`、`.firebaserc`、RTDB 規則檔或 Firebase 部署工作流程。現有 mainmanagement CI 是介面測試與新聞更新，不是資料庫安全部署。
-- 本次無可用的 Firebase 管理工具／已驗證 Google 管理工作階段，沒有匯出最新正式 Rules、Auth 使用者清單、IAM、資料快照、App Check 或稽核記錄。未匿名下載正式資料，也未向正式庫送測試寫入。
+- 後續已使用登入後的 Firebase 控制台核實兩庫完整現行 Rules，皆為 `.read: true`／`.write: true`，並核對 Auth 使用者數與 Spark 計費方案，詳見 `live-observations.json`。未匿名下載業務資料、未查看密碼、未向正式庫送測試寫入；IAM、備份還原、App Check 與稽核記錄仍待驗。
 - 11 個相依儲存庫的來源 SHA 與證據行號見 `source-inventory.json`。盤點是這些來源版本，不涵蓋未提供的 NAS 舊副本、外部服務、其他分支或實際 Firebase 部署狀態。
 
 ## 資料讀寫與中斷風險
@@ -25,7 +25,7 @@
 | Bank-choice | localStorage | 未發現兩套 RTDB 依賴。 |
 | Integrate / case-procedure / REPORT / AI-question-assistant / -Project-Management | 本次 index.html 未發現兩套 RTDB 連線 | 不把純入口／前端頁面誤當已受 Firebase 權限保護。 |
 
-關鍵證據：總管理 `index.html` 194–211、407–418、546–657、714–759、916–988；員工頁 700–726、1084–1095、1180–1205、1654–1661、2080–2083、2250–2322、4057、4234–4255。來源以 inventory 的 commit 為準。這些問題已能由原始碼證實，實際可被利用程度仍取決於正式規則。
+關鍵證據：總管理 `index.html` 194–211、407–418、546–657、714–759、916–988；員工頁 700–726、1084–1095、1180–1205、1654–1661、2080–2083、2250–2322、4057、4234–4255。來源以 inventory 的 commit 為準。這些問題已能由原始碼證實，後續正式規則已確認根節點公開讀寫；目前漏洞仍存在。
 
 ## 四種身分的目標權限
 
@@ -87,3 +87,9 @@ node tools/prepare-deployment.mjs
 - https://firebase.google.com/docs/rules/unit-tests — 模擬器測試真實 Rules。
 - https://firebase.google.com/docs/database/rest/app-management — GET 匯出 Rules；PUT 會覆寫整份 Rules。
 - https://firebase.google.com/docs/database/rest/auth — OAuth Bearer header；不要把憑證放進網址或版本庫。
+
+## 本輪實作邊界
+
+新增 `backend/authorization.mjs` 可信後端授權核心，以及 `client/session-bridge.mjs` SDK 注入式雙專案登入元件，新增 31 項隔離測試。不是已部署的 HTTP 服務，也尚未接入正式 HTML。後端仍須驗 token 簽章與撤銷、裝置密碼學證明、持久化、交易、限流與稽核；詳見 `backend/INTEGRATION.md`。未升級計費、未新增 IAM、未改正式規則或原資料。
+
+建案服務中心、Supabase 與本次修補的權限邊界，見 `INTEGRATION-BOUNDARIES.md`；本輪未重新核實使用者貼文的 Supabase 政策，亦未啟用正式同步。

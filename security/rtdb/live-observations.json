@@ -1,0 +1,31 @@
+{
+  "recordedAt": "2026-10-22T14:57:54.375179+08:00",
+  "method": "Signed-in Firebase Console Rules editor: entire six-line source observed; not REST export",
+  "productionChanged": false,
+  "databases": [
+    {
+      "projectId": "mainmanagement-1f3d2",
+      "instance": "mainmanagement-1f3d2-default-rtdb",
+      "consoleRulesUrl": "https://console.firebase.google.com/project/mainmanagement-1f3d2/database/mainmanagement-1f3d2-default-rtdb/rules",
+      "rulesText": "{\n  \"rules\": {\n    \".read\": true,\n    \".write\": true\n  }\n}",
+      "displayedTextSha256": "6c1a7719903b5bc8198ff3dcd4fc4930b81c836ecf3fd0abdb174d7cb2325f4f",
+      "authUserCount": 8,
+      "anonymousUserCount": 0,
+      "disabledUserCount": 1,
+      "billingPlan": "Spark",
+      "authMappingVerified": false
+    },
+    {
+      "projectId": "homego-system",
+      "instance": "homego-system-default-rtdb",
+      "consoleRulesUrl": "https://console.firebase.google.com/project/homego-system/database/homego-system-default-rtdb/rules",
+      "rulesText": "{\n  \"rules\": {\n    \".read\": true,\n    \".write\": true\n  }\n}",
+      "displayedTextSha256": "6c1a7719903b5bc8198ff3dcd4fc4930b81c836ecf3fd0abdb174d7cb2325f4f",
+      "authUserCount": 3,
+      "anonymousUserCount": 3,
+      "disabledUserCount": 0,
+      "billingPlan": "Spark",
+      "authMappingVerified": false
+    }
+  ]
+}
