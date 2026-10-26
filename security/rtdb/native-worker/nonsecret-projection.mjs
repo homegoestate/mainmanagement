@@ -1,0 +1,13 @@
+const normalized=k=>k.replace(/[\s_-]/g,'');
+export const credentialField=k=>/(password|passphrase|passcode|pwhash|secret|token|credential|authorization|cookie|privatekey|apikey|serviceaccount|webauthn|authorizeddevices|deviceoperationlog|deviceprofiles|devicerevision)/i.test(normalized(k))||/^(pwd|pass|pw|auth|session|devices|deviceid|did|lastboundat|lastdevicetype|lastloginat)$/i.test(normalized(k));
+const secretText=s=>/-----BEGIN [A-Z ]*PRIVATE KEY-----|\bBearer\s+\S+|\beyJ[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]+|\bya29\.[A-Za-z0-9_-]+|\bsb_secret_[A-Za-z0-9_-]+|\bAIza[A-Za-z0-9_-]{20,}|[?&](?:access_token|id_token|refresh_token|password|secret)=|https?:\/\/[^\s/]+:[^\s/@]+@|(?:password|pwd|passphrase|refresh_token|access_token)\s*['"\s]*[:=]/i.test(s);
+const pointer=(p,k)=>p+'/'+String(k).replaceAll('~','~0').replaceAll('/','~1');
+export function projectNonsecret(input,inheritedDepth=0){const omissions=[];
+ function walk(value,p='',depth=inheritedDepth){if(depth>40){omissions.push({path:p,reason:'depth-limit'});return undefined;}if(typeof value==='string'){if(secretText(value)){omissions.push({path:p,reason:'secret-pattern'});return undefined;}if(/^\s*[\[{"]/.test(value)){try{const nested=JSON.parse(value),check=projectNonsecret(nested,depth+1);if(check.omissions.length){omissions.push({path:p,reason:'serialized-sensitive-content'});return undefined;}}catch{}}return value;}
+ if(Array.isArray(value))return value.map((v,i)=>walk(v,pointer(p,i),depth+1)??null);
+ if(value&&typeof value==='object'){const result={};for(const [k,v]of Object.entries(value)){if(credentialField(k)){omissions.push({path:pointer(p,k),reason:'credential-field'});continue;}Object.defineProperty(result,k,{value:walk(v,pointer(p,k),depth+1),enumerable:true,writable:true,configurable:true});if(result[k]===undefined)delete result[k];}return result;}
+ return value===undefined?null:value;}
+ const value=walk(input)??null;return {value,omissions,policy:'nonsecret-business-v1',complete:omissions.length===0};}
+export function auditChange(path,before,after){const left=projectNonsecret(before),right=projectNonsecret(after);return {path,before:left.value,after:right.value,projection:{policy:'nonsecret-business-v1',complete:left.complete&&right.complete,beforeOmitted:left.omissions,afterOmitted:right.omissions,originalDataRetained:true}};}
+export function rejectCredentialInput(value,makeError){if(projectNonsecret(value).omissions.length)throw makeError('credential-input','認證或秘密內容不能透過業務操作送入');}
+export function rejectCredentialPath(path,makeError){if(typeof path==='string'&&path.split('/').some(credentialField))throw makeError('credential-path','認證資料不屬於業務讀寫範圍');}
