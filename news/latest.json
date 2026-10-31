@@ -1,14 +1,84 @@
 {
   "schemaVersion": 2,
-  "fetchedAt": "2026-10-31T12:27:41.316807+00:00",
+  "fetchedAt": "2026-10-31T19:16:42.561060+00:00",
   "status": "ok",
   "feedsSucceeded": 26,
   "feedsChecked": 26,
   "errors": [],
   "fetchedItems": 200,
   "total": 200,
-  "latestPublishedAt": "2026-10-31T11:51:53+00:00",
+  "latestPublishedAt": "2026-10-31T17:26:13+00:00",
   "items": [
+    {
+      "title": "聯準會宣示對抗通膨決心 美元指數短線可望續強 - 經濟日報",
+      "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5IeExtcHBLYWZKM3N4dFplNllwY2JtTzFZZzg1Zzk1TnMyMU91REs1YzFWZi0zUEpmdll1eXUxdXRQT21ib19ZTkg2cExPaU0zY3pIWXptN2I0Z9IBX0FVX3lxTFBqUm0wTXoxVkZDMzBLVmdOTzgzM3hPTEpGXzZuQlR3aDRPSERNa24yRXpIS3JjNko1clJLUnhtTl96cW4zTkxxeEVpZzNjWndSVVN2V2JKMEc5MlJYaXZj?oc=5",
+      "date": "2026-10-31T17:26:13+00:00",
+      "source": "經濟日報",
+      "sourceUrl": "https://money.udn.com",
+      "categories": [
+        "finance"
+      ]
+    },
+    {
+      "title": "從 LLM 到企業級 AI Agent：MCP、向量搜尋與 RAG 一次掌握！ - iThome",
+      "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE9hdHhmLTQyLXQ4NU1qMnkycFVYcW5jRXZSMndWUF9aX05sQ1JHNEU4N0ZMSGw4cFpPcG43NC14VGxGVkdaU0k3V1AtYw?oc=5",
+      "date": "2026-10-31T16:19:12+00:00",
+      "source": "iThome",
+      "sourceUrl": "https://www.ithome.com.tw",
+      "categories": [
+        "ai"
+      ]
+    },
+    {
+      "title": "AI 時代的企業應用開發：用 Oracle APEX 低程式碼快速上線 - iThome",
+      "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTFBCQTZMMkFNUTN3amd1NTB2Uk80UVFrTi0xeUFUeEZNRWc3dkxVTzk3bFJfeWJ2WFNqTFMteldiSWNiTndXanJZM3g5cw?oc=5",
+      "date": "2026-10-31T16:19:09+00:00",
+      "source": "iThome",
+      "sourceUrl": "https://www.ithome.com.tw",
+      "categories": [
+        "ai"
+      ]
+    },
+    {
+      "title": "前微軟企業副總裁：勿讓AI奪走人的判斷力 - 大紀元",
+      "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE43ZHprSE5EUHdOeUQ1SDB0N0NNYS1JSVRIU0ZQY1U2OWticUszMkhFS3ppWnJVc0k5UmRxUGNIYi1pMEtWU1JiNjRCZWI4d2wtVXpreGI1Q1E2R0hQZjJ2bENn0gFnQVVfeXFMTUxZR0w4aTRtRVM3TzJLMjVGdzZuN1RnSmNsYjBEWXNNZVBmR2JlVFFmbVhmcmFLNHBFV2RxZU1uaC0za0lrbVJkQ0ZkOFZpaXhNdkQzU2JZSUxXTm5iN3pXX1ZaenNYYw?oc=5",
+      "date": "2026-10-31T14:57:00+00:00",
+      "source": "大紀元",
+      "sourceUrl": "https://www.epochtimes.com",
+      "categories": [
+        "ai"
+      ]
+    },
+    {
+      "title": "2026 年 11 月新制懶人包：地價稅開徵、郵局 ATM 可存 10 萬、新冠疫苗開打 10 新規整理 - 果仁家",
+      "link": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE5qNlFUMUNTV1IxSGo0Y3FacmNVc0dKT3pZMkxJb3lvU3ZyN0xLWnZXb09wNi1rN1hvanFWR0Y1NHJIeHYxUmdWV0g4NnlVVlVrMi1j?oc=5",
+      "date": "2026-10-31T14:06:26+00:00",
+      "source": "果仁家",
+      "sourceUrl": "https://applealmondrealty.com",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "出售繼承或受贈舊制房屋 評定現值成本可按物價指數調整 - 墨新聞-MORE News",
+      "link": "https://news.google.com/rss/articles/CBMiQkFVX3lxTE5tejN2Q2ZNRjBUWnRjbGZHb2tLT3E1QW1ndE9GWnFlaHpBbE5tdmFKZ3dqYTFZT2xpVDhiVG05WUljQQ?oc=5",
+      "date": "2026-10-31T12:58:10+00:00",
+      "source": "墨新聞-MORE News",
+      "sourceUrl": "https://more-news.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "花30年繳清房貸，70歲夫妻卻決定「賣房養老」！退休後住自宅還是租屋？他們直呼：付房租反而輕鬆 - 幸福熟齡",
+      "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTE9jaGloV3FlV2xIVjBST3p0OWpieEdoY3ZjczZ3dE52N04zMHBQN0tQSXBobTRvM1dIZ0RaV1c1cE9iSUpqMGJDWUhvZWswQURkTGFxTzVtckU5UzlYcnFrWUZDd0xVQnVPTER4S2JTOWpoMmk4TGNJT3RVcw?oc=5",
+      "date": "2026-10-31T12:21:00+00:00",
+      "source": "幸福熟齡",
+      "sourceUrl": "https://thebetteraging.businesstoday.com.tw",
+      "categories": [
+        "loan"
+      ]
+    },
     {
       "title": "一名駭客靠 AI 代理攻破 100 多家企業網站，研究員估每次成功入侵約 50 美元 - 草根影響力新視野",
       "link": "https://news.google.com/rss/articles/CBMiSkFVX3lxTE84aEFrNnR0VUZnNDVfN2x2QkszVnAwM3NjSjIwUGwyVUJOcnNCejhBMm5YM1U5SGpESG44VlhQVU9GQjJKeEFycGRR?oc=5",
@@ -21,12 +91,22 @@
     },
     {
       "title": "軟銀傳砸500億美元布局馬來西亞AI！孫正義投資意向曝光、資料中心與就業機會成焦點 - 鉅亨網",
-      "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTFBCV1ZBQmZYSVZNX0ZrNU1nSHpxU0dxZTAzX0FOdW10bGt2VndQZ2tHbjN3dE5aWjkzdjlaU2xVa0Q5NjhoMVpXUEx1Q1lkWEU?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTFBVemJjS2ljcnRSNmthRmtNMVRnN2k3TTBXWkszbTNkLTJoRkVPR0FhNU9nRXZsLWFXSUo2akg3N3hlRGVRRnJ1M2g5OA?oc=5",
       "date": "2026-10-31T11:10:03+00:00",
       "source": "鉅亨網",
-      "sourceUrl": "https://news.cnyes.com",
+      "sourceUrl": "https://m.cnyes.com",
       "categories": [
         "ai"
+      ]
+    },
+    {
+      "title": "埔里地政員工宿舍動土 縣長主持典禮 | 台灣生活新聞 - LINE TODAY",
+      "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE9lSlQ0X0lPSnpIMVNraGZtWnQyNTBLQWhfSE0yUnZFQnI4TWlja2o2YkRfdzlCRGxjcXExTW4tRE4zb1lIRjFtVHp6WmVNZkVRcFpPQmpn?oc=5",
+      "date": "2026-10-31T10:56:38+00:00",
+      "source": "LINE TODAY",
+      "sourceUrl": "https://today.line.me",
+      "categories": [
+        "law"
       ]
     },
     {
@@ -40,13 +120,13 @@
       ]
     },
     {
-      "title": "埔里地政員工宿舍動土 縣長主持典禮 | 台灣生活新聞 - LINE TODAY",
-      "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE9lSlQ0X0lPSnpIMVNraGZtWnQyNTBLQWhfSE0yUnZFQnI4TWlja2o2YkRfdzlCRGxjcXExTW4tRE4zb1lIRjFtVHp6WmVNZkVRcFpPQmpn?oc=5",
-      "date": "2026-10-31T10:35:38+00:00",
-      "source": "LINE TODAY",
-      "sourceUrl": "https://today.line.me",
+      "title": "屋頂裝太陽能板不加徵房屋稅 新竹縣稅務局：無頂蓋牆壁為關鍵 - 蕃新聞",
+      "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTFBqbVU2aEIzRFNqU0prT2JMTGd2b2lfT2NyNUU3dzQ5dnNtZUtRU1NwcUdQTUhvYXR4ZDBGNDkxdFNyQ0E1cXozaDZSUF9HNmpXVWc?oc=5",
+      "date": "2026-10-31T10:16:17+00:00",
+      "source": "蕃新聞",
+      "sourceUrl": "https://n.yam.com",
       "categories": [
-        "law"
+        "tax"
       ]
     },
     {
@@ -70,13 +150,23 @@
       ]
     },
     {
-      "title": "聯準會三大官員表態今年12月應該進行升息| 國際焦點 - 太報 TaiSounds",
+      "title": "聯準會三大官員表態今年12月應該升息| 國際焦點 - 太報 TaiSounds",
       "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE0xN0tjZXlINU5fX2EybjlVZTdvVTJiSXhwalRFcWNEUDNXUk9uWktxV3NnekROT2V5dFMtVGhzOTlJUmlMOUhFOFRNbmp5cjNMVU9Bd1FtUDViWm5O?oc=5",
       "date": "2026-10-31T09:47:47+00:00",
       "source": "太報 TaiSounds",
       "sourceUrl": "https://www.taisounds.com",
       "categories": [
         "finance"
+      ]
+    },
+    {
+      "title": "台中工策會辦AI實戰工作坊 結合企業案例與工具實作 - 報新聞 Mega News",
+      "link": "https://news.google.com/rss/articles/CBMi6gJBVV95cUxOX3FmY0k4WUZmeGpSemV4NXpiY2hEeXFaYzVxc0ZKQ0xFamV4MEUwbGk3ZHAxckpaWEloYVJzQkwycWJSalZQYkV0ZlNmSHNiTFZ6SmxxZGlUUjJOV0FRNFFqNkF4MGN5LUR0ZzBuT2NZV2ZfSlV1ZW9wM2lxOVgyeGl4NTJfUXBtSmpfd3ExWDB2dWNITFNYdFEtV2JPbjhnRjF0VXFkbjM4TGRaNjJURE5FUDIzNTJBaDBocm55ZlVkaXpSWXB2a1hwc0YyTFRtM0FpdnAtTnpFYXpReTdGS2NUX1dJbEZBVEx5WEt6YW04T3BpX1RjTU5WWkJaekF3cWdaZVIwUkVWM1pudkxPSVBqM2NFRHA0YXFhQmNveTJtMFp1anRjQVl6Q2c5eG5DREtyU3gtNE4xYjlVRG1ZRnV0dE54LWVtU19mbGwyX2gzYV9xUGwtUUlIOFp5cnhwNGRvOEg0S3hTQQ?oc=5",
+      "date": "2026-10-31T09:14:40+00:00",
+      "source": "報新聞 Mega News",
+      "sourceUrl": "https://www.contentplatform.info",
+      "categories": [
+        "ai"
       ]
     },
     {
@@ -110,11 +200,31 @@
       ]
     },
     {
+      "title": "陸房貸補貼上路滿月！首購族搶進 購屋受惠一次看 - 中時新聞網",
+      "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBHWDFwQnQ4aW5IR3lkV3owejFEUDRkTFNSNEVoVnpQRzRiVFFXTjgwWFRMS2I4WkFEV3BSQXdVcmJ3UUJGeFl2YjFQdlhVVXNhTzZ5T0ZiRjcwUFBENkk4?oc=5",
+      "date": "2026-10-31T08:40:42+00:00",
+      "source": "中時新聞網",
+      "sourceUrl": "https://house.chinatimes.com",
+      "categories": [
+        "loan"
+      ]
+    },
+    {
       "title": "北市長辯論》都更推動艱難怎麽辦？ 沈提三階段趕快做、蔣推「都更八箭」 | Newtalk - LINE TODAY",
       "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTFBGd3ZSNm90VUp2ZWcwSXRtdnNsQ1JqeUE2TEY2N2ROSzhGUGttMGlQdTJ6VGhESlRyd0lmUm5hOGVfOVYtd2dDNi0zWE93TTRvUjU3U1V3?oc=5",
       "date": "2026-10-31T07:07:27+00:00",
       "source": "LINE TODAY",
       "sourceUrl": "https://today.line.me",
+      "categories": [
+        "land"
+      ]
+    },
+    {
+      "title": "北市長辯論》都更推動艱難怎麽辦？ 沈提三階段趕快做、蔣推「都更八箭」 - Newtalk新聞",
+      "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE5lVm1tME8yNkJ2bDMyY1Q0eW1lS3VocXZtNmhCMGVBS3A0djdMWlVmaGw0S0JNbjJ0a3V1WVg1WDJyZUwwVjlDeGhETVZqU0pFaHEyRlNLVTVtTnc?oc=5",
+      "date": "2026-10-31T07:05:52+00:00",
+      "source": "Newtalk新聞",
+      "sourceUrl": "https://newtalk.tw",
       "categories": [
         "land"
       ]
@@ -127,6 +237,16 @@
       "sourceUrl": "https://news.cnyes.com",
       "categories": [
         "ai"
+      ]
+    },
+    {
+      "title": "【媒體提問2】沈伯洋提都更3制度遭蔣萬安反擊 「台北市政府早就在做了」 | 上報 - LINE TODAY",
+      "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE8xbGl4S3d1MDdZTmhKemRXMmJsYlFCQldWTDJxOGxWV1hVb2JkSkVfUTEwTlVCUWpkUTlXUTdqOU9kcnlnRmlGdFRXRmRjZm1PUUoyS1RR?oc=5",
+      "date": "2026-10-31T06:54:45+00:00",
+      "source": "LINE TODAY",
+      "sourceUrl": "https://today.line.me",
+      "categories": [
+        "land"
       ]
     },
     {
@@ -151,7 +271,7 @@
     },
     {
       "title": "11月金融新制一次看！2026地價稅開徵、郵局ATM存款上限升到10萬 - NOWnews今日新聞",
-      "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTFBHTy1RRjMwQmJ4eFdpdlNnbEJ4V1FYeTNZTmV1LXpGZk4yclVkWUlseXVtYjl4YUpXeTVpTk1NeXQxbmhDY1p6a0xRdDVac21mMWfSAVJBVV95cUxQR08tUUYzMEJieHhXaXZTZ2xCeFdRWHkzWU5ldS16RmZOMnJVZFlJbHl1bWI5eGFKV3k1aU5NTXl0MW5oQ2NaemtMUXQ1WnNtZjFn?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiTEFVX3lxTE5PVVZGZ2VpYU5idUp2SVFwSkdUR2h1UFZiVC1qaW5kc2haN2w4YlR3Vml4Rm5RYVFpalRsSzFBS1FncUtBa2cycXRTYW3SAVJBVV95cUxQR08tUUYzMEJieHhXaXZTZ2xCeFdRWHkzWU5ldS16RmZOMnJVZFlJbHl1bWI5eGFKV3k1aU5NTXl0MW5oQ2NaemtMUXQ1WnNtZjFn?oc=5",
       "date": "2026-10-31T06:34:18+00:00",
       "source": "NOWnews今日新聞",
       "sourceUrl": "https://www.nownews.com",
@@ -160,9 +280,9 @@
       ]
     },
     {
-      "title": "【媒體提問2】沈伯洋提都更3制度遭蔣萬安反擊 「台北市政府早就在做了」 | 上報 - LINE TODAY",
-      "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE8xbGl4S3d1MDdZTmhKemRXMmJsYlFCQldWTDJxOGxWV1hVb2JkSkVfUTEwTlVCUWpkUTlXUTdqOU9kcnlnRmlGdFRXRmRjZm1PUUoyS1RR?oc=5",
-      "date": "2026-10-31T06:26:46+00:00",
+      "title": "沈伯洋提都更初篩 蔣萬安反擊：早就在做 | NOWNEWS今日新聞 - LINE TODAY",
+      "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE5zbkdueHpTX3N3SWtDNEdXS09rWW1DcGlqR1VtSzBJTV9BelZ4VnNiRmNuQmt1SE5hVlVFTWE5RnZIb3BpaDRYYlg4QnUtdi1fV2lFSmNR?oc=5",
+      "date": "2026-10-31T06:30:10+00:00",
       "source": "LINE TODAY",
       "sourceUrl": "https://today.line.me",
       "categories": [
@@ -195,16 +315,6 @@
       "date": "2026-10-31T06:16:00+00:00",
       "source": "三立新聞網SETN.com",
       "sourceUrl": "https://www.setn.com",
-      "categories": [
-        "land"
-      ]
-    },
-    {
-      "title": "沈伯洋提都更初篩 蔣萬安反擊：早就在做 | NOWNEWS今日新聞 - LINE TODAY",
-      "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE5zbkdueHpTX3N3SWtDNEdXS09rWW1DcGlqR1VtSzBJTV9BelZ4VnNiRmNuQmt1SE5hVlVFTWE5RnZIb3BpaDRYYlg4QnUtdi1fV2lFSmNR?oc=5",
-      "date": "2026-10-31T06:15:27+00:00",
-      "source": "LINE TODAY",
-      "sourceUrl": "https://today.line.me",
       "categories": [
         "land"
       ]
@@ -290,6 +400,16 @@
       ]
     },
     {
+      "title": "AI資安人才身價看漲 美國企業搶徵紅隊專家與AI治理高手 - 科技島",
+      "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE9YNVBXRTFHRUtnYXctQXUzOTc4S0UtU2tua1RmdjNMTjNMWUpTMEtQMy01cXdEUVJHN0VvM1l3ekxleHBtQkJjWE91Ulc3YjU5X1YzWmVQZi1NQQ?oc=5",
+      "date": "2026-10-31T05:20:42+00:00",
+      "source": "科技島",
+      "sourceUrl": "https://www.technice.com.tw",
+      "categories": [
+        "ai"
+      ]
+    },
+    {
       "title": "AI融資問題已經顯現？巴克萊：華爾街仍陷「否認階段」、CoreWeave債券殖利率逼近15% - 鉅亨網",
       "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE5IM2pQaEw5R2NTVlZvclRGdEtkdlYzdkZORkV6NFJudXRPMnpjdExzMlVKRUZCZWZEZG9RT3pYUDh5VTZiaUZ0aG9qUEJNc2M?oc=5",
       "date": "2026-10-31T05:20:03+00:00",
@@ -317,6 +437,16 @@
       "sourceUrl": "https://news.ltn.com.tw",
       "categories": [
         "land"
+      ]
+    },
+    {
+      "title": "2026地價稅／合庫祭優惠 台灣 Pay、卡友最高回饋200元 - 經濟日報",
+      "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFB0Q3d1WHhtSVVHN2dxc2tPMTRLWDRtMUFpaEo0OG5TRXVwZkZZdUZwb3J4ZUhpSHpKT29CS0JWNVJFVFJ2Z1QzTnJYMmlwdk9xZV9XN1ItMTJ4Z9IBX0FVX3lxTFA1TTF1YTM5amdBckF1MFVaVEIxbFVtUV9oZm5acnVJMmpOVks1eFpmWUV2d3M3b0F0bFpoeExkMXJnbnhLMEJKS094SlVGYWFla3JuWnlHN2tMaU14c2pF?oc=5",
+      "date": "2026-10-31T04:43:26+00:00",
+      "source": "經濟日報",
+      "sourceUrl": "https://money.udn.com",
+      "categories": [
+        "tax"
       ]
     },
     {
@@ -380,16 +510,6 @@
       ]
     },
     {
-      "title": "陸房貸補貼上路滿月！首購族搶進 購屋受惠一次看 - 中時新聞網",
-      "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBHWDFwQnQ4aW5IR3lkV3owejFEUDRkTFNSNEVoVnpQRzRiVFFXTjgwWFRMS2I4WkFEV3BSQXdVcmJ3UUJGeFl2YjFQdlhVVXNhTzZ5T0ZiRjcwUFBENkk4?oc=5",
-      "date": "2026-10-31T03:42:00+00:00",
-      "source": "中時新聞網",
-      "sourceUrl": "https://house.chinatimes.com",
-      "categories": [
-        "loan"
-      ]
-    },
-    {
       "title": "離開上市直營體系創業 林柏村加盟台慶不動產2年、再拚第2 店 - 匯流新聞網",
       "link": "https://news.google.com/rss/articles/CBMixAJBVV95cUxOTkRuaTBrRmtYVlozZWJ3c1pBWml1OVAybTAyeVpRUi1wMTYyWGw0cHBEVUE2WTlKb2xSTzhsTHBMRW11MjI4bkRjLVBTZEtKZ2ptS3ZzUkVzRnQzT1dOd3dYa21wX1dkUGVrRk1XbXplMHN4czZ4QXdyODYyR2U5ZW90Ump0bm1zWGZfMVlPeVJ5bGN4dGtjTEJqV3BsbGRRTjRKU3RzQ2YxalFta2ZHRFJVcnNlUm40R0lYdFJoRFVIMHBTZVRHZlZmRG1rX0xrT2x2TlpLOVBvNjlKM2c1M01FcTNwTm4xeGJKTVNCR3RxT0p5Mld2dEpmSTFjT09iZFcwTHpBR1N5eV9BNjZHRXQ2UUltSEs4dFNnZ2Vtd3UyMmZsNHdJcHloMXpmTEJLVmlUbTdKRWtnVS12MC04YkdtZ0U?oc=5",
       "date": "2026-10-31T03:34:56+00:00",
@@ -420,16 +540,6 @@
       ]
     },
     {
-      "title": "前微軟企業副總裁：勿讓AI奪走人的判斷力 - 大紀元",
-      "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE43ZHprSE5EUHdOeUQ1SDB0N0NNYS1JSVRIU0ZQY1U2OWticUszMkhFS3ppWnJVc0k5UmRxUGNIYi1pMEtWU1JiNjRCZWI4d2wtVXpreGI1Q1E2R0hQZjJ2bENn0gFnQVVfeXFMTUxZR0w4aTRtRVM3TzJLMjVGdzZuN1RnSmNsYjBEWXNNZVBmR2JlVFFmbVhmcmFLNHBFV2RxZU1uaC0za0lrbVJkQ0ZkOFZpaXhNdkQzU2JZSUxXTm5iN3pXX1ZaenNYYw?oc=5",
-      "date": "2026-10-31T03:04:00+00:00",
-      "source": "大紀元",
-      "sourceUrl": "https://www.epochtimes.com",
-      "categories": [
-        "ai"
-      ]
-    },
-    {
       "title": "桃園不動產、地政界齊聚力挺張善政連任 提升居住環境 - 墨新聞-MORE News",
       "link": "https://news.google.com/rss/articles/CBMiQkFVX3lxTE1MdHlTWEs1RlZSYkd0Qm1FQjNyWXhQX3lKQ3JldGc5LUFBRWJSdXNvclpRQUg0bFNFLWMzU3BFRk9Idw?oc=5",
       "date": "2026-10-31T02:57:43+00:00",
@@ -450,6 +560,16 @@
       ]
     },
     {
+      "title": "央行楊金龍宣布鬆綁信用管制！第二戶可貸款六成 莊思敏：換屋族有福了 - 三立新聞網SETN.com",
+      "link": "https://news.google.com/rss/articles/CBMiSEFVX3lxTE82UEptUkZ5aDZEajMtQklUTk1WUFRHbHFZX2lVd1BYaElPajBmV1RzS3RmYTdLaTVmdlFDR0tldVJRY0dDMnptbNIBTEFVX3lxTE1WdWk5cEczcFFYUm5BeHRnTG9TR2pZSzQ5N0lSM1ZzbGdyekNkSG0wOEI0dWdiOWExVjFDb2RxMlFFc3ZlVExtWXFWZHM?oc=5",
+      "date": "2026-10-31T02:47:32+00:00",
+      "source": "三立新聞網SETN.com",
+      "sourceUrl": "https://www.setn.com",
+      "categories": [
+        "loan"
+      ]
+    },
+    {
       "title": "jpp 攜手泰國政府 舉辦第三屆自動化機器人競賽 - 經濟日報",
       "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE4yU2xwZFZFSlJPNkFTQ0JzN0NkeWc0Mi1ZZUdfWW43alNZcUpKeU40QzA3VW9FUTdDZ09yMndBOWliQW11NmMxUTN1dUpFb2hSMTVSOWtBQlR5UdIBX0FVX3lxTE5wS252QVhJZldCU2ZEQW5NZHZFZV9TS3JDd2I2RVFSTjVJQXZuRTl1WTZrNmFROHhqaW1wUVcxQUs0MFg0MEdvY0RPOU1PNUZIdkNZX2dhZ0lmRUVIdWFJ?oc=5",
       "date": "2026-10-31T02:45:58+00:00",
@@ -465,6 +585,16 @@
       "date": "2026-10-31T02:45:57+00:00",
       "source": "UDN",
       "sourceUrl": "https://udn.com",
+      "categories": [
+        "ai"
+      ]
+    },
+    {
+      "title": "AI 融資警報響！費半大跌7.2%、英特爾跌近29% 下周財報和選舉再考驗 - 經濟日報",
+      "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE9Fc1MxdmpNRTFFb2hjanlUeGFYZGhlckgxekU4ZHJ5Q25ZZDh5OGlsUFU2TXdEQ3RMZ0ZmT3g0dFNxRm1Xc0VtSHMtMnI4d05XdGJxdE9tZDJQbmFG0gFiQVVfeXFMTUREclRKSV9ET0pqOXphQ3Y0OXUxYjZhbHc1NnlURzc3ZFRfdGdDTlRNLXJDcEZUYW44YkVQTWRQZF9yT0RkbmszVEFpU2c3Tm1wMTJuWVhkSDFKbHhtalltTmc?oc=5",
+      "date": "2026-10-31T02:32:21+00:00",
+      "source": "經濟日報",
+      "sourceUrl": "https://money.udn.com",
       "categories": [
         "ai"
       ]
@@ -590,6 +720,28 @@
       ]
     },
     {
+      "title": "獨家／比省錢更重要！財產傳承只怕繳稅金？蕭琪琳揭「遇一事」就完了 - 三立新聞網SETN.com",
+      "link": "https://news.google.com/rss/articles/CBMiSEFVX3lxTFBhbkxId083NW1pRFZWb3NYV1lpQnktV1BNVkxfaDFqdzlxbmhIOUotVnBHbkMyaHY0N090Ums3ZlVZbU85T0Voa9IBTEFVX3lxTFBTcVZYV09oTGI1YTdBRnczVzNDZjdLeXlvZEprRUtpblZGc29XaEtGSjcwMnJtdEpfLXpUTV9HYkgwVGJoMVRqUEJvN2I?oc=5",
+      "date": "2026-10-30T23:41:47+00:00",
+      "source": "三立新聞網SETN.com",
+      "sourceUrl": "https://www.setn.com",
+      "categories": [
+        "inherit",
+        "tax"
+      ]
+    },
+    {
+      "title": "新聞幕後／阿公立遺囑忘一事！長孫痛失繼承權 地政士揭關鍵：沒救了 - 三立新聞網SETN.com",
+      "link": "https://news.google.com/rss/articles/CBMiSEFVX3lxTE54UXNYbnJjSTA5T0RBU1QtZEJoMDNYQkNmUGd1NFo0Vy1xTnlQbkRYMDdXTnhrMWZ5RHJXczZDZldTQzFpa3VDSdIBTEFVX3lxTE8wQ2RsLVhYeEkxcUE3ck8tdlFQcmt1UjIxanQ1eTF3elJMV2FDQUo3OF9laHh3Y0stcjhJbUU0N2l5Snk5bktUYkRaa1c?oc=5",
+      "date": "2026-10-30T23:14:36+00:00",
+      "source": "三立新聞網SETN.com",
+      "sourceUrl": "https://www.setn.com",
+      "categories": [
+        "inherit",
+        "law"
+      ]
+    },
+    {
       "title": "防範AI代理失控危機企業身份與存取管理成資安新戰線- 財經新聞 - PChome Online 新聞",
       "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxOVVJmYjdOVE0yN2F0LV9KQW9tZnZrYm5iRTJVbXcxNXNJcWhRZlBJejQwazNpSjVGYWoxa18weDh3T3JQa09xcXNtM0pUNElWWHNLcTE1T0V6TDQwVE93Y3dHbEZlVUtDWGRwSmJoazJ6aXdBMEFETXJFbjBxRVloVW1GNGllaU5LR1p5aA?oc=5",
       "date": "2026-10-30T22:43:41+00:00",
@@ -631,7 +783,7 @@
     },
     {
       "title": "繳地價稅刷哪張最划算？玉山中信信用卡與台灣Pay 回饋攻略一覽 - NOWnews今日新聞",
-      "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE8zZTdlTjJFb2N3cEhJckp1NDM3RXZWZlJEdFNFZVdCaUhOY2FOakJWSko4TmptRHNzZ1V6cXBaTEFSNUpISURVUG1fZHJjdjR6UEHSAVJBVV95cUxPM2U3ZU4yRW9jd3BISXJKdTQzN0V2VmZSRHRTRWVXQmlITmNhTmpCVkpKOE5qbURzc2dVenFwWkxBUjVKSElEVVBtX2RyY3Y0elBB?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiTEFVX3lxTFB5NHd2UFBrOXlBc24tR2Vnd3k5Z2w4SEViY0Vwb3FDa001aGhtamItUnVSOTdWdzRpMGt3VGp1ejlkQ2tYdjBoZHFxaEHSAVJBVV95cUxPM2U3ZU4yRW9jd3BISXJKdTQzN0V2VmZSRHRTRWVXQmlITmNhTmpCVkpKOE5qbURzc2dVenFwWkxBUjVKSElEVVBtX2RyY3Y0elBB?oc=5",
       "date": "2026-10-30T22:01:00+00:00",
       "source": "NOWnews今日新聞",
       "sourceUrl": "https://www.nownews.com",
@@ -670,6 +822,36 @@
       ]
     },
     {
+      "title": "少子化衝擊國土規劃！非都土地開發鬆綁 住宅社區「免設學校用地」草案預告 - newsdaily.tw",
+      "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE14TGg3V2Z3bFVIajFydWtWRElMU2lKVFlWMDJLS1FFbHhyY2E3eFNmaDNna09SckNldkVCNXlvLU1QaXJHaFBSaEY0cUtYUQ?oc=5",
+      "date": "2026-10-30T21:14:00+00:00",
+      "source": "newsdaily.tw",
+      "sourceUrl": "https://newsdaily.tw",
+      "categories": [
+        "land"
+      ]
+    },
+    {
+      "title": "蓋農舍免房屋稅？楊信華（華哥）示警：做「這用途」照樣課稅 - 樂屋網",
+      "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTFBiSFlBUDhBaDZ6cVFGcVE1TUt0TWRlMlkzOG5VWkJqZEhUdU5RU3F2X3JYaVBYYngzc0FJTFpFZDdWV1RyM09XSWY2SmpxeUJLdy1TMkNvNE4tNi10Znc?oc=5",
+      "date": "2026-10-30T21:02:20+00:00",
+      "source": "樂屋網",
+      "sourceUrl": "https://extra.rakuya.com.tw",
+      "categories": [
+        "tax"
+      ]
+    },
+    {
+      "title": "北中南3大老牌百貨接連熄燈 周邊房價變天？跌最慘是它 - 自由時報",
+      "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE5HQWtTNmF5cWgyX1dlcHhUSnRUU3M0VGprVEtud1lDN2NUMzJ1Z3Nob01Yd040MW44MmRkaHNicTdOU2dBbGRVa3hTTUFsN1E5?oc=5",
+      "date": "2026-10-30T20:30:00+00:00",
+      "source": "自由時報",
+      "sourceUrl": "https://estate.ltn.com.tw",
+      "categories": [
+        "market"
+      ]
+    },
+    {
       "title": "隨著企業將前沿 AI 投入實際應用，Cognizant 投入逾 25,000 名專業人員推動 OpenAI 方案交付 - 經濟日報",
       "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE0yMEpBeF9VNXFhb21zYnh1c2RhOXZGVGJVYXR1YVpUeTA4amh6Zk40LWZUaDdCbjB1TDZydmRUdzNEYXNwXzFfSnhlYVlzTVlOaVoyeGVmY2NfQUlQ0gFiQVVfeXFMTzJnN0Z5NzNSRTZvLUtpNVR2MTNuc292MGxGaTV4SHVjZ1cxa1BBNjkyVEFveTJ1bm1UMGF2Z3k5N2R3bnJiZW5fUmhwbU5icGNWQzIySkc4LVNtc001WUFpaEE?oc=5",
       "date": "2026-10-30T20:01:13+00:00",
@@ -697,6 +879,16 @@
       "sourceUrl": "https://www.sinotrade.com.tw",
       "categories": [
         "finance"
+      ]
+    },
+    {
+      "title": "央行理監事會本週登場！升息降息？信用管制鬆綁？能買房子了？市調出爐 - 三立新聞網SETN.com",
+      "link": "https://news.google.com/rss/articles/CBMiSEFVX3lxTE5JSWlZMkt6UjkzYUtaU2ZfQjRJaG9VSXloS1NDcC1UcmJyVlI2aHczeXRQaGlnT0xiaDJhWm1DaHhzOFRvWlpxYtIBTEFVX3lxTE5uV2JkUHlQUmo0TVVmVFl6eUZnaUgwMlZSOWFjNWFqTjU2SmlaamI2S0l5blV6RkQ2ZGlFcXlaNmdpdHRISWV6WWlpc2E?oc=5",
+      "date": "2026-10-30T19:12:32+00:00",
+      "source": "三立新聞網SETN.com",
+      "sourceUrl": "https://www.setn.com",
+      "categories": [
+        "loan"
       ]
     },
     {
@@ -910,16 +1102,6 @@
       ]
     },
     {
-      "title": "少子化衝擊國土規劃！非都土地開發鬆綁 住宅社區「免設學校用地」草案預告 - newsdaily.tw",
-      "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE14TGg3V2Z3bFVIajFydWtWRElMU2lKVFlWMDJLS1FFbHhyY2E3eFNmaDNna09SckNldkVCNXlvLU1QaXJHaFBSaEY0cUtYUQ?oc=5",
-      "date": "2026-10-30T15:35:00+00:00",
-      "source": "newsdaily.tw",
-      "sourceUrl": "https://newsdaily.tw",
-      "categories": [
-        "land"
-      ]
-    },
-    {
       "title": "日銀決議出爐！維持利率1.25% 植田和男：通膨率達2%目標 - 三立新聞網SETN.com",
       "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE5qejQ2bGNBdDJOSmdXVkw4cEJVZWpfeDBzYWFlM1hVWThRN2pzQnlZLUtKdEpOT3kwVTVKUnYxcGQ0NkVIMlNVSThpSQ?oc=5",
       "date": "2026-10-30T15:22:30+00:00",
@@ -1120,6 +1302,16 @@
       ]
     },
     {
+      "title": "香港9月房貸申請量下滑10.5%，轉貸需求逆勢成長 - BigGo 財經",
+      "link": "https://news.google.com/rss/articles/CBMiekFVX3lxTE1FekJMaFA2VmZwNmJub2hLZGdpaHpVNXFDU0JoSUJ0WnRuVWhhMmY5OHdzTmZEMkZ2UHdROTBjYm92V2ZtdzJwU0c0WDZjR0Vqc1FGOGxKMzYwWVNxbk5YNEVqNDZGeGtyRVZseDlxSlBJTlNxNl9fVE9R?oc=5",
+      "date": "2026-10-30T12:05:00+00:00",
+      "source": "BigGo 財經",
+      "sourceUrl": "https://finance.biggo.com.tw",
+      "categories": [
+        "loan"
+      ]
+    },
+    {
       "title": "新營東山路拓寬啟動都市計畫變更 - 臺南市政府全球資訊網",
       "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE90S2kyVDFadDBqZzA3WE1ieWVXWEZRYXpZZDNvdlFRS25UYkdkdmZoM0Rka0syaHQ2OWxhWnA4cklxd0VzamNFSEZSX09IVEl0aTU0SkhNOFJNcVQxMV9yWjVhclFtR1VETnItUW1n?oc=5",
       "date": "2026-10-30T12:02:47+00:00",
@@ -1127,6 +1319,26 @@
       "sourceUrl": "https://www.tainan.gov.tw",
       "categories": [
         "land"
+      ]
+    },
+    {
+      "title": "由「AI Chatbot」變「AI Agent」 HKBN AI+ 企業級一站式AI 平台如何讓企業用WhatsApp 自動完成工作？ - unwire",
+      "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE85aU1VcVU2NGtHOEZTblhJdWIyckZyT19kd2pxU0MzbjZZemhTVmRsVTd0T3IyTHJjTll3ZmxZWDlIdlVCQlZ5ekVkUmVoYWVscHB2LTEyVE9LUEhGVVdNZw?oc=5",
+      "date": "2026-10-30T11:53:28+00:00",
+      "source": "unwire",
+      "sourceUrl": "https://unwire.hk",
+      "categories": [
+        "ai"
+      ]
+    },
+    {
+      "title": "央行鬆綁房貸帶動房市回溫｜新聞事件整理與重點摘要 - Yahoo股市",
+      "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE9rV1c5eE5OalJjdDEwQWJtdmpsWEx2WkdkYjNCQWFJNndyb0trNXJUV190V0tUTUpuZUxuWm1PYmxxOHQxSVNhb2phMWpvT3F3UHFwN04zSWVtX0VQT2h0RUk0ZFpyUi0yeWlLdkNJUFItNy1fb1pPM3lZY2tFU1k?oc=5",
+      "date": "2026-10-30T11:31:36+00:00",
+      "source": "Yahoo股市",
+      "sourceUrl": "https://tw.stock.yahoo.com",
+      "categories": [
+        "loan"
       ]
     },
     {
@@ -1190,11 +1402,11 @@
       ]
     },
     {
-      "title": "央行鬆綁房貸帶動房市回溫｜新聞事件整理與重點摘要 - Yahoo股市",
-      "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE9rV1c5eE5OalJjdDEwQWJtdmpsWEx2WkdkYjNCQWFJNndyb0trNXJUV190V0tUTUpuZUxuWm1PYmxxOHQxSVNhb2phMWpvT3F3UHFwN04zSWVtX0VQT2h0RUk0ZFpyUi0yeWlLdkNJUFItNy1fb1pPM3lZY2tFU1k?oc=5",
-      "date": "2026-10-30T10:51:26+00:00",
-      "source": "Yahoo股市",
-      "sourceUrl": "https://tw.stock.yahoo.com",
+      "title": "青安3.0將上路！房貸補貼3＋3年 1圖看懂新舊制7年利率變化 - 三立新聞網SETN.com",
+      "link": "https://news.google.com/rss/articles/CBMiSEFVX3lxTFBfSnBCaHo4SzV0dmNBMm52d1lJZ1hnZXpWNUwycGs2UGIzTUJKc3lici1vUm1PRVlydjZYQkhPcXJacnZpWVFMcNIBTEFVX3lxTFBaSXlZN1RhWDVxTXJqRW1uYjR1NXlieUdRbnFKUEhlWXNBWDItMU95cGlRWkVvLUVVNFdMejI0Y1lpdUFzUEVDQ3ZjTjE?oc=5",
+      "date": "2026-10-30T10:51:04+00:00",
+      "source": "三立新聞網SETN.com",
+      "sourceUrl": "https://www.setn.com",
       "categories": [
         "loan"
       ]
@@ -1220,16 +1432,6 @@
       ]
     },
     {
-      "title": "房貸破12兆建商卻縮手？買房前必知的3大市場變化 - 台灣好新聞",
-      "link": "https://news.google.com/rss/articles/CBMi0AJBVV95cUxNZWFVY0Vhcll0LUlGTDdLYlM4SmFhblktTHU2dExxVnNoSUpjM2lYVlpmMGdwRzYxN2tTTW9DV0JmMmQza2NON2VielRDNXVKcnlsS292QTBLSi1LZ1dhbWN6bEZNZVNmMEUwVEtHT09BQUp5S0VKTW9INUFVcWFhRHZJTHhfaEJwZjNqODFVejFzY2p0dnNFeE5tN2VjaS1OTEF3XzNtejJYNXRtTDExQjQ5WXVmUWY1X2R2OU5xblFNdGRtd0l0UHlWU2M3LThSeXVLbF94eGVNbFlNNVlBZjBYZTN4VlR1aE5tLTZzbmJ4dlFhQnAyMi1Oa0pTTkdyS21HWjJzV1ZkNVVrS1p3dG9mMkg0UHF2ME5HWG9WdUpGeVhzdWFFWTRTei04MTBWSTBJMV9ra0trV1pjeVdMLV8wTFE2NVFzb0FYZXFQRVU?oc=5",
-      "date": "2026-10-30T10:35:38+00:00",
-      "source": "台灣好新聞",
-      "sourceUrl": "https://www.taiwanhot.net",
-      "categories": [
-        "loan"
-      ]
-    },
-    {
       "title": "繼承土地後...地價稅分單「繳完自己的」仍被催？稅務局提醒「公同共有」藏陷阱 - 台灣好新聞",
       "link": "https://news.google.com/rss/articles/CBMi-ANBVV95cUxQVDlyYy0yMnhKU1hubWo1TDZtNFRtVkhNNS10TnBmQklqN2VxUWJZMXJHb194bmxpYWtxSnJLRFNCS3dLWkl0elI1OHJzRDZBSlRmcF9Nb1hCVWtPZjFlS0M4S3ZyRWdoalNMZEphaFdHalpxOVRjR2ZNZ3hhMGtZQXUxUklfbk0tNmNuVVN4RnlCU20wdjJyVE1reHF0QlZILTdWZ1k4VTRZdm42NUduQUJYOUc2c09wdFN3b0VaSWR5NU9NSlJqTllveG5CRjF2TXBRMXhxMjVCWUpCbUtVRndidzZyTVNZdjlDUk54ZFh2QUVSOHdxQ1hYUHEyemFIZ0tINWJJU3ltbUZDWTBiNWN2V1RhQ1o3N0hNMGRhU2tsR3NETVktRFBNd3pFVFRnNEs5a2xPdkJ5dEtpcW42V2NBQjlqcWJEanhKSXdSN0lRWHRtLXpobnV6YjJRUzhxSlA1TDFiMUp3bF8zVVhTMmg0ZS1tblgzaHhFWTYzQlZucWk2cVoyWExlamptUDdnMmxEUk9mbURHYmR3Zk1TdzZkcl9oRDdFUG42aFF6bjJ2ZUZjbHpjUHpQWlhycUtDY2lfdHBGeEZscnFtUUNSSXlDRkhmd2sxSnZLb2U1ZXFYQjM3TklqdjliSjBJLXJDM0VsdjYwOHM?oc=5",
       "date": "2026-10-30T10:35:38+00:00",
@@ -1237,6 +1439,16 @@
       "sourceUrl": "https://www.taiwanhot.net",
       "categories": [
         "tax"
+      ]
+    },
+    {
+      "title": "房貸破12兆建商卻縮手？買房前必知的3大市場變化 - 台灣好新聞",
+      "link": "https://news.google.com/rss/articles/CBMi0AJBVV95cUxNZWFVY0Vhcll0LUlGTDdLYlM4SmFhblktTHU2dExxVnNoSUpjM2lYVlpmMGdwRzYxN2tTTW9DV0JmMmQza2NON2VielRDNXVKcnlsS292QTBLSi1LZ1dhbWN6bEZNZVNmMEUwVEtHT09BQUp5S0VKTW9INUFVcWFhRHZJTHhfaEJwZjNqODFVejFzY2p0dnNFeE5tN2VjaS1OTEF3XzNtejJYNXRtTDExQjQ5WXVmUWY1X2R2OU5xblFNdGRtd0l0UHlWU2M3LThSeXVLbF94eGVNbFlNNVlBZjBYZTN4VlR1aE5tLTZzbmJ4dlFhQnAyMi1Oa0pTTkdyS21HWjJzV1ZkNVVrS1p3dG9mMkg0UHF2ME5HWG9WdUpGeVhzdWFFWTRTei04MTBWSTBJMV9ra0trV1pjeVdMLV8wTFE2NVFzb0FYZXFQRVU?oc=5",
+      "date": "2026-10-30T10:35:38+00:00",
+      "source": "台灣好新聞",
+      "sourceUrl": "https://www.taiwanhot.net",
+      "categories": [
+        "loan"
       ]
     },
     {
@@ -1480,17 +1692,6 @@
       ]
     },
     {
-      "title": "新聞幕後／阿公立遺囑忘一事！長孫痛失繼承權 地政士揭關鍵：沒救了 - 三立新聞網SETN.com",
-      "link": "https://news.google.com/rss/articles/CBMiSEFVX3lxTE54UXNYbnJjSTA5T0RBU1QtZEJoMDNYQkNmUGd1NFo0Vy1xTnlQbkRYMDdXTnhrMWZ5RHJXczZDZldTQzFpa3VDSdIBTEFVX3lxTE8wQ2RsLVhYeEkxcUE3ck8tdlFQcmt1UjIxanQ1eTF3elJMV2FDQUo3OF9laHh3Y0stcjhJbUU0N2l5Snk5bktUYkRaa1c?oc=5",
-      "date": "2026-10-30T09:06:43+00:00",
-      "source": "三立新聞網SETN.com",
-      "sourceUrl": "https://www.setn.com",
-      "categories": [
-        "inherit",
-        "law"
-      ]
-    },
-    {
       "title": "「上古許光漢」是他！林煒30年前激吻片段瘋傳 57歲轉型AI企業家 - Yahoo新聞",
       "link": "https://news.google.com/rss/articles/CBMilANBVV95cUxQdW9YTU85Y3AzVlFndUdTZU9pTWpqZndmQW9USG92WGN1bXhjOFVFdXZzcHNQN2ZTM05ueXd6LWwtR3lfYzVBN2F6STVUNVBmNF9rSGtxN2J0Wkd3Wl9tcmdTT2JWOTVPeGt5aTJTMmxRN3pvczlYMVN0Vmo0UV8tYkNjbG9LaFhmU08tMnVGbldyNjYwSlAzU0pKSk55aGpsUEItMnJuNXYtX1c0ZzdZQzNiRldRR1RvVUNEbmVvaWlXTTJhZFVTQWMzMG44NXVZaFUzQjg3Y3VkS0dGbHlWS0NOanpKVmgwczJQZXctdXFFTWhBVEYzNXY5NTBhRS1VdmNHZmg4TlZQbDdYWUpuYkdyUkVPT3Y2eDZWTkExNlVWY0VDRFpTVWdVdXNaMWE5X2o0QlVOcWVrY0J4bVBMWm8wSFd2c094cmpnSzJ4UHh1ZHRpQmJ6X0plUVE3a1ZtWDYxZVE5MGhXMzJZLXBGNEo2eTFvdUFadkRwejk4YmJBNVlLNDl5X3JKRzl1aGxEUi1KcA?oc=5",
       "date": "2026-10-30T09:05:46+00:00",
@@ -1571,126 +1772,6 @@
       ]
     },
     {
-      "title": "鴻海科技日秀臨床AI代理CoDoClaw！展示智慧醫療與醫院自動化布局 | 魏鑫陽 | 財經 - 風傳媒",
-      "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTFA5TjlTb1ZDbHZYYW9LYjFUc2xLVkduS3VoRG1SUGxYcTRiNlUwTnJURUk0SXNMV2NBWjhTQks0cTlmV28xVDJyb3VkYjFqZw?oc=5",
-      "date": "2026-10-30T08:28:00+00:00",
-      "source": "風傳媒",
-      "sourceUrl": "https://www.storm.mg",
-      "categories": [
-        "ai"
-      ]
-    },
-    {
-      "title": "實價登錄大數據揭房市！高價住宅占比升至1.31% 信用管制壓低交易 - UDN",
-      "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTFBEdUtrTWVlMUtZQkRXb2RMNE5BZ3QxdEpJdm9oMzFDd2VCQW8zV0tXdTFTVkVfZlEyTTA4Tk5fSll3Ym91Vy15ZHlYcl9SZE1GVXNITVhn0gFWQVVfeXFMUER1S2tNZWUxS1lCRFdvZEw0TkFndDF0Skl2b2gzMUN3ZUJBbzNXS1d1MVNWRV9mUTJNMDhOTl9KWXdib3VXLXlkeVhyX1JkTUZVc0hNWGc?oc=5",
-      "date": "2026-10-30T08:19:22+00:00",
-      "source": "UDN",
-      "sourceUrl": "https://udn.com",
-      "categories": [
-        "loan"
-      ]
-    },
-    {
-      "title": "老人住老屋，安全與上下樓都要處理！沈伯洋接受沈春華訪問：老宅延壽、危老、都更三路推進，正與內政部研議調整危老門檻 - Yahoo新聞",
-      "link": "https://news.google.com/rss/articles/CBMizANBVV95cUxNWTNQaWtfUnJRUHpXYUV5d2g1YkNLcFFjNkZobXN3cmpTZnA5eTRyNkVvWHU1VlFjTVNMc2RfYW5RczF2R3A4WjBlSmpOMzV6R29DejN2R1o4X0doVXVhWXpmZ2tsWE1vQUJtNjFJMFVIUVpKUlNnYXI5M3ZYdl82Q0lmN1Y3WF9fallKQjJmTjhCT2dDcS04aENkTEtPV2lSaTQyR1JudE1tZWRaVEMyRS1jeUFxS1g0Q1JPTWVqRHVOS0RsLUVoWkhSbEZ6WEpqV21BaEtnSHhpbFl1dTU1cWZWamtycW9uQm8tNGc3QUY0SktqeEVaWUNMbE9kVnhRRVYzYzdVSUtId0d4U3NnNkRPSElxNDZDUU5idnY0elFZYmN5eC1wSVd4c3hpTExIeGs1VTVGOHFlZjE3bVcwMlh6TzlmZHdiX01kZVFwZjZtU2JlN2RMVDZ3QnB2c1htYnZLSG9TQl9iTm9KdGpFZkItM2wxenNtS0JEY1hjblA4NHIyejJWUm5IQkNlQmNtQ2dYZl9ZVmxFZjdkVVpHQWxZY25Bb2sxY1laRzFKT0VmQ003aU1mT3dsVzlaQlJlQ3hLMXZRY213NVhz?oc=5",
-      "date": "2026-10-30T08:14:56+00:00",
-      "source": "Yahoo新聞",
-      "sourceUrl": "https://tw.news.yahoo.com",
-      "categories": [
-        "land"
-      ]
-    },
-    {
-      "title": "AI泡沫化引發股市狂殺？劉揚偉分析曝真心話 - 自由財經",
-      "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE92ZnpYbmo5c05VdkFzaWFDUFg3YnA4TU4yX1ZNZGNEMmFMUklIb3lOU2pQdVdMU2R6OV9zUU1TVHpkWHdYSEZUeVZkeHpTQnJ4YW5FNXV4NTU4R21xVFJn0gFkQVVfeXFMT21wUzQ1cEJrVG9ZQWZTUWtVSEstTi1iU1N5V09YdS1iek1xYWxuUHc0dlpuUDNmRFlpYWhCWHctaWR6WVJJdVlobUFTY1pzeFNtOEVhNmY1MGJWanV5VGpEMjMtQQ?oc=5",
-      "date": "2026-10-30T08:07:52+00:00",
-      "source": "自由財經",
-      "sourceUrl": "https://ec.ltn.com.tw",
-      "categories": [
-        "ai"
-      ]
-    },
-    {
-      "title": "從 AI 提示詞公開，談企業如何把關資訊 - CIO Taiwan",
-      "link": "https://news.google.com/rss/articles/CBMiREFVX3lxTE13bHVJTS1leHBKaGZ6OUI1SVMtMlJseXRILTU5Qk1YU0czc1JQbkJEeGhwazA3NHJaTDRuWnBNdHVDcE5N?oc=5",
-      "date": "2026-10-30T08:04:47+00:00",
-      "source": "CIO Taiwan",
-      "sourceUrl": "https://www.cio.com.tw",
-      "categories": [
-        "ai"
-      ]
-    },
-    {
-      "title": "日本政府要求美國AI企業擴大AI模型的訪問權限，以應對網絡攻擊--日經 - TradingView",
-      "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE9kdmdNTURTbFlCTGxCbHRib3QtNUIwdWtTcE4tSUNBdWFIQXNzcEJIYkk1MVdpNXlTX1JXVVJya3VuWHp0WUpmV1ZqZnVpTTZMLUNnZFRGMzcyVEVqd3NOSmJNQk9Fa0s3VTc3bDc5c1ZNdEsteEZr?oc=5",
-      "date": "2026-10-30T08:03:46+00:00",
-      "source": "TradingView",
-      "sourceUrl": "https://fr.tradingview.com",
-      "categories": [
-        "ai"
-      ]
-    },
-    {
-      "title": "商業署：35.8%服務業企業已開始應用AI - MoneyDJ",
-      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNNmtVM2R3bjJITWh6cERZREw4Y1RuMG8zS3FYUlk2M2huck1Vc1c3aHRDTVlHVDEtWGUzM0JzeXBKVUlLUVBBQzFtTkd0Y0w5Y1pWVVc5MWVFRlN3dTdURExGbzlHcFB5amJkYTRyNmdsV2tfclgwYXQ0WGNkZzZnOF9Cc0dMMmZ6OUZYQ3prS1FoQQ?oc=5",
-      "date": "2026-10-30T08:02:00+00:00",
-      "source": "MoneyDJ",
-      "sourceUrl": "https://www.moneydj.com",
-      "categories": [
-        "ai"
-      ]
-    },
-    {
-      "title": "搶攻 Physical AI 藍海 慧友聯手 SiMa.ai 擴充運算平台 深耕工業自動化 | 產業動態 | 商情 - 經濟日報",
-      "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE5ZV3BBaVYxN0JWSW5ubDl4aXAzcW5hV0x0NFFJNjBxRHM1ODRLSXhnU0hLcElFX0s0RTgycEFSRXdnZTI1RE5RQlVnS0ZERXUwcUFOSDIta3RvQVk?oc=5",
-      "date": "2026-10-30T08:01:55+00:00",
-      "source": "經濟日報",
-      "sourceUrl": "https://money.udn.com",
-      "categories": [
-        "ai"
-      ]
-    },
-    {
-      "title": "房仲10月成交量能各有消長 房貸鬆綁帶動看屋意願 - 經濟日報",
-      "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE1yX054M05wazNQNUdLdGVzX1NtNUhuQkhBXzQwcVNGV0ZXOUNTM001RG5tQ0VOS09QUnN5M0RsVktkWnNMT2RiUjlTOTJTUWJLQ0F6Ry1iVmt6Z9IBX0FVX3lxTFBrV3dqaGhRZnNlR2hJNzFkQktGQWVtY3NPRm1INUlRYkNPQjVaLXpCU2RmS1dOVEZSV3haY2k4RHNyVWlzT0pZWEJoajVYSm1NWFpFOGRIbzF5LWZOenVv?oc=5",
-      "date": "2026-10-30T08:01:33+00:00",
-      "source": "經濟日報",
-      "sourceUrl": "https://money.udn.com",
-      "categories": [
-        "loan"
-      ]
-    },
-    {
-      "title": "贈與稅免稅額，「一年」您用對了嗎？ - 財政部全球資訊網",
-      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNZHpyb2l2Sl9WSndmUXg2SVlFd1R5UF90TzdvTlRlQlI3bFdpUnNNV2RUVTRrZzZSemtsR2hrVlZFVHpjakZ6ZVlNWVN0RzlVdVBKX1hqbDhuZzBKQmRrUlpscTJxcm15ZmNFWjVyZS1Jd3ppRWNjRno3MEx3Q3JJOTlNRUhiMkhUQmlVeHByaUs2eGFtTkpPbzJJZ3Zpby1tRTZaMS1yTVM?oc=5",
-      "date": "2026-10-30T07:58:49+00:00",
-      "source": "財政部全球資訊網",
-      "sourceUrl": "https://www.mof.gov.tw",
-      "categories": [
-        "tax"
-      ]
-    },
-    {
-      "title": "地價稅11月開徵，了解這3種情況恐收不到稅單 - 591新聞",
-      "link": "https://news.google.com/rss/articles/CBMiSkFVX3lxTE91b3p0UnhDVVYtQl8wZmFSdGRYb1VsTkptLWhBdnl5c1g5Y3dKeFZFd0JHTXVzcHZoMExLLUo0emlBZEgyaThuVDdn0gFPQVVfeXFMTmhRMFVleW91WXM0WGI4VHBwd2czOVczNlk2OWV5UmstQ293UzBDWDM4MlJnZ3YzVGs1S2tpMDZqOXZubEp4Q2Rma195Q2xfbw?oc=5",
-      "date": "2026-10-30T07:49:45+00:00",
-      "source": "591新聞",
-      "sourceUrl": "https://news.591.com.tw",
-      "categories": [
-        "tax"
-      ]
-    },
-    {
-      "title": "房仲10月成交量能各有消長房貸鬆綁帶動看屋意願| 產經 - 中央社 CNA",
-      "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTFBMQzlBX2RWVW9nR01yVmpoQndwa3ZKRENabFN2bE9qRG1sYmRtZ044enZIaWpnNjQ2N3FVNWwwNS1ndGFqbXN2cXBsaEhSQmc1Y0VNQUVyV1pac1JKTGc?oc=5",
-      "date": "2026-10-30T07:49:00+00:00",
-      "source": "中央社 CNA",
-      "sourceUrl": "https://www.cna.com.tw",
-      "categories": [
-        "loan"
-      ]
-    },
-    {
       "title": "日本央行表明物價達到2%目標，維持利率不變 - 日經中文網",
       "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPYTc5ZkxYaEJUek5makFmTDRITGlDQTkxdXY2b1NrLVdxTTRMWWNFVjRiNUcySEVQcG8zS1Y2Rk9vVkQ0S0lPWGVZODlmUVpTSUdsNTk3dVBpeldEcGcyTFpqTlE1T0FuSEJORWF2aW1zNldELWljeW11dWhaT2UxSk5TdGx3LWF6enZnYTIzV0ZKdw?oc=5",
       "date": "2026-10-30T07:48:05+00:00",
@@ -1698,16 +1779,6 @@
       "sourceUrl": "https://zh.cn.nikkei.com",
       "categories": [
         "finance"
-      ]
-    },
-    {
-      "title": "美國商用清潔機器人市場規模上看33.7億美元，AI技術與自動化助推成長 - 商傳媒",
-      "link": "https://news.google.com/rss/articles/CBMivwNBVV95cUxNa1g4T1N0dVR3T0tsLUZJNV9HV0w3M1QtcHlNaEV5YTdHMklJeUdxZlp6RFAwUXd1a1ZlUHMxZVRBV3FIMVVtd1BKWFRsMGJldFBCaWRyRkJfNG1YWkFLRm92eFJUSmMzOG9EeWl4VTVRMHg2MWNKRThKa2xFTUFuTGJYWUozdVZwcEpoQnpibEJBbzdTTFlJSHhfODVQdlo5RzM2ZGxhUkhWckJxT1J1YndGVG40NVQzSEZvOTFXLVZ5X2NXaldVQ3YxSjNVNFpIcFQzaUpEZFB5T004MWhNR05Oa3Myc3hjSno1SHNRb3FJNTFaNUNfeHRURERjOUl0dktCTFM3S1ZXbk9DQl9NU0FDVGMwNlZxMVRVS2lUaGhtb2NpMHFMdkVibmp4aDkxTDZOWGtpQlpLRklfYnBReF9ENGZvdFExeV8xM2VZSENqd0NjckRUV2R1dHVYMndGS0lPM1kzaTFQQVAxc3ZOWDEzZnQxdHRfazRNNW1yS19QM1prWDhJOHppdEpGWE55Znl4X2pEX21tUHJIb1ZLNk1LR1ktTWZranBNWXhNeXphSVk4dHNWYTJDMVlEbTQ?oc=5",
-      "date": "2026-10-30T07:45:05+00:00",
-      "source": "商傳媒",
-      "sourceUrl": "https://sunmedia.tw",
-      "categories": [
-        "ai"
       ]
     },
     {
@@ -1728,56 +1799,6 @@
       "sourceUrl": "https://finance.ettoday.net",
       "categories": [
         "inherit"
-      ]
-    },
-    {
-      "title": "韓國Hana Bank重啟非面對面房貸，時隔3個月混合型MCI、MCG同步回歸 - BigGo 財經",
-      "link": "https://news.google.com/rss/articles/CBMiekFVX3lxTE1CeXltQWtVTGltbzl6M2NYMXFiaVBrNldLTzV2VUZ6ZWNjRnB2QlZsbkFVblRFODE2NXU2bHItUGVHQndqYi1tNkgxRWJGMXg3ZlpLVWVhU3ZsMW1oa1hNSldDT01JcVkzZDJkei1vc1lQYnExazVZWFlR?oc=5",
-      "date": "2026-10-30T07:35:00+00:00",
-      "source": "BigGo 財經",
-      "sourceUrl": "https://finance.biggo.com.tw",
-      "categories": [
-        "loan"
-      ]
-    },
-    {
-      "title": "討論牆 | 首批新青安寬限期將屆引熱議 王婉諭提3解方改善住宅市場失衡 - LINE TODAY",
-      "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTFBsWjlmVjFpNFNpQWREZlFpLUJVbVh5cGkzY2dwMUVZSnU4SFByNlRvUEkyTGVFWlFKbFFqWjlIZ3JRTkVkaGFOTVFBdm1BLXBOZTUwMEs1M1hQdTc4eDZkS1hab1Q?oc=5",
-      "date": "2026-10-30T07:32:58+00:00",
-      "source": "LINE TODAY",
-      "sourceUrl": "https://today.line.me",
-      "categories": [
-        "loan"
-      ]
-    },
-    {
-      "title": "《匯市短評》一周前瞻：美國中期選舉、就業數據、多家央行利率決議 - TradingView",
-      "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE9Fa0MwZzVjYzd4UGxxV3YtVUlBcmVpYmpIWVV2M1NyVHVVbkVSUE0xNGhVeEdhdElMbVcwWHYxYUpwTTZGUENaMlc0d1cwSlJNTGg5Y1RrLW5ZakhWa1VDM1BYLVVGSHhIMnB1bHBvRFZOajV4ZjRV?oc=5",
-      "date": "2026-10-30T07:25:13+00:00",
-      "source": "TradingView",
-      "sourceUrl": "https://tw.tradingview.com",
-      "categories": [
-        "finance"
-      ]
-    },
-    {
-      "title": "麻豆都市計畫檢討獲內政部都委會通過 可望釋出3.32公頃建地 - 蕃新聞",
-      "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTFBvelY5b0JpcGVUTnlyMy1uQkFSUDlEakh3dXRUOWxaaXA2T1dlV2w1bk5PSFVvMElRbU9GTWtFQ3g2LVBhNlZtUDJFOW9sbDZyVlE?oc=5",
-      "date": "2026-10-30T07:24:15+00:00",
-      "source": "蕃新聞",
-      "sourceUrl": "https://n.yam.com",
-      "categories": [
-        "land"
-      ]
-    },
-    {
-      "title": "不動產貸款集中度降至34.02% 央行：房市管制未轉向寬鬆 - 經濟日報",
-      "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5CN0F0UkVlOUVNNmlwWmRQLVZhUTZNeVd6S2VpbFBwelNSMUU5TS1VZTg0enpWNDJicFhOYzk2RGxjWUwxZXRUQUVhb0JXOWQ4RmFqYTlGSXByQdIBX0FVX3lxTFBLN3dMWV9vb2Yxc1pHM1hoTWJTMGpKNnZjenI2eG5zOWZzc0dnWndTQ1dzY1cxX3FhVTRwU3VUcUtQTEtmNnpIVnl0NnNmWUEtOG5zUy0zUGVIYmxVLU9r?oc=5",
-      "date": "2026-10-30T07:23:02+00:00",
-      "source": "經濟日報",
-      "sourceUrl": "https://money.udn.com",
-      "categories": [
-        "loan"
       ]
     },
     {
@@ -1921,17 +1942,6 @@
       ]
     },
     {
-      "title": "獨家／比省錢更重要！財產傳承只怕繳稅金？蕭琪琳揭「遇一事」就完了 - 三立新聞網SETN.com",
-      "link": "https://news.google.com/rss/articles/CBMiSEFVX3lxTFBhbkxId083NW1pRFZWb3NYV1lpQnktV1BNVkxfaDFqdzlxbmhIOUotVnBHbkMyaHY0N090Ums3ZlVZbU85T0Voa9IBTEFVX3lxTFBTcVZYV09oTGI1YTdBRnczVzNDZjdLeXlvZEprRUtpblZGc29XaEtGSjcwMnJtdEpfLXpUTV9HYkgwVGJoMVRqUEJvN2I?oc=5",
-      "date": "2026-10-30T01:32:02+00:00",
-      "source": "三立新聞網SETN.com",
-      "sourceUrl": "https://www.setn.com",
-      "categories": [
-        "inherit",
-        "tax"
-      ]
-    },
-    {
       "title": "60億擴建案動工 鑽石級中心周邊3大亮點一次看 - 好房網News",
       "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE1URlFod2QxTjYtemNsaFhhNWx3dE5pdE9RUmh3eGNfbFNsTHlEZHpRVUFKRUo4S2JlNHZJbUFIeHFzUDQyRU82MXhISkNlYm9fZXVwZDZCRUR3QnNrT1lOeDhlZGlHUW0yRUNRQnVPRU_SAXBBVV95cUxNVEZRaHdkMU42LXpjbGhYYTVsd3ROaXRPUVJod3hjX2xTbEx5RGR6UVVBSkVKOEtiZTR2SW1BSHhxc1A0MkVPNjF4SEpDZWJvX2V1cGQ2QkVEd0Jza09ZTng4ZWRpR1FtMkVDUUJ1T0VP?oc=5",
       "date": "2026-10-30T00:45:00+00:00",
@@ -1969,16 +1979,6 @@
       "sourceUrl": "https://www.cw.com.tw",
       "categories": [
         "inherit"
-      ]
-    },
-    {
-      "title": "房價只漲不跌？北北桃最低單價預售案 門檻再墊高1至2字頭 - 壹蘋新聞網",
-      "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxQNzZVbks5dW41aDlCYmotVXdnblhycjV3UFBiQ1lEWFp3alI3d0xwQkpGSmpSRU1MaFQ0ZFBIRTBuRWs3bGRMdnViTk51OExGWjE1eTBsTktFeFpzZmdISWxGOWE5ODRkNlpiQ1pDMHBtV2FRRThmU0kzRTVhZ0VkUG0xWQ?oc=5",
-      "date": "2026-10-29T15:45:00+00:00",
-      "source": "壹蘋新聞網",
-      "sourceUrl": "https://news.nextapple.com",
-      "categories": [
-        "market"
       ]
     },
     {
