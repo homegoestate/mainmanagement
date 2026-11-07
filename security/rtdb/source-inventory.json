@@ -1,0 +1,301 @@
+{
+  "checkedOn": "2026-10-22",
+  "timezone": "Asia/Taipei",
+  "scope": "GitHub source only; no production data or live Rules read",
+  "repositories": [
+    {
+      "repository": "homegoestate/mainmanagement",
+      "commit": "872f8dea0eeff346545ab6347fcc0167e889b917",
+      "databaseUrls": [
+        "https://mainmanagement-1f3d2-default-rtdb.firebaseio.com"
+      ],
+      "evidenceLines": {
+        "firebase": [
+          194,
+          195,
+          197,
+          199,
+          200,
+          202,
+          208
+        ],
+        "firebaseAuth": [],
+        "supabase": [],
+        "localStorage": [
+          264,
+          316,
+          317,
+          335,
+          336,
+          499,
+          510,
+          511,
+          519,
+          521,
+          530,
+          531,
+          534,
+          679,
+          1010,
+          1021,
+          1033,
+          1047,
+          1079
+        ],
+        "sessionHandoff": [
+          213,
+          450,
+          503,
+          833,
+          834
+        ]
+      }
+    },
+    {
+      "repository": "homegoestate/Employee-management",
+      "commit": "bcec782a1186370ac890e5bd76629f27e4ce5c08",
+      "databaseUrls": [
+        "https://homego-system-default-rtdb.firebaseio.com"
+      ],
+      "evidenceLines": {
+        "firebase": [
+          10,
+          11,
+          589,
+          681,
+          685,
+          686,
+          700,
+          701,
+          710,
+          711,
+          1084
+        ],
+        "firebaseAuth": [],
+        "supabase": [],
+        "localStorage": [
+          612,
+          616,
+          1024,
+          1962,
+          1967,
+          1983
+        ],
+        "sessionHandoff": []
+      }
+    },
+    {
+      "repository": "homegoestate/case",
+      "commit": "9e6f93888c0a0e68f46117359fb1295f2e053fd4",
+      "databaseUrls": [],
+      "evidenceLines": {
+        "firebase": [],
+        "firebaseAuth": [],
+        "supabase": [
+          21373,
+          21379,
+          21384,
+          21557,
+          21560,
+          22463,
+          22479,
+          22549,
+          22570,
+          22580,
+          22912
+        ],
+        "localStorage": [
+          21433,
+          21458,
+          21459,
+          21568,
+          22111,
+          22115,
+          22116,
+          22117,
+          22251,
+          22257,
+          22376,
+          22430,
+          22437,
+          22438,
+          22439,
+          22457,
+          22469,
+          22475,
+          22510,
+          22516,
+          22524,
+          22532,
+          22645,
+          22807,
+          22827,
+          22846,
+          22849,
+          22859,
+          22869,
+          22870,
+          22882,
+          22885,
+          22890,
+          22895,
+          22903,
+          22989,
+          23011,
+          23020,
+          23039,
+          23102
+        ],
+        "sessionHandoff": [
+          19096,
+          19589,
+          21388,
+          21467,
+          21476,
+          21477
+        ]
+      }
+    },
+    {
+      "repository": "homegoestate/receipts",
+      "commit": "d434c54f4babbd972480c188b8e3466271f03e19",
+      "databaseUrls": [],
+      "evidenceLines": {
+        "firebase": [],
+        "firebaseAuth": [],
+        "supabase": [],
+        "localStorage": [
+          554,
+          568,
+          732,
+          735,
+          742,
+          745,
+          746,
+          1221,
+          1227,
+          1228,
+          1487,
+          1492,
+          1493,
+          1644,
+          1667,
+          1670,
+          1671,
+          1694,
+          1699
+        ],
+        "sessionHandoff": [
+          506,
+          568,
+          569,
+          618,
+          624
+        ]
+      }
+    },
+    {
+      "repository": "homegoestate/quotation",
+      "commit": "ff338c1d383cf1578af5c9fdb5d1bd72a367a509",
+      "databaseUrls": [],
+      "evidenceLines": {
+        "firebase": [],
+        "firebaseAuth": [],
+        "supabase": [],
+        "localStorage": [
+          552,
+          567,
+          753,
+          758,
+          768,
+          792
+        ],
+        "sessionHandoff": [
+          447,
+          496,
+          556,
+          580,
+          582,
+          593
+        ]
+      }
+    },
+    {
+      "repository": "homegoestate/Integrate",
+      "commit": "bbe083cb1a08f6d98c90817284321f1c39a122fc",
+      "databaseUrls": [],
+      "evidenceLines": {
+        "firebase": [],
+        "firebaseAuth": [],
+        "supabase": [],
+        "localStorage": [],
+        "sessionHandoff": []
+      }
+    },
+    {
+      "repository": "homegoestate/case-procedure",
+      "commit": "ee835119edd2333bfc90792840784fd4d9ab811f",
+      "databaseUrls": [],
+      "evidenceLines": {
+        "firebase": [],
+        "firebaseAuth": [],
+        "supabase": [],
+        "localStorage": [],
+        "sessionHandoff": []
+      }
+    },
+    {
+      "repository": "homegoestate/REPORT",
+      "commit": "5c35feeb6160bd6e4f1f523bed69f1f99cbc71aa",
+      "databaseUrls": [],
+      "evidenceLines": {
+        "firebase": [],
+        "firebaseAuth": [],
+        "supabase": [],
+        "localStorage": [],
+        "sessionHandoff": []
+      }
+    },
+    {
+      "repository": "homegoestate/Bank-choice",
+      "commit": "a57e076d0ee1f5718a5ed076477ec6dc990d7229",
+      "databaseUrls": [],
+      "evidenceLines": {
+        "firebase": [],
+        "firebaseAuth": [],
+        "supabase": [],
+        "localStorage": [
+          220,
+          277,
+          284,
+          352
+        ],
+        "sessionHandoff": []
+      }
+    },
+    {
+      "repository": "homegoestate/AI-question-assistant",
+      "commit": "ebf7387078858213f207dcf56a13f7a6a673eb2e",
+      "databaseUrls": [],
+      "evidenceLines": {
+        "firebase": [],
+        "firebaseAuth": [],
+        "supabase": [],
+        "localStorage": [],
+        "sessionHandoff": []
+      }
+    },
+    {
+      "repository": "homegoestate/-Project-Management",
+      "commit": "addc107f338ffbceea283c187d14d1ddf53510b9",
+      "databaseUrls": [],
+      "evidenceLines": {
+        "firebase": [],
+        "firebaseAuth": [],
+        "supabase": [],
+        "localStorage": [],
+        "sessionHandoff": []
+      }
+    }
+  ]
+}

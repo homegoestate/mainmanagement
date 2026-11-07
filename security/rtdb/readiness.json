@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "productionReady": false,
+  "checks": {
+    "liveRulesExportedAndReviewed": false,
+    "backupRestoreRehearsed": false,
+    "existingAuthUidMappingVerified": false,
+    "trustedLoginBridgeDeployedAndTested": false,
+    "deviceProofAndRevocationVerified": false,
+    "leastPrivilegeAclBootstrappedPrivately": false,
+    "rootListenersAndBulkTransactionsReplaced": false,
+    "privilegedBackendAndAuditValidated": false,
+    "allEmployeeAndCeoWorkflowsAccepted": false,
+    "oldClientsAndServiceWorkersHandled": false,
+    "productionChangeExplicitlyApproved": false
+  }
+}

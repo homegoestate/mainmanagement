@@ -1,0 +1,40 @@
+name: RTDB candidate rules - emulator only
+on:
+  pull_request:
+    paths:
+      - 'security/rtdb/**'
+      - '.github/workflows/rtdb-rules-review.yml'
+  push:
+    branches: ['security/rtdb-least-privilege-20261022']
+    paths:
+      - 'security/rtdb/**'
+      - '.github/workflows/rtdb-rules-review.yml'
+permissions:
+  contents: read
+jobs:
+  candidate-rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: security/rtdb
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: security/rtdb/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run check
+      - run: npm test
+      - name: Deployment preparation must remain blocked in this candidate PR
+        run: |
+          set +e
+          node tools/prepare-deployment.mjs
+          result=$?
+          test "$result" -eq 2
