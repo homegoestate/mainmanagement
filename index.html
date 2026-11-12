@@ -2,8 +2,8 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>宏國地政｜易丞地政｜內部 ERP 總控制管理 v7 修正版</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>宏國地政｜易丞地政｜內部 ERP 總控制管理</title>
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#0f2e46">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -58,7 +58,7 @@
     <div id="login-form" class="auth-box">
       <div class="auth-brand"><div class="brand-logo">宏</div><div><h1>宏國地政｜易丞地政</h1><p>內部 ERP 總控制管理</p></div></div>
       <h2><i class="fa-solid fa-shield-halved"></i> 員工安全登入</h2>
-      <div class="alert-box">請用原本的帳號（例如英文別名或中文姓名）和新密碼登入。忘記密碼或新同仁開帳號，請聯絡楊翊晟。</div>
+      <div class="alert-box">請用原本的帳號（例如英文別名或中文姓名）和密碼登入。忘記密碼或新同仁開帳號，請聯絡楊翊晟。</div>
       <div class="input-group"><label>使用者名稱</label><input type="text" id="login-user" autocomplete="username" placeholder="例如：楊翊晟"></div>
       <div class="input-group"><label>密碼</label><input type="password" id="login-pass" autocomplete="current-password" placeholder="輸入密碼"></div>
       <div class="checkbox-group"><input type="checkbox" id="keep-login" checked><label for="keep-login">保持登入（固定裝置；共用裝置請取消）</label></div>
@@ -76,7 +76,7 @@
       <div class="sidebar-header"><div class="sidebar-title"><i class="fa-solid fa-building-columns"></i> HomeGo ERP</div><div class="sidebar-sub">單一登入｜權限管理｜新聞新知｜模組入口</div></div>
       <div class="session-pill"><div class="name" id="display-username">User</div><div class="role" id="display-role">Role</div></div>
       <ul class="nav-links" id="sidebar-nav-links"></ul>
-      <div class="user-info"><button class="btn btn-red btn-block" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> 登出</button></div>
+      <div class="user-info"><button class="btn btn-light btn-block" id="btnOpenChangePassword" type="button"><i class="fa-solid fa-key"></i> 修改我的密碼</button><button class="btn btn-red btn-block" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> 登出</button></div>
     </aside>
 
     <main class="main-content">
@@ -107,7 +107,7 @@
             </div>
             <div class="input-group"><label>備註</label><input type="text" id="emp-note" placeholder="職務、專長、注意事項"></div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button class="btn btn-green" id="btnSaveEmployee"><i class="fa-solid fa-floppy-disk"></i> 新增 / 更新人員</button></div>
-            <p class="small-muted">這裡只管理人員主檔。新同仁的登入帳號、重設密碼與離職停權，由系統管理員在 Firebase 登入服務處理；密碼不再存在資料庫。</p>
+            <p class="small-muted">這裡管理人員主檔。登入帳號、重設密碼與停權，請到下方「帳號與密碼管理」；密碼不再存在資料庫。</p>
           </div>
 
           <div class="admin-section">
@@ -115,9 +115,24 @@
             <div class="table-responsive"><table><thead><tr><th>狀態</th><th>姓名</th><th>角色</th><th>到職日</th><th>權限摘要</th><th>登入帳號</th><th>操作</th></tr></thead><tbody id="employee-table-body"></tbody></table></div>
           </div>
 
+          <div class="admin-section" id="account-admin-section">
+            <h3><i class="fa-solid fa-key"></i> 帳號與密碼管理</h3>
+            <p class="small-muted">同仁的登入帳號同時適用總管理與員工系統。重設密碼、停用或新增帳號，兩個系統會一起更新。</p>
+            <div id="account-admin-status" class="small-muted" style="margin:8px 0"></div>
+            <div class="table-responsive"><table><thead><tr><th>狀態</th><th>姓名</th><th>登入帳號</th><th>最近登入</th><th>操作</th></tr></thead><tbody id="account-table-body"><tr><td colspan="5">尚未載入</td></tr></tbody></table></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"><button class="btn btn-light" id="btnReloadAccounts"><i class="fa-solid fa-arrows-rotate"></i> 重新整理帳號清單</button></div>
+            <h4 style="margin:18px 0 8px">新增同仁登入帳號</h4>
+            <div class="form-grid">
+              <div class="input-group"><label>姓名（需已在人員主檔）</label><input type="text" id="acc-new-employee" placeholder="例如：王小明"></div>
+              <div class="input-group"><label>登入帳號</label><input type="text" id="acc-new-account" placeholder="例如：Ming"></div>
+              <div class="input-group"><label>初始密碼（至少 6 碼）</label><input type="password" id="acc-new-pass" autocomplete="new-password"></div>
+            </div>
+            <button class="btn btn-green" id="btnCreateAccount" style="margin-top:8px"><i class="fa-solid fa-user-plus"></i> 建立登入帳號</button>
+          </div>
+
           <div class="admin-section">
-            <h3><i class="fa-solid fa-mobile-screen-button"></i> 雲端使用者與裝置綁定</h3>
-            <div class="table-responsive"><table><thead><tr><th>帳號</th><th>最新裝置</th><th>授權裝置數</th><th>操作</th></tr></thead><tbody id="user-table-body"></tbody></table></div>
+            <h3><i class="fa-solid fa-clock-rotate-left"></i> 登入紀錄</h3>
+            <div class="table-responsive"><table><thead><tr><th>帳號</th><th>姓名</th><th>最近登入裝置</th><th>最近登入時間</th></tr></thead><tbody id="user-table-body"></tbody></table></div>
           </div>
         </div>
       </section>
@@ -129,6 +144,20 @@
       <div class="modal-head"><h3><i class="fa-solid fa-newspaper"></i> 今日不動產／金融／地政新知</h3><button class="btn btn-light" onclick="closeNewsModal()"><i class="fa-solid fa-xmark"></i></button></div>
       <div class="modal-body" id="newsModalBody"><div class="news-loading"><div class="spinner" style="margin:auto auto 12px"></div>正在整理新聞清單...</div></div>
       <div class="modal-foot"><label class="checkbox-group" style="margin:0"><input type="checkbox" id="newsDontShowToday" checked><span>今天登入不再自動跳出</span></label><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-light" id="newsSourceLink" href="./news.html" rel="noopener noreferrer" target="_blank"><i class="fa-solid fa-magnifying-glass"></i> 搜尋更多今日新聞</a><button class="btn btn-navy" onclick="closeNewsModal()">我知道了</button></div></div>
+    </div>
+  </div>
+
+  <div class="modal" id="passwordModal">
+    <div class="modal-card" style="width:min(440px,96vw)">
+      <div class="modal-head"><h3><i class="fa-solid fa-key"></i> 修改我的密碼</h3><button class="btn btn-light" type="button" id="btnClosePasswordModal"><i class="fa-solid fa-xmark"></i></button></div>
+      <div class="modal-body">
+        <div class="alert-box">新密碼會同時套用到總管理與員工系統。其他已登入的手機或電腦可以繼續使用，下次登入時請用新密碼。</div>
+        <div class="input-group"><label>目前密碼</label><input type="password" id="pw-current" autocomplete="current-password"></div>
+        <div class="input-group"><label>新密碼（至少 6 碼）</label><input type="password" id="pw-new" autocomplete="new-password"></div>
+        <div class="input-group"><label>再次輸入新密碼</label><input type="password" id="pw-new2" autocomplete="new-password"></div>
+        <div id="pw-feedback" role="alert" hidden style="margin-top:8px;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.6"></div>
+      </div>
+      <div class="modal-foot"><span class="small-muted">忘記目前密碼請聯絡楊翊晟。</span><button class="btn btn-primary" type="button" id="btnChangePassword"><i class="fa-solid fa-floppy-disk"></i> 更新密碼</button></div>
     </div>
   </div>
 
@@ -155,9 +184,9 @@
 })();
 </script>
   <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, set, get, update, remove, onValue, runTransaction, connectDatabaseEmulator } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence, connectAuthEmulator } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence, connectAuthEmulator, reauthenticateWithCredential, EmailAuthProvider, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCSOS-36oQ6hTyhtD2vrez3QGvPdvwMOIw",
@@ -174,7 +203,8 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 // Local test only: ?emulator=1 on localhost talks to the Firebase emulators, never to production.
-if (["localhost", "127.0.0.1"].includes(location.hostname) && new URLSearchParams(location.search).get("emulator") === "1") {
+const EMULATOR_MODE = ["localhost", "127.0.0.1"].includes(location.hostname) && new URLSearchParams(location.search).get("emulator") === "1";
+if (EMULATOR_MODE) {
   connectDatabaseEmulator(db, "127.0.0.1", 9000);
   connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
 }
@@ -734,6 +764,7 @@ window.showAdminPanel = function(el) {
   $("iframeToolbar").style.display = "none";
   $("admin-panel").style.display = "block";
   setActive(el || document.querySelector("#admin-link a"));
+  loadAccounts();
 };
 
 function renderEmployeeTable() {
@@ -749,11 +780,11 @@ function renderEmployeeTable() {
     const perms = rec.permissions.includes("ALL") ? "全部權限" : rec.permissions.join("、");
     return `<tr>
       <td><span class="status-dot ${rec.isActive ? "" : "off"}"></span> ${rec.isActive ? "啟用" : "停用"}</td>
-      <td><b>${rec.name}</b><div class="small-muted">登入別名：${(rec.loginAliases || []).join("、") || rec.primaryLogin || rec.name}</div><div class="small-muted">${rec.note || ""}</div></td>
-      <td><span class="tag ${tagClass}">${rec.role}</span></td>
-      <td>${rec.onboardDate || "-"}</td>
-      <td class="small-muted">${perms}</td>
-      <td>${user ? `<span class="tag tag-ops">${escapeHtml(loginKey)}</span><div class="small-muted">裝置 ${(user.authorizedDevices || []).length} 台</div>` : `<span class="tag tag-off">未建立</span><div class="small-muted">建議帳號：${escapeHtml(loginKey)}</div>`}</td>
+      <td><b>${escapeHtml(rec.name)}</b><div class="small-muted">登入別名：${escapeHtml((rec.loginAliases || []).join("、") || rec.primaryLogin || rec.name)}</div><div class="small-muted">${escapeHtml(rec.note || "")}</div></td>
+      <td><span class="tag ${tagClass}">${escapeHtml(rec.role)}</span></td>
+      <td>${escapeHtml(rec.onboardDate || "-")}</td>
+      <td class="small-muted">${escapeHtml(perms)}</td>
+      <td>${user ? `<span class="tag tag-ops">${escapeHtml(loginKey)}</span><div class="small-muted">最近登入：${user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString("zh-TW") : "-"}</div>` : `<span class="tag tag-off">未建立</span><div class="small-muted">建議帳號：${escapeHtml(loginKey)}</div>`}</td>
       <td><div class="row-actions">
         <button class="btn btn-light" onclick="editEmployee('${rec.name}')">編輯</button>
         ${rec.isActive ? `<button class="btn btn-orange" onclick="deactivateEmployee('${rec.name}')">停用</button>` : `<button class="btn btn-green" onclick="reactivateEmployee('${rec.name}')">啟用</button>`}
@@ -767,7 +798,7 @@ function renderUsersTable() {
   const tb = $("user-table-body");
   const list = Object.entries(usersCache || {}).sort((a, b) => a[0].localeCompare(b[0], "zh-Hant"));
   if (!list.length) { tb.innerHTML = `<tr><td colspan="4">尚無登入帳號</td></tr>`; return; }
-  tb.innerHTML = list.map(([name, user]) => `<tr><td><b>${name}</b></td><td>${deviceLabel(user.lastDeviceType || "desktop")}</td><td><span class="device-badge" style="background:#64748b">${(user.authorizedDevices || []).length} 台</span></td><td><div class="row-actions"><button class="btn btn-light" onclick="clearDevices('${name}')">清裝置</button><button class="btn btn-red" onclick="deleteLoginUser('${name}')">刪登入</button></div></td></tr>`).join("");
+  tb.innerHTML = list.map(([name, user]) => `<tr><td><b>${escapeHtml(name)}</b></td><td>${escapeHtml(user.employeeName || "-")}</td><td>${deviceLabel(user.lastDeviceType || "desktop")}</td><td class="small-muted">${user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString("zh-TW", { hour12: false }) : "-"}</td></tr>`).join("");
 }
 
 function subscribeAdminData() {
@@ -827,8 +858,133 @@ window.hardDeleteEmployee = async function(name) {
 window.deleteLoginUser = async function(name) {
   alert("舊前端已停用永久刪除登入紀錄。請由正式身分管理流程撤權並保留歷史。");
 };
-window.clearDevices = async function(name) { if (confirm(`清除「${name}」所有授權裝置？下次需重新綁定。`)) await update(ref(db, "users/" + safeKey(name)), { authorizedDevices: [] }); };
 
+
+// ---- Account administration (CEO only; backend = Google Apps Script running as the owner) ----
+// Fill in after deploying admin-backend/Code.gs as a web app.
+const ADMIN_API_URL = EMULATOR_MODE ? "http://127.0.0.1:8787/" : "";
+async function adminApi(action, payload = {}) {
+  if (!ADMIN_API_URL) throw new Error("帳號管理後端尚未設定。");
+  if (!auth.currentUser) throw new Error("請重新登入。");
+  const idToken = await auth.currentUser.getIdToken();
+  // text/plain avoids a CORS preflight, which Apps Script cannot answer.
+  const res = await fetch(ADMIN_API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action, payload, idToken }) });
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || "操作失敗");
+  return data.result;
+}
+function setAccountStatus(msg, isError = false) {
+  const el = $("account-admin-status");
+  if (el) { el.textContent = msg || ""; el.style.color = isError ? "#b91c1c" : ""; }
+}
+async function loadAccounts() {
+  if (currentAccess?.admin !== true) return;
+  if (!ADMIN_API_URL) { setAccountStatus("帳號管理後端尚未設定，暫時無法在此重設密碼或新增帳號。"); return; }
+  setAccountStatus("讀取帳號清單中...");
+  try {
+    const rows = await adminApi("list");
+    rows.sort((a, b) => (a.active === b.active ? String(a.employee).localeCompare(String(b.employee), "zh-Hant") : (a.active ? -1 : 1)));
+    $("account-table-body").innerHTML = rows.map(r => `<tr>
+      <td><span class="status-dot ${r.active ? "" : "off"}"></span> ${r.active ? "可登入" : "已停用"}</td>
+      <td><b>${escapeHtml(r.employee)}</b>${r.admin ? ' <span class="tag tag-ops">管理員</span>' : ""}</td>
+      <td>${escapeHtml(r.account)}</td>
+      <td class="small-muted">${r.lastLogin ? new Date(r.lastLogin).toLocaleString("zh-TW", { hour12: false }) : "-"}</td>
+      <td><div class="row-actions">
+        <button class="btn btn-light" data-acc-action="reset" data-uid="${escapeAttr(r.uid)}" data-name="${escapeAttr(r.employee)}">重設密碼</button>
+        ${r.admin ? "" : (r.active
+          ? `<button class="btn btn-orange" data-acc-action="disable" data-uid="${escapeAttr(r.uid)}" data-name="${escapeAttr(r.employee)}">停用登入</button>`
+          : `<button class="btn btn-green" data-acc-action="enable" data-uid="${escapeAttr(r.uid)}" data-name="${escapeAttr(r.employee)}">恢復登入</button>`)}
+      </div></td></tr>`).join("") || `<tr><td colspan="5">尚無帳號</td></tr>`;
+    setAccountStatus(`共 ${rows.length} 個帳號。`);
+  } catch (err) { setAccountStatus("讀取失敗：" + err.message, true); }
+}
+async function onAccountAction(e) {
+  const btn = e.target.closest("[data-acc-action]");
+  if (!btn) return;
+  const { accAction, uid, name } = btn.dataset;
+  try {
+    if (accAction === "reset") {
+      const pw = prompt(`為「${name}」設定新密碼（至少 6 碼）。兩個系統會一起更新：`);
+      if (pw === null) return;
+      if (pw.length < 6) return alert("密碼至少 6 碼。");
+      showLoading(true, "重設密碼中...");
+      await adminApi("resetPassword", { uid, password: pw });
+      alert(`已重設「${name}」的密碼，請口頭告知本人。`);
+    } else {
+      const active = accAction === "enable";
+      if (!confirm(active ? `恢復「${name}」的登入？` : `停用「${name}」的登入？總管理與員工系統都會無法登入，資料保留。`)) return;
+      showLoading(true, active ? "恢復登入中..." : "停用登入中...");
+      await adminApi("setActive", { uid, active });
+    }
+    await loadAccounts();
+  } catch (err) { alert("未完成：" + err.message); }
+  finally { showLoading(false); }
+}
+async function createAccountFromForm() {
+  const employee = $("acc-new-employee").value.trim();
+  const account = $("acc-new-account").value.trim();
+  const password = $("acc-new-pass").value;
+  if (!employee || !account || !password) return alert("請輸入姓名、登入帳號與初始密碼。");
+  if (password.length < 6) return alert("密碼至少 6 碼。");
+  if (!employeesCache[employee]) return alert("請先在上方「新增 / 修改人員」建立這位同仁的人員主檔。");
+  showLoading(true, "建立帳號中...");
+  try {
+    await adminApi("create", { employee, account, password });
+    $("acc-new-pass").value = "";
+    alert(`已建立「${employee}」的登入帳號：${account}。請口頭告知初始密碼。`);
+    await loadAccounts();
+  } catch (err) { alert("未完成：" + err.message); }
+  finally { showLoading(false); }
+}
+
+// ---- Self-service password change (updates 總管理 and 員工系統 together) ----
+const HOME_AUTH_CONFIG = { apiKey: "AIzaSyCcSH0HQutt6rYcFWjCKOpTSWkBDeinyvw", authDomain: "homego-system.firebaseapp.com", projectId: "homego-system" };
+function pwFeedback(msg, ok = false) {
+  const el = $("pw-feedback");
+  el.textContent = msg; el.hidden = !msg;
+  el.style.background = ok ? "#ecfdf5" : "#fff7ed"; el.style.color = ok ? "#065f46" : "#9a3412";
+  el.style.border = "1px solid " + (ok ? "#a7f3d0" : "#fdba74");
+}
+function openPasswordModal() {
+  ["pw-current", "pw-new", "pw-new2"].forEach(id => { $(id).value = ""; });
+  pwFeedback("");
+  $("passwordModal").classList.add("show");
+}
+function closePasswordModal() { $("passwordModal").classList.remove("show"); }
+async function changeMyPassword() {
+  const current = $("pw-current").value, next = $("pw-new").value, next2 = $("pw-new2").value;
+  if (!current || !next) return pwFeedback("請輸入目前密碼與新密碼。");
+  if (next.length < 6) return pwFeedback("新密碼至少 6 碼。");
+  if (next !== next2) return pwFeedback("兩次輸入的新密碼不一致。");
+  if (next === current) return pwFeedback("新密碼不能和目前密碼相同。");
+  const mainUser = auth.currentUser;
+  if (!mainUser?.email) return pwFeedback("請重新登入後再試。");
+  showLoading(true, "更新密碼中...");
+  let homeAuth = null, homeUser = null, homeChanged = false;
+  try {
+    // 1) Confirm the current password on 總管理.
+    try { await reauthenticateWithCredential(mainUser, EmailAuthProvider.credential(mainUser.email, current)); }
+    catch (err) { throw new Error(friendlyAuthError(err) === "帳號或密碼錯誤。" ? "目前密碼不正確。" : friendlyAuthError(err)); }
+    // 2) Sign in to 員工系統 with the same account in a separate, in-memory session.
+    const homeApp = getApps().find(a => a.name === "home-password") || initializeApp(HOME_AUTH_CONFIG, "home-password");
+    homeAuth = getAuth(homeApp);
+    if (EMULATOR_MODE && !homeAuth.emulatorConfig) connectAuthEmulator(homeAuth, "http://127.0.0.1:9099", { disableWarnings: true });
+    await setPersistence(homeAuth, inMemoryPersistence);
+    try { homeUser = (await signInWithEmailAndPassword(homeAuth, mainUser.email, current)).user; }
+    catch (err) { throw new Error("員工系統的密碼和總管理不同，無法一起更新，請聯絡楊翊晟。"); }
+    // 3) Update 員工系統, then 總管理; undo 員工系統 if 總管理 fails so both stay the same.
+    await updatePassword(homeUser, next); homeChanged = true;
+    try { await updatePassword(mainUser, next); }
+    catch (err) { await updatePassword(homeUser, current).catch(() => {}); homeChanged = false; throw new Error("更新未完成，密碼維持不變：" + friendlyAuthError(err)); }
+    pwFeedback("密碼已更新。下次登入總管理與員工系統，請使用新密碼。", true);
+    ["pw-current", "pw-new", "pw-new2"].forEach(id => { $(id).value = ""; });
+  } catch (err) {
+    pwFeedback(err.message || "更新失敗，請稍後再試。");
+  } finally {
+    if (homeAuth) await signOut(homeAuth).catch(() => {});
+    showLoading(false);
+  }
+}
 
 // HG_PUBLIC_NEWS_BRIDGE_20261020
 let portalNewsModule = null;
@@ -902,6 +1058,12 @@ window.addEventListener("message", (event) => {
 $("btnLogin").addEventListener("click", (e) => { e.preventDefault(); login(); });
 $("login-pass").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); login(); } });
 $("btnSaveEmployee").addEventListener("click", saveEmployee);
+$("account-table-body").addEventListener("click", onAccountAction);
+$("btnOpenChangePassword").addEventListener("click", openPasswordModal);
+$("btnClosePasswordModal").addEventListener("click", closePasswordModal);
+$("btnChangePassword").addEventListener("click", changeMyPassword);
+$("btnReloadAccounts").addEventListener("click", loadAccounts);
+$("btnCreateAccount").addEventListener("click", createAccountFromForm);
 $("btnOpenNewsInline").addEventListener("click", () => fetchNews({ force: true }));
 $("btnRefreshSession").addEventListener("click", () => {
   if (!currentSession) return;
