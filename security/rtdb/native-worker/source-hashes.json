@@ -1,0 +1,14 @@
+{
+  "baseArchive": "Firebase\u767b\u5165\u929c\u63a5_\u5be6\u4f5c\u8207\u56de\u57f7_20261020.zip",
+  "requiredOriginalSha256": {
+    "core.mjs": "8bd6246625619197dce83face5de636d1c452ff5700e29ec165aad3b063eaccd",
+    "legacy-policy.mjs": "81c88a6934627526649ccf3a5ba0e54aa21bacead458dac883c3f3252c3c0448",
+    "nonsecret-projection.mjs": "bbe87b09821faaed40c960400e195cf9f94afed2ded187556679af3090f19567",
+    "leave-policy.js": "c9c3ecb69ac80738dcc03b55bfb7fb087a2bea451239e1d0e3a718d8b49a2943"
+  },
+  "applyFiles": [
+    "core.mjs",
+    "legacy-policy.mjs"
+  ],
+  "productionActivated": false
+}
