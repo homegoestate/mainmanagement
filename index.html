@@ -631,9 +631,11 @@ async function login() {
     const cred = await signInWithEmailAndPassword(auth, email, pass);
     $("login-pass").value = "";
     try {
+      await signInEmployeeSystem(email, pass, keep);
       await completeSignedInSession(cred.user, "login", keep);
     } catch (err) {
       await signOut(auth).catch(() => {});
+      await signOutEmployeeSystem();
       throw err;
     }
   } catch (err) {
@@ -939,6 +941,29 @@ async function createAccountFromForm() {
 
 // ---- Self-service password change (updates 總管理 and 員工系統 together) ----
 const HOME_AUTH_CONFIG = { apiKey: "AIzaSyCcSH0HQutt6rYcFWjCKOpTSWkBDeinyvw", authDomain: "homego-system.firebaseapp.com", projectId: "homego-system" };
+
+// ---- Single sign-on into 員工系統 ----
+// 員工系統 runs on this same website and reads the sign-in of the app named "hg-shared",
+// so signing in here once means 員工系統 opens without asking again. The password itself is never stored.
+function sharedEmployeeAuth() {
+  const app = getApps().find(a => a.name === "hg-shared") || initializeApp(HOME_AUTH_CONFIG, "hg-shared");
+  const sharedAuth = getAuth(app);
+  if (EMULATOR_MODE && !sharedAuth.emulatorConfig) connectAuthEmulator(sharedAuth, "http://127.0.0.1:9099", { disableWarnings: true });
+  return sharedAuth;
+}
+async function signInEmployeeSystem(email, password, keep) {
+  try {
+    const sharedAuth = sharedEmployeeAuth();
+    await setPersistence(sharedAuth, keep ? browserLocalPersistence : browserSessionPersistence);
+    await signInWithEmailAndPassword(sharedAuth, email, password);
+  } catch (err) {
+    // Not fatal: 員工系統 will simply ask for the password once.
+    console.warn("employee system single sign-on skipped", err?.code || err);
+  }
+}
+async function signOutEmployeeSystem() {
+  try { await signOut(sharedEmployeeAuth()); } catch (err) { console.warn("employee system sign-out", err); }
+}
 function pwFeedback(msg, ok = false) {
   const el = $("pw-feedback");
   el.textContent = msg; el.hidden = !msg;
@@ -976,6 +1001,8 @@ async function changeMyPassword() {
     await updatePassword(homeUser, next); homeChanged = true;
     try { await updatePassword(mainUser, next); }
     catch (err) { await updatePassword(homeUser, current).catch(() => {}); homeChanged = false; throw new Error("更新未完成，密碼維持不變：" + friendlyAuthError(err)); }
+    // A password change ends older sessions; renew the shared 員工系統 sign-in with the new password.
+    await signInEmployeeSystem(mainUser.email, next, !!erpStorageRead(localStorage, "hg_cloud_session"));
     pwFeedback("密碼已更新。下次登入總管理與員工系統，請使用新密碼。", true);
     ["pw-current", "pw-new", "pw-new2"].forEach(id => { $(id).value = ""; });
   } catch (err) {
@@ -1018,6 +1045,7 @@ function escapeAttr(v) { return escapeHtml(v).replace(/\n/g, ""); }
 async function logout() {
   if (!confirm("確定登出？")) return;
   try { await signOut(auth); } catch (err) { console.warn("signOut failed", err); }
+  await signOutEmployeeSystem();
   // Only clear ERP login hints. Never touch another HTML module's saved data.
   const keys = ["hg_cloud_session", ERP_SESSION_KEY, "hg_current_operator", "hg_current_role"];
   let cleared = true;
