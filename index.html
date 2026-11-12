@@ -864,7 +864,7 @@ window.deleteLoginUser = async function(name) {
 
 // ---- Account administration (CEO only; backend = Google Apps Script running as the owner) ----
 // Fill in after deploying admin-backend/Code.gs as a web app.
-const ADMIN_API_URL = EMULATOR_MODE ? "http://127.0.0.1:8787/" : "";
+const ADMIN_API_URL = EMULATOR_MODE ? "http://127.0.0.1:8787/" : "https://script.google.com/macros/s/AKfycbzhTY5E_K2eQCWWXkSBSsgJIVFWVYHu37s2-oNWSme8cpKm3T_vVZBBrPbpfe5OPKsw8w/exec";
 async function adminApi(action, payload = {}) {
   if (!ADMIN_API_URL) throw new Error("帳號管理後端尚未設定。");
   if (!auth.currentUser) throw new Error("請重新登入。");
