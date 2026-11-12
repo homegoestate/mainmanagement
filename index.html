@@ -58,50 +58,15 @@
     <div id="login-form" class="auth-box">
       <div class="auth-brand"><div class="brand-logo">宏</div><div><h1>宏國地政｜易丞地政</h1><p>內部 ERP 總控制管理</p></div></div>
       <h2><i class="fa-solid fa-shield-halved"></i> 員工安全登入</h2>
-      <div class="alert-box">總管理與各模組目前保留既有權限驗證。傳遞操作人資訊不等於完成跨系統授權；若已驗證仍無法登入，可先使用下方帳號檢查。</div>
+      <div class="alert-box">請用原本的帳號（例如英文別名或中文姓名）和新密碼登入。忘記密碼或新同仁開帳號，請聯絡楊翊晟。</div>
       <div class="input-group"><label>使用者名稱</label><input type="text" id="login-user" autocomplete="username" placeholder="例如：楊翊晟"></div>
       <div class="input-group"><label>密碼</label><input type="password" id="login-pass" autocomplete="current-password" placeholder="輸入密碼"></div>
       <div class="checkbox-group"><input type="checkbox" id="keep-login" checked><label for="keep-login">保持登入（固定裝置；共用裝置請取消）</label></div>
       <button id="btnLogin" class="btn btn-primary btn-block"><i class="fa-solid fa-right-to-bracket"></i> 登入系統</button>
       <div id="login-feedback" role="alert" hidden style="margin:12px 0 0;padding:11px 12px;border:1px solid #fbbf24;border-radius:12px;background:#fffbeb;color:#92400e;font-size:13px;line-height:1.65"></div>
-      <div class="switch-link" onclick="showRegister()"><i class="fa-solid fa-mobile-screen-button"></i> 新員工？使用開通碼註冊並綁定裝置</div>
-      <div class="switch-link" onclick="showResetPassword()"><i class="fa-solid fa-unlock-keyhole"></i> 忘記密碼？用開通碼自行重設</div>
-      <div style="margin-top:12px"><a class="switch-link" href="./login-check.html" target="_blank" rel="noopener noreferrer">已驗證仍無法登入？檢查既有 Firebase 帳號</a><br><a class="switch-link" href="./news.html">開啟新聞新知中心（不需先登入）</a></div>
-      <div style="margin-top:12px"><span class="switch-link" onclick="showAdminAuth()" style="color:#94a3b8"><i class="fa-solid fa-screwdriver-wrench"></i> 系統管理驗證</span></div>
+      <div style="margin-top:12px"><a class="switch-link" href="./news.html">開啟新聞新知中心（不需先登入）</a></div>
     </div>
 
-    <div id="register-form" class="auth-box hidden">
-      <div class="auth-brand"><div class="brand-logo">宏</div><div><h1>裝置註冊</h1><p>請先由楊翊晟於人員管理新增員工</p></div></div>
-      <h2><i class="fa-solid fa-key"></i> 註冊並綁定裝置</h2>
-      <div class="alert-box warning-box">請輸入主管提供的 6 位數開通碼。若是更換新手機/電腦，也可用原帳號密碼重新綁定。</div>
-      <div class="input-group"><label>使用者名稱</label><input type="text" id="reg-user" autocomplete="username" placeholder="須與員工主檔姓名一致"></div>
-      <div class="input-group"><label>登入密碼</label><input type="password" id="reg-pass" autocomplete="new-password" placeholder="請妥善保管密碼"></div>
-      <div class="input-group"><label>裝置開通碼</label><input type="number" id="reg-code" placeholder="6 位數開通碼"></div>
-      <button id="btnRegister" class="btn btn-gray btn-block"><i class="fa-solid fa-link"></i> 驗證並綁定此裝置</button>
-      <div class="switch-link" onclick="showLogin()"><i class="fa-solid fa-arrow-left"></i> 返回登入</div>
-    </div>
-
-
-    <div id="reset-form" class="auth-box hidden">
-      <div class="auth-brand"><div class="brand-logo">鑰</div><div><h1>自行重設密碼</h1><p>拿到開通碼後，同仁可自行更新密碼</p></div></div>
-      <h2><i class="fa-solid fa-unlock-keyhole"></i> 開通碼重設密碼</h2>
-      <div class="alert-box">請輸入自己的中文姓名或舊登入別名，再輸入楊翊晟提供的 6 位數開通碼。重設成功後，此裝置會一併綁定。</div>
-      <div class="input-group"><label>姓名 / 登入別名</label><input type="text" id="reset-user" placeholder="例如：呂蕙蓁 或 Misso"></div>
-      <div class="input-group"><label>開通碼</label><input type="number" id="reset-code" placeholder="6 位數開通碼"></div>
-      <div class="input-group"><label>新密碼</label><input type="password" id="reset-pass" autocomplete="new-password" placeholder="請輸入新密碼"></div>
-      <div class="input-group"><label>再次確認新密碼</label><input type="password" id="reset-pass2" autocomplete="new-password" placeholder="請再輸入一次新密碼"></div>
-      <div class="password-help">這個功能只會讓同仁重設自己的登入密碼，不會開放新增、刪除人員；人員主檔仍由楊翊晟管理。</div>
-      <button id="btnResetPassword" class="btn btn-green btn-block"><i class="fa-solid fa-key"></i> 驗證開通碼並重設密碼</button>
-      <div class="switch-link" onclick="showLogin()"><i class="fa-solid fa-arrow-left"></i> 返回登入</div>
-    </div>
-
-    <div id="admin-auth-form" class="auth-box hidden">
-      <div class="auth-brand"><div class="brand-logo">管</div><div><h1>系統管理驗證</h1><p>緊急維護與開通碼管理</p></div></div>
-      <h2 style="color:#ef4444"><i class="fa-solid fa-user-shield"></i> 管理員驗證</h2>
-      <div class="input-group"><label>管理密碼</label><input type="password" id="admin-pass-input" placeholder="請輸入管理密碼"></div>
-      <button id="btnAdminLogin" class="btn btn-red btn-block"><i class="fa-solid fa-lock-open"></i> 進入系統後台</button>
-      <div class="switch-link" onclick="showLogin()"><i class="fa-solid fa-arrow-left"></i> 返回登入</div>
-    </div>
   </section>
 
   <section id="dashboard-section">
@@ -139,11 +104,10 @@
               <div class="input-group"><label>姓名 / 登入帳號</label><input type="text" id="emp-name" placeholder="例如：新同仁姓名"></div>
               <div class="input-group"><label>角色</label><select id="emp-role"><option value="OPS">一般助理</option><option value="ACCOUNTING">會計</option><option value="MANAGER">主管</option><option value="SENIOR">地政士/資深助理</option><option value="CEO">執行長</option></select></div>
               <div class="input-group"><label>到職日</label><input type="date" id="emp-onboard"></div>
-              <div class="input-group"><label>初始/重設密碼</label><input type="text" id="emp-pass" placeholder="可留空，只建主檔"></div>
             </div>
             <div class="input-group"><label>備註</label><input type="text" id="emp-note" placeholder="職務、專長、注意事項"></div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button class="btn btn-green" id="btnSaveEmployee"><i class="fa-solid fa-floppy-disk"></i> 新增 / 更新人員</button><button class="btn btn-gold" id="btnMakeCode"><i class="fa-solid fa-ticket"></i> 產生開通碼</button><span id="generated-code-area" class="hidden"><span class="code-display" id="display-code"></span></span></div>
-            <p class="small-muted">建議流程：楊翊晟先新增人員主檔 → 產生開通碼 → 同仁用自己的裝置註冊綁定。若填入初始密碼，系統會同步建立登入帳號。</p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button class="btn btn-green" id="btnSaveEmployee"><i class="fa-solid fa-floppy-disk"></i> 新增 / 更新人員</button></div>
+            <p class="small-muted">這裡只管理人員主檔。新同仁的登入帳號、重設密碼與離職停權，由系統管理員在 Firebase 登入服務處理；密碼不再存在資料庫。</p>
           </div>
 
           <div class="admin-section">
@@ -192,7 +156,8 @@
 </script>
   <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, get, update, remove, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, set, get, update, remove, onValue, runTransaction, connectDatabaseEmulator } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence, connectAuthEmulator } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCSOS-36oQ6hTyhtD2vrez3QGvPdvwMOIw",
@@ -207,9 +172,16 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const auth = getAuth(app);
+// Local test only: ?emulator=1 on localhost talks to the Firebase emulators, never to production.
+if (["localhost", "127.0.0.1"].includes(location.hostname) && new URLSearchParams(location.search).get("emulator") === "1") {
+  connectDatabaseEmulator(db, "127.0.0.1", 9000);
+  connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
+}
+// Resolves once Firebase has restored (or not) the previous sign-in.
+const authReady = new Promise(resolve => { const stop = onAuthStateChanged(auth, user => { stop(); resolve(user); }); });
+let currentAccess = null;
 
-const ADMIN_PASS = "8888"; // 管理員密碼維持原本 8888
-const SECRET_SALT = 9527;
 const ERP_SESSION_KEY = "HG_ERP_SESSION_V1";
 const NEWS_API_URL = "https://script.google.com/macros/s/AKfycbw7VdBwWni0KY_G99u7qS-vBSTXTdKAkbf_bfG-yUAVWvDFfvzLliUAJKJDZPLqciPqYA/exec";
 
@@ -418,13 +390,6 @@ async function seedDefaultEmployees() {
   if (Object.keys(updates).length) await update(ref(db), updates);
 }
 
-function calculateActivationCode(username) {
-  let hash = 0;
-  const name = String(username || "").trim();
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  return (Math.abs(hash * SECRET_SALT) % 1000000).toString().padStart(6, "0");
-}
-window.calculateActivationCode = calculateActivationCode;
 
 function getDeviceType() {
   const ua = navigator.userAgent;
@@ -438,10 +403,7 @@ function deviceLabel(type) {
   return `<span class="device-badge bg-desktop"><i class="fa-solid fa-desktop"></i> 電腦</span>`;
 }
 
-window.showRegister = () => { $("login-form").classList.add("hidden"); $("admin-auth-form").classList.add("hidden"); $("reset-form").classList.add("hidden"); $("register-form").classList.remove("hidden"); };
-window.showResetPassword = () => { $("login-form").classList.add("hidden"); $("register-form").classList.add("hidden"); $("admin-auth-form").classList.add("hidden"); $("reset-form").classList.remove("hidden"); };
-window.showLogin = () => { $("register-form").classList.add("hidden"); $("admin-auth-form").classList.add("hidden"); $("reset-form").classList.add("hidden"); $("login-form").classList.remove("hidden"); };
-window.showAdminAuth = () => { $("login-form").classList.add("hidden"); $("register-form").classList.add("hidden"); $("reset-form").classList.add("hidden"); $("admin-auth-form").classList.remove("hidden"); };
+window.showLogin = () => { $("login-form").classList.remove("hidden"); };
 
 function sessionFromEmployee(emp, source = "login", loginAccount = null) {
   const record = buildEmployeeRecord(emp);
@@ -457,8 +419,8 @@ function sessionFromEmployee(emp, source = "login", loginAccount = null) {
     aliases: record.loginAliases || [],
     role: record.role,
     roleCode: record.roleCode,
-    isCEO: record.isCEO,
-    isAdmin: record.isCEO,
+    isCEO: record.isCEO && currentAccess?.admin === true,
+    isAdmin: record.isCEO && currentAccess?.admin === true,
     isManager: record.isManager,
     canReview: record.canReview,
     canApprove: record.canReview,
@@ -578,181 +540,77 @@ async function ensureCanUseEmployee(name) {
 }
 
 
-function activationCodesForIdentity(emp, inputName = "") {
-  const rec = buildEmployeeRecord(emp);
-  const candidates = [inputName, rec.name, rec.primaryLogin, ...(rec.loginAliases || [])].filter(Boolean);
-  return new Set(candidates.map(calculateActivationCode));
-}
-function isValidActivationCode(emp, inputName, code) {
-  return activationCodesForIdentity(emp, inputName).has(String(code || "").trim());
+// ---- Firebase Auth login (phase 1, 2026-11-12) ----
+// Passwords live only in Firebase Authentication. The database keeps:
+//   loginIndex/<normalized account> -> technical login id (readable one key at a time)
+//   access/<uid> -> { active, admin, account } (managed by the system administrator only)
+function loginIndexKey(v) { return normalizeLogin(v).replace(/[.#$\[\]\/]/g, "_"); }
+
+async function lookupLoginEmail(inputName) {
+  const keys = [...new Set([inputName, normalizeName(inputName)].map(loginIndexKey).filter(Boolean))];
+  for (const key of keys) {
+    const snap = await get(ref(db, "loginIndex/" + key));
+    if (snap.exists() && typeof snap.val() === "string") return snap.val();
+  }
+  return null;
 }
 
-async function resetPasswordWithCode() {
-  await initializeErpDeviceIdentity();
-  if (!erpDeviceIdIsDurable()) {
-    return alert("此瀏覽器無法永久保存裝置識別碼，因此未執行開通碼重設及裝置綁定；請先由管理者處理瀏覽器儲存空間。");
-  }
-  const inputName = $("reset-user").value.trim();
-  const code = $("reset-code").value.trim();
-  const pass = $("reset-pass").value.trim();
-  const pass2 = $("reset-pass2").value.trim();
-  if (!inputName || !code || !pass || !pass2) return alert("請輸入姓名、開通碼與新密碼");
-  if (pass !== pass2) return alert("兩次新密碼不一致");
-  if (pass.length < 4) return alert("密碼至少 4 碼，請重新設定");
-  showLoading(true, "驗證開通碼並更新密碼...");
+async function loadAccess(user) {
+  const snap = await get(ref(db, "access/" + user.uid));
+  const access = snap.exists() ? snap.val() : null;
+  if (!access || access.active !== true) throw new Error("此帳號目前沒有系統使用權限，請聯絡楊翊晟。");
+  if (!access.account) throw new Error("此帳號尚未對應員工資料，請聯絡楊翊晟。");
+  return access;
+}
+
+// Shared by manual login and restored sign-in.
+async function completeSignedInSession(user, source, keepUser) {
+  currentAccess = await loadAccess(user);
+  const { emp, account } = await resolveLoginIdentity(currentAccess.account);
+  if (emp.isActive === false) throw new Error("員工主檔已停用，無法登入。");
   try {
-    const { emp, account, userRecord } = await resolveLoginIdentity(inputName);
-    if (!isValidActivationCode(emp, inputName, code)) throw new Error("開通碼錯誤，請確認是否使用對應帳號的開通碼。 ");
-    const targetAccount = account || primaryLoginForEmployee(emp) || emp.name;
-    const oldDevices = userRecord && Array.isArray(userRecord.authorizedDevices) ? userRecord.authorizedDevices : [];
-    if (!oldDevices.includes(myDeviceId)) oldDevices.push(myDeviceId);
-    await set(ref(db, "users/" + safeKey(targetAccount)), {
-      ...(userRecord || {}),
-      password: pass,
-      employeeName: emp.name,
-      authorizedDevices: oldDevices,
-      lastDeviceType: getDeviceType(),
-      passwordResetAt: new Date().toISOString(),
-      lastBoundAt: new Date().toISOString()
-    });
-    alert(`密碼已更新，請用「${targetAccount}」或「${emp.name}」登入。`);
-    $("login-user").value = targetAccount;
-    $("login-pass").value = "";
-    window.showLogin();
-  } catch (err) {
-    alert(err.message || "重設密碼失敗");
-  } finally { showLoading(false); }
+    await update(ref(db, "users/" + safeKey(account)), { lastDeviceType: getDeviceType(), lastLoginAt: new Date().toISOString(), employeeName: emp.name });
+  } catch (auditError) { console.warn("login audit write failed", auditError); }
+  const session = sessionFromEmployee(emp, source, account);
+  storeSession(session, keepUser);
+  enterDashboard(session, false);
 }
 
-async function register() {
-  await initializeErpDeviceIdentity();
-  if (!erpDeviceIdIsDurable()) {
-    return alert("此瀏覽器的長期儲存空間已滿，無法永久保存新裝置識別碼；本次沒有變更任何裝置授權。請由管理者協助檢查瀏覽器儲存空間，勿清除其他系統資料。");
-  }
-  const user = $("reg-user").value.trim();
-  const pass = $("reg-pass").value.trim();
-  const code = $("reg-code").value.trim();
-  if (!user || !pass || !code) return alert("請輸入完整資料");
-  /* 開通碼會在解析員工身分後檢查，可使用中文姓名或舊登入別名對應的開通碼。 */
-  showLoading(true, "註冊並綁定裝置中...");
-  try {
-    const { emp, account, userRecord } = await resolveLoginIdentity(user);
-    if (!isValidActivationCode(emp, user, code)) throw new Error("開通碼錯誤，請確認是否使用對應帳號的開通碼。 ");
-    const userRef = ref(db, "users/" + safeKey(account));
-    const type = getDeviceType();
-    if (userRecord) {
-      if (userRecord.password !== pass) throw new Error("密碼錯誤，請確認原密碼或請楊翊晟重設。 ");
-      const devices = Array.isArray(userRecord.authorizedDevices) ? userRecord.authorizedDevices : [];
-      if (!devices.includes(myDeviceId)) devices.push(myDeviceId);
-      await update(userRef, { authorizedDevices: devices, lastDeviceType: type, lastBoundAt: new Date().toISOString(), employeeName: emp.name });
-      alert("裝置綁定成功");
-    } else {
-      await set(userRef, { password: pass, employeeName: emp.name, authorizedDevices: [myDeviceId], lastDeviceType: type, createdAt: new Date().toISOString() });
-      alert(`註冊成功，已用「${account}」綁定到「${emp.name}」`);
-    }
-    window.showLogin();
-  } catch (err) {
-    alert(err.message || "註冊失敗");
-  } finally { showLoading(false); }
+function friendlyAuthError(err) {
+  const code = String(err?.code || "");
+  if (code.includes("invalid-credential") || code.includes("wrong-password") || code.includes("user-not-found") || code.includes("invalid-email")) return "帳號或密碼錯誤。";
+  if (code.includes("user-disabled")) return "此帳號已停用，請聯絡楊翊晟。";
+  if (code.includes("too-many-requests")) return "嘗試次數過多，請稍後再試。";
+  if (code.includes("network")) return "目前無法連線，請確認網路後再試。";
+  if (code.includes("permission")) return "資料讀取被拒絕，請聯絡楊翊晟確認帳號權限。";
+  return err?.message || "登入失敗，請稍後再試。";
 }
 
-function showLoginFeedback(error) {
-  const el = $("login-feedback");
-  if (!el) return;
-  const code = String(error?.code || "").toLowerCase();
-  const msg = String(error?.message || "登入暫時失敗");
-  if (code.includes("permission-denied") || code.includes("permission_denied")) {
-    el.textContent = "Firebase 資料讀取遭拒絕，這不是密碼錯誤。現有舊入口與 Firebase Auth 的正式授權尚待銜接，請勿清空資料或重設帳密。";
-  } else if (code.includes("network") || code.includes("unavailable") || code.includes("disconnected")) {
-    el.textContent = "目前無法連上登入資料服務，請確認網路後重試；未修改您的帳號或裝置紀錄。";
-  } else { el.textContent = msg; }
-  el.hidden = false;
-}
-
-// Preserve the original 2026-09 device authorization when the portal's device-key
-// storage name was changed from hg_did to hg_cloud_did. This is NOT new enrollment,
-// and must never run until the original password has been checked for this account.
-async function requirePreviouslyApprovedDevice(account, userRecord, password) {
-  const known = Array.isArray(userRecord?.authorizedDevices) ? userRecord.authorizedDevices : [];
-  if (known.includes(myDeviceId)) return;
-  let historical = "";
-  try { historical = localStorage.getItem("hg_did") || ""; } catch {}
-  if (!historical || historical === myDeviceId || !known.includes(historical)) {
-    throw new Error("這台裝置尚未獲得此帳號的原有授權。請由管理者核對裝置；不需重建 Firebase 帳號或重設密碼。");
-  }
-
-  const userRef = ref(db, "users/" + safeKey(account));
-  // Populate the SDK cache before the transaction; it must not interpret a
-  // missing local cache as evidence that the account was revoked.
-  let before;
-  try { before = await get(userRef); }
-  catch { throw new Error("無法再次確認原授權紀錄，沒有變更任何裝置。"); }
-  const current = before.exists() ? before.val() : null;
-  if (!current || current.password !== password || current.legacyPortalDisabled === true ||
-      !Array.isArray(current.authorizedDevices) || !current.authorizedDevices.includes(historical)) {
-    throw new Error("原帳號密碼或原裝置授權已變更，不能自動沿用。請由管理者核准。");
-  }
-  // Re-check both the password and previously approved device inside one
-  // atomic transaction. Preserve EVERY other field of the existing record.
-  let result;
-  try {
-    result = await runTransaction(userRef, value => {
-      if (!value || value.password !== password || value.legacyPortalDisabled === true ||
-          !Array.isArray(value.authorizedDevices) || !value.authorizedDevices.includes(historical)) return;
-      if (value.authorizedDevices.includes(myDeviceId)) return value;
-      return { ...value, authorizedDevices: [...value.authorizedDevices, myDeviceId] };
-    }, { applyLocally: false });
-  } catch {
-    throw new Error("原裝置授權資料更新未成功，登入尚未完成。請管理者檢查資料庫權限，不要重新建帳。");
-  }
-  const confirmed = result?.snapshot?.val();
-  if (!confirmed || confirmed.password !== password || confirmed.legacyPortalDisabled === true ||
-      !Array.isArray(confirmed.authorizedDevices) || !confirmed.authorizedDevices.includes(myDeviceId)) {
-    throw new Error("原裝置授權已變更，這次未新增任何裝置。請由管理者重新核准。");
-  }
-}
 async function login() {
   await initializeErpDeviceIdentity();
   const user = $("login-user").value.trim();
-  const pass = $("login-pass").value.trim();
+  const pass = $("login-pass").value;
   if (!user || !pass) return alert("請輸入帳號密碼");
   $("login-feedback").hidden = true;
   showLoading(true, "登入驗證中...");
   try {
-    const { emp, account, userRecord } = await resolveLoginIdentity(user);
-    if (!userRecord) throw new Error("員工主檔存在，但舊系統找不到對應的登入紀錄。已建立 Firebase Auth 不代表此舊入口已完成授權，請勿重新建帳或改密碼。");
-    if (userRecord.legacyPortalDisabled === true) throw new Error("舊系統登入已停用，請由管理員確認正式帳號與授權狀態。");
-    if (userRecord.password !== pass) throw new Error("此入口仍在比對舊系統密碼；Firebase Auth 的驗證結果尚未接入公司授權，請勿重設既有密碼。");
-    await requirePreviouslyApprovedDevice(account, userRecord, pass);
-    // A successful local compatibility check never substitutes for server readback.
-    const freshUser = await get(ref(db, "users/" + safeKey(account)));
-    const confirmedUser = freshUser.exists() ? freshUser.val() : null;
-    if (!confirmedUser || confirmedUser.legacyPortalDisabled === true || confirmedUser.password !== pass ||
-        !Array.isArray(confirmedUser.authorizedDevices) || !confirmedUser.authorizedDevices.includes(myDeviceId)) {
-      throw new Error("原帳號、密碼或裝置授權已變更；本次登入未完成。請重新核對。");
-    }
-    const freshEmployee = await getEmployee(emp.name);
-    if (!freshEmployee || freshEmployee.isActive === false) throw new Error("員工主檔已停用或無法再次確認，不能登入。");
+    const email = await lookupLoginEmail(user);
+    if (!email) throw new Error("帳號或密碼錯誤。");
+    const keep = $("keep-login").checked;
+    await setPersistence(auth, keep ? browserLocalPersistence : browserSessionPersistence);
+    const cred = await signInWithEmailAndPassword(auth, email, pass);
+    $("login-pass").value = "";
     try {
-      await update(ref(db, "users/" + safeKey(account)), { lastDeviceType: getDeviceType(), lastLoginAt: new Date().toISOString(), employeeName: emp.name });
-    } catch (auditError) {
-      throw new Error("舊版帳密與裝置核對通過，但登入紀錄寫入遭拒，尚未完成登入。請管理員檢查現有資料權限；請勿重設原有密碼。");
+      await completeSignedInSession(cred.user, "login", keep);
+    } catch (err) {
+      await signOut(auth).catch(() => {});
+      throw err;
     }
-    const session = sessionFromEmployee(emp, "login", account);
-    storeSession(session, $("keep-login").checked);
-    enterDashboard(session, false);
-  } catch (err) { showLoginFeedback(err); }
-  finally { showLoading(false); }
-}
-
-async function adminLogin() {
-  await initializeErpDeviceIdentity();
-  if ($("admin-pass-input").value !== ADMIN_PASS) return alert("管理密碼錯誤");
-  const emp = await getEmployee("楊翊晟") || buildEmployeeRecord({ name: "楊翊晟", roleCode: "CEO", onboardDate: "2018-03-01" });
-  const session = sessionFromEmployee(emp, "admin-password", primaryLoginForEmployee(emp));
-  session.systemAdmin = true;
-  storeSession(session, false);
-  enterDashboard(session, true);
+  } catch (err) {
+    const el = $("login-feedback");
+    el.textContent = friendlyAuthError(err);
+    el.hidden = false;
+  } finally { showLoading(false); }
 }
 
 function enterDashboard(session, openAdmin = false) {
@@ -898,7 +756,6 @@ function renderEmployeeTable() {
       <td>${user ? `<span class="tag tag-ops">${escapeHtml(loginKey)}</span><div class="small-muted">裝置 ${(user.authorizedDevices || []).length} 台</div>` : `<span class="tag tag-off">未建立</span><div class="small-muted">建議帳號：${escapeHtml(loginKey)}</div>`}</td>
       <td><div class="row-actions">
         <button class="btn btn-light" onclick="editEmployee('${rec.name}')">編輯</button>
-        <button class="btn btn-gold" onclick="showCodeFor('${rec.name}')">開通碼</button>
         ${rec.isActive ? `<button class="btn btn-orange" onclick="deactivateEmployee('${rec.name}')">停用</button>` : `<button class="btn btn-green" onclick="reactivateEmployee('${rec.name}')">啟用</button>`}
         <button class="btn btn-light" onclick="hardDeleteEmployee('${rec.name}')">封存說明</button>
       </div></td>
@@ -915,8 +772,11 @@ function renderUsersTable() {
 
 function subscribeAdminData() {
   if (unsubs.length) return;
-  unsubs.push(onValue(ref(db, "employees"), snap => { employeesCache = snap.exists() ? snap.val() : {}; renderEmployeeTable(); }));
-  unsubs.push(onValue(ref(db, "users"), snap => { usersCache = snap.exists() ? snap.val() : {}; renderEmployeeTable(); renderUsersTable(); }));
+  unsubs.push(onValue(ref(db, "employees"), snap => { employeesCache = snap.exists() ? snap.val() : {}; renderEmployeeTable(); }, err => console.warn("employees listener", err)));
+  // The full login-record list is admin-only in the database rules.
+  if (currentAccess?.admin === true) {
+    unsubs.push(onValue(ref(db, "users"), snap => { usersCache = snap.exists() ? snap.val() : {}; renderEmployeeTable(); renderUsersTable(); }, err => console.warn("users listener", err)));
+  }
 }
 
 async function saveEmployee() {
@@ -925,22 +785,12 @@ async function saveEmployee() {
   const roleCode = $("emp-role").value;
   const onboardDate = $("emp-onboard").value;
   const note = $("emp-note").value.trim();
-  const pass = $("emp-pass").value.trim();
   if (!name) return alert("請輸入姓名/帳號");
   const rec = buildEmployeeRecord({ ...(employeesCache[name] || {}), name, roleCode, onboardDate, note, isActive: true });
   showLoading(true, "儲存人員資料中...");
   try {
     await update(ref(db, "employees/" + safeKey(name)), rec);
-    if (pass) {
-      const accountName = primaryLoginForEmployee(rec);
-      const uref = ref(db, "users/" + safeKey(accountName));
-      const old = await get(uref);
-      const devices = old.exists() ? (old.val().authorizedDevices || []) : [];
-      // Legacy RTDB credential field only; never claim this creates/updates a Firebase Auth user.
-      await update(uref, { password: pass, employeeName: rec.name, authorizedDevices: devices, lastDeviceType: old.exists() ? old.val().lastDeviceType || "desktop" : "desktop", updatedAt: new Date().toISOString() });
-    }
-    $("emp-pass").value = "";
-    alert("員工主檔已更新，既有其他欄位保留。此操作不等於 Firebase Auth 建帳或公司授權。");
+    alert("員工主檔已更新，既有其他欄位保留。新同仁的登入帳號與密碼請由系統管理員建立。");
   } catch (err) { alert("儲存失敗：" + err.message); }
   finally { showLoading(false); }
 }
@@ -952,17 +802,9 @@ window.editEmployee = function(name) {
   $("emp-role").value = emp.roleCode || "OPS";
   $("emp-onboard").value = emp.onboardDate || "";
   $("emp-note").value = emp.note || "";
-  $("emp-pass").value = "";
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
-window.showCodeFor = function(name) {
-  const emp = buildEmployeeRecord(employeesCache[name] || defaultEmployeeByName(name) || { name });
-  const account = primaryLoginForEmployee(emp);
-  $("emp-name").value = emp.name;
-  $("generated-code-area").classList.remove("hidden");
-  $("display-code").innerText = `${account}｜${calculateActivationCode(account)}`;
-};
 
 async function setActiveEmployee(name, isActive) {
   if (!currentSession?.isCEO && !currentSession?.systemAdmin) return alert("只有楊翊晟可以調整人員狀態。 ");
@@ -987,14 +829,6 @@ window.deleteLoginUser = async function(name) {
 };
 window.clearDevices = async function(name) { if (confirm(`清除「${name}」所有授權裝置？下次需重新綁定。`)) await update(ref(db, "users/" + safeKey(name)), { authorizedDevices: [] }); };
 
-function makeCodeFromForm() {
-  const name = $("emp-name").value.trim();
-  if (!name) return alert("請先輸入姓名/帳號");
-  const emp = buildEmployeeRecord(employeesCache[name] || defaultEmployeeByLogin(name) || defaultEmployeeByName(name) || { name });
-  const account = primaryLoginForEmployee(emp);
-  $("generated-code-area").classList.remove("hidden");
-  $("display-code").innerText = `${account}｜${calculateActivationCode(account)}`;
-}
 
 // HG_PUBLIC_NEWS_BRIDGE_20261020
 let portalNewsModule = null;
@@ -1025,8 +859,9 @@ window.closeNewsModal = function() {
 function escapeHtml(v) { return String(v ?? "").replace(/[&<>'"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[ch])); }
 function escapeAttr(v) { return escapeHtml(v).replace(/\n/g, ""); }
 
-function logout() {
+async function logout() {
   if (!confirm("確定登出？")) return;
+  try { await signOut(auth); } catch (err) { console.warn("signOut failed", err); }
   // Only clear ERP login hints. Never touch another HTML module's saved data.
   const keys = ["hg_cloud_session", ERP_SESSION_KEY, "hg_current_operator", "hg_current_role"];
   let cleared = true;
@@ -1044,19 +879,16 @@ window.logout = logout;
 window.toggleSidebar = () => { $("sidebar").classList.toggle("active"); document.querySelector(".sidebar-overlay").classList.toggle("active"); };
 
 async function restoreSession() {
-  const sessName = erpStorageRead(sessionStorage, "hg_cloud_session") || erpStorageRead(localStorage, "hg_cloud_session");
-  if (!sessName) return;
+  const user = await authReady;
+  if (!user) return;
   try {
     showLoading(true, "恢復登入狀態...");
-    const { emp, account, userRecord } = await resolveLoginIdentity(sessName);
-    if (!userRecord || userRecord.legacyPortalDisabled === true) throw new Error("登入帳號已停用或不存在");
-    if (!(userRecord.authorizedDevices || []).includes(myDeviceId)) throw new Error("裝置授權已失效");
-    const session = sessionFromEmployee(emp, "restore", account);
-    storeSession(session, true);
-    enterDashboard(session, false);
+    const remember = !!erpStorageRead(localStorage, "hg_cloud_session");
+    await completeSignedInSession(user, "restore", remember);
   } catch (err) {
     console.warn("restore failed", err);
-    window.__portalStartup.notice("上次登入暫時無法恢復。若曾使用舊版同一台電腦，請以原帳號密碼手動登入一次；系統只會在原授權裝置與密碼都有效時進行相容核對。離職或撤權帳號不會重新開通。");
+    await signOut(auth).catch(() => {});
+    window.__portalStartup.notice("上次登入無法恢復，請重新輸入帳號密碼。");
   } finally { showLoading(false); }
 }
 
@@ -1068,11 +900,8 @@ window.addEventListener("message", (event) => {
 });
 
 $("btnLogin").addEventListener("click", (e) => { e.preventDefault(); login(); });
-$("btnRegister").addEventListener("click", (e) => { e.preventDefault(); register(); });
-$("btnResetPassword").addEventListener("click", (e) => { e.preventDefault(); resetPasswordWithCode(); });
-$("btnAdminLogin").addEventListener("click", (e) => { e.preventDefault(); adminLogin(); });
+$("login-pass").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); login(); } });
 $("btnSaveEmployee").addEventListener("click", saveEmployee);
-$("btnMakeCode").addEventListener("click", makeCodeFromForm);
 $("btnOpenNewsInline").addEventListener("click", () => fetchNews({ force: true }));
 $("btnRefreshSession").addEventListener("click", () => {
   if (!currentSession) return;
