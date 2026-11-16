@@ -49,7 +49,7 @@ class PortalTests(unittest.TestCase):
   self.assertIn('./portal-news.mjs?v=20261020.1',self.s)
   self.assertNotIn('api.allorigins.win',self.s)
   self.assertNotIn('rss2json.com',self.s)
-  self.assertEqual(self.s[self.s.index('const DASHBOARD_ITEMS = ['):self.s.index('let currentSession =')].count('module: '),8)
+  self.assertEqual(self.s[self.s.index('const DASHBOARD_ITEMS = ['):self.s.index('let currentSession =')].count('module: '),9)
  def test_unknown_baseline_refused(self):
   with self.assertRaises(ValueError):
    p.patch_bytes(b'<html>unexpected</html>')
