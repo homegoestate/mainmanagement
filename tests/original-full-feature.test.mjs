@@ -11,6 +11,7 @@ const ids="admin-auth-form admin-link admin-panel admin-pass-input auth-section 
 const modules=[
 ["employee","https://homegoestate.github.io/Employee-management/"],
 ["case","https://homegoestate.github.io/case/"],
+["desk","https://homegoestate.github.io/case/desk.html"],
 ["receipts","https://homegoestate.github.io/receipts/"],
 ["quotation","https://homegoestate.github.io/quotation/"],
 ["ai","https://homegoestate.github.io/AI-question-assistant/"],
@@ -26,11 +27,11 @@ test("preserve the user's exact navy and gold interface CSS",()=>{
  const css=s.slice(s.indexOf("<style>"),s.indexOf("</style>")+"</style>".length);
  assert.equal(createHash("sha256").update(css).digest("hex"),"18b674d7387b14a8acec8921eae227eb2ce38d9ad9b4d55dbec1c7292f934d72");
 });
-test("preserve all eight original module addresses",()=>{
+test("preserve all eight original module addresses plus the desk module",()=>{
  const start=s.indexOf("const DASHBOARD_ITEMS = ["),end=s.indexOf("];",start);
  assert.ok(start>=0&&end>start);
  const body=s.slice(start,end);
- assert.equal([...body.matchAll(/module: "/g)].length,8);
+ assert.equal([...body.matchAll(/module: "/g)].length,9);
  for(const [name,url] of modules){assert.ok(body.includes('module: "'+name+'"'));assert.ok(body.includes(url),"Missing "+url);}
 });
 test("preserve all original staff and CEO management controls",()=>{
