@@ -31,7 +31,7 @@ test('ticker full news fallback also navigates in the same tab',()=>{
 });
 test('preserve original styling and eight other system entries',()=>{
   const modules=html.slice(html.indexOf('const DASHBOARD_ITEMS = ['),html.indexOf('let currentSession = '));
-  assert.equal([...modules.matchAll(/module: "/g)].length,8);
+  assert.equal([...modules.matchAll(/module: "/g)].length,9);
   assert.match(html,/--navy:#0f2e46/);
   assert.match(html,/--gold:#c5a065/);
 });
