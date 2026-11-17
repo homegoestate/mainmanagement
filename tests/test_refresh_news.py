@@ -39,4 +39,25 @@ class NewsTests(unittest.TestCase):
   r=n.collect(fetch,previous,NOW);self.assertEqual(r['status'],'partial');self.assertEqual(r['total'],2)
  def test_empty_feed_does_not_replace(self):
   with self.assertRaises(RuntimeError):n.collect(lambda *_:[],{'items':[ROW]},NOW)
+ def test_retry_on_rate_limit_then_success(self):
+  import urllib.error
+  calls,waits=[],[]
+  def opener(req,timeout):
+   calls.append(timeout)
+   if len(calls)<3:raise urllib.error.HTTPError('https://example.test',429,'Too Many Requests',{},None)
+   return 'ok'
+  self.assertEqual(n.open_with_retry('req',opener=opener,sleep=waits.append),'ok')
+  self.assertEqual(len(calls),3);self.assertEqual(len(waits),2);self.assertTrue(all(0<w<=21 for w in waits))
+ def test_no_retry_on_not_found_and_gives_up_after_three(self):
+  import urllib.error
+  calls=[]
+  def not_found(req,timeout):
+   calls.append(1);raise urllib.error.HTTPError('https://example.test',404,'Not Found',{},None)
+  with self.assertRaises(urllib.error.HTTPError):n.open_with_retry('req',opener=not_found,sleep=lambda s:None)
+  self.assertEqual(len(calls),1)
+  calls.clear()
+  def busy(req,timeout):
+   calls.append(1);raise urllib.error.HTTPError('https://example.test',429,'Too Many Requests',{'Retry-After':'2'},None)
+  with self.assertRaises(urllib.error.HTTPError):n.open_with_retry('req',opener=busy,sleep=lambda s:None)
+  self.assertEqual(len(calls),3)
 if __name__=='__main__':unittest.main()

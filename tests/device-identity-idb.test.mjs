@@ -91,10 +91,12 @@ test('repeat device initialization never allocates a second DID',async()=>{
  await f.initialize();const first=f.id();
  await f.initialize();assert.equal(f.id(),first);
 });
-test('new staff registration and password reset await stable device identity',()=>{
- assert.match(html,/async function register\(\) \{\s*await initializeErpDeviceIdentity\(\);\s*if \(!erpDeviceIdIsDurable\(\)\)/);
- assert.match(html,/async function resetPasswordWithCode\(\) \{\s*await initializeErpDeviceIdentity\(\);\s*if \(!erpDeviceIdIsDurable\(\)\)/);
+// 2026-11-17 Claude: self-registration and code-based password reset were retired with the 2026-11-12
+// Firebase Authentication login (accounts are created and reset by the administrator backend).
+test('login and session restore await stable device identity; retired self-registration stays removed',()=>{
  assert.match(html,/async function login\(\) \{\s*await initializeErpDeviceIdentity\(\)/);
+ assert.match(html,/await initializeErpDeviceIdentity\(\);\s*await restoreSession\(\);/);
+ assert.doesNotMatch(html,/async function register\(|resetPasswordWithCode/);
 });
 test('legacy user database and protected Firebase Auth are not modified by browser identity storage',()=>{
  assert.doesNotMatch(fragment,/update\(ref\(db|set\(ref\(db|signInWithEmailAndPassword/);

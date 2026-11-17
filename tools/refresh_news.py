@@ -4,8 +4,11 @@ import concurrent.futures as futures
 import email.utils
 import html
 import json
+import random
 import re
 import sys
+import time
+import urllib.error
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -95,12 +98,31 @@ def parse_feed(body, category, now, publisher=''):
         print('Publication samples: ' + repr([item.findtext('pubDate') for item in root.findall('./channel/item')[:3]]), flush=True)
     return rows
 
+# 2026-11-17 Claude：Google News 偶爾回 429（請求太頻繁）或暫時性 5xx；等幾秒重試，最多 3 次。
+RETRY_STATUS = {429, 500, 502, 503, 504}
+
+def retry_wait(error, attempt):
+    try:
+        wait = float(error.headers.get('Retry-After')) if error.headers is not None else 0
+    except (TypeError, ValueError):
+        wait = 0
+    return min(max(wait, 3 * (2 ** attempt)), 20) + random.uniform(0, 1)
+
+def open_with_retry(req, opener=urllib.request.urlopen, sleep=time.sleep, attempts=3):
+    for attempt in range(attempts):
+        try:
+            return opener(req, timeout=12)
+        except urllib.error.HTTPError as error:
+            if error.code not in RETRY_STATUS or attempt == attempts - 1:
+                raise
+            sleep(retry_wait(error, attempt))
+
 def fetch_feed(entry, now):
     category, query = entry
     url = 'https://news.google.com/rss/search?' + urllib.parse.urlencode(
         dict(q=f'{query} when:7d', hl='zh-TW', gl='TW', ceid='TW:zh-Hant'))
     req = urllib.request.Request(url, headers={'User-Agent': 'HomeGoERP-RSS/2.0', 'Accept': 'application/rss+xml'})
-    with urllib.request.urlopen(req, timeout=12) as response:
+    with open_with_retry(req) as response:
         body = response.read(2_000_001)
         if len(body) > 2_000_000:
             raise ValueError('RSS exceeds size limit')
@@ -138,7 +160,7 @@ def deduplicate(rows, now):
 def collect(fetch=fetch_feed, previous=None, now=None):
     now = now or datetime.now(timezone.utc)
     rows, errors, succeeded = [], [], 0
-    with futures.ThreadPoolExecutor(max_workers=4) as pool:
+    with futures.ThreadPoolExecutor(max_workers=3) as pool:
         pending = {pool.submit(fetch, entry, now): entry[0] for entry in FEEDS}
         for task in futures.as_completed(pending):
             try:

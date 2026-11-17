@@ -10,8 +10,10 @@ function fragment(start,end) {
   return source.slice(a,b);
 }
 const helpers=fragment('function erpStorageRead(store, key) {','async function getEmployee(name) {');
-const loginSrc=fragment('async function login() {','async function adminLogin() {');
-const logoutSrc=fragment('function logout() {','window.logout = logout;');
+// 2026-11-17 Claude: since 2026-11-12 login() is Firebase Authentication (loginIndex, access/<uid>, employee master).
+// loginSrc now carries the real lookup/access/login chain; stubs below are synthetic.
+const loginSrc=fragment('async function getEmployee(name) {','function enterDashboard(');
+const logoutSrc=fragment('async function logout() {','window.logout = logout;');
 const restoreSrc=fragment('async function restoreSession() {','window.addEventListener("message", (event) => {');
 const KEY='HG_ERP_SESSION_V1';
 class StorageFixture {
@@ -86,64 +88,74 @@ test('quota: both storage locations full allow current-page session without fals
   assert.equal(tab.getItem('OTHER_TAB_WORK'),'y'.repeat(1500));
   assert.ok(notes.some(s=>s.includes('工作階段儲存也不可用')));
 });
-test('tab storage fallback takes precedence over obsolete persistent name on restore',async()=>{
+function firebaseStubs({data,calls,fields={}}){
+  return {
+    $:id=>fields[id],db:{},ref:(db,p)=>p,safeKey:x=>String(x).replace(/[.#$\[\]\/]/g,'_'),
+    normalizeLogin:v=>String(v||'').trim().toLowerCase().replace(/\s+/g,' '),
+    normalizeName:v=>String(v||'').replace(/\s+/g,'').trim(),
+    defaultEmployeeByLogin:()=>null,defaultEmployeeByName:()=>null,buildEmployeeRecord:x=>({...x}),
+    get:async p=>{calls.gets.push(p);return {exists:()=>data[p]!=null,val:()=>data[p]};},
+    update:async()=>{calls.writes++;},
+    initializeErpDeviceIdentity:async()=>true,auth:{},browserLocalPersistence:'local',browserSessionPersistence:'session',
+    setPersistence:async()=>{},
+    signInWithEmailAndPassword:async(a,e,p)=>{if(p!=='right-password')throw Object.assign(Error('bad'),{code:'auth/invalid-credential'});return {user:{uid:'uid-yating'}};},
+    signOut:async()=>{calls.signOut++;},signInEmployeeSystem:async()=>{},signOutEmployeeSystem:async()=>{},
+    getDeviceType:()=>'desktop',sessionFromEmployee:(emp,source,acct)=>({...subject,name:emp.name,loginAccount:acct}),
+    showLoading:()=>{},enterDashboard:()=>{calls.enters++;},alert:()=>{},currentAccess:null
+  };
+}
+const yatingData=(access={active:true,account:'YATING'})=>({'loginIndex/yating':'yating@example.test','access/uid-yating':access,
+  'employees/YATING':{name:'楊雅婷',isActive:true},'users/YATING':{}});
+test('restore uses the Firebase-verified account, never an obsolete stored name',async()=>{
   const local=new StorageFixture({'hg_cloud_session':'舊同仁'});
-  const tab=new StorageFixture({'hg_cloud_session':'YATING'});
+  const tab=new StorageFixture();
   const {ctx}=fixture({local,tab});
-  let selected='',enters=0;
-  Object.assign(ctx,{
-    showLoading:()=>{},
-    resolveLoginIdentity:async name=>{
-      selected=name;
-      return {emp:{name:'楊雅婷',isActive:true},account:'YATING',userRecord:{authorizedDevices:['DID-A']}};
-    },
-    myDeviceId:'DID-A',
-    sessionFromEmployee:()=>subject,
-    enterDashboard:()=>enters++,
-    alert:()=>{}
-  });
-  vm.runInContext(restoreSrc,ctx);
+  const calls={gets:[],writes:0,signOut:0,enters:0};
+  Object.assign(ctx,firebaseStubs({data:yatingData(),calls}),{authReady:Promise.resolve({uid:'uid-yating'})});
+  vm.runInContext(loginSrc,ctx);vm.runInContext(restoreSrc,ctx);
   await ctx.restoreSession();
-  assert.equal(selected,'YATING');assert.equal(enters,1);
+  assert.equal(calls.enters,1);assert.ok(calls.gets.includes('employees/YATING'));
+  assert.ok(!calls.gets.some(p=>p.includes('舊同仁')));
   assert.equal(local.getItem('hg_cloud_session'),'YATING');
 });
-test('logout removes only ERP identity keys, preserves cases, attendance and receipt',()=>{
+test('restore failure signs out and asks for a fresh login',async()=>{
+  const local=new StorageFixture({'hg_cloud_session':'YATING'});
+  const {ctx,notes}=fixture({local});
+  const calls={gets:[],writes:0,signOut:0,enters:0};
+  Object.assign(ctx,firebaseStubs({data:yatingData({active:false,account:'YATING'}),calls}),{authReady:Promise.resolve({uid:'uid-yating'})});
+  vm.runInContext(loginSrc,ctx);vm.runInContext(restoreSrc,ctx);
+  await ctx.restoreSession();
+  assert.equal(calls.enters,0);assert.equal(calls.signOut,1);
+  assert.ok(notes.some(s=>s.includes('上次登入無法恢復')));
+});
+test('logout signs out of both systems and removes only ERP identity keys, preserving cases, attendance and receipt',async()=>{
   const local=new StorageFixture({'CASE_DATA':'case','ATTENDANCE':'time','RECEIPT':'receipt',
     [KEY]:JSON.stringify(subject),'hg_cloud_session':'YATING',
     'hg_current_operator':'楊雅婷','hg_current_role':'ACCOUNTING'});
   const tab=new StorageFixture({[KEY]:JSON.stringify(subject),'hg_cloud_session':'YATING'});
-  let reloads=0;
-  const {ctx}=fixture({local,tab,extra:{confirm:()=>true,alert:()=>{},location:{reload:()=>reloads++}}});
+  let reloads=0,signedOut=0,ssoOut=0;
+  const {ctx}=fixture({local,tab,extra:{confirm:()=>true,alert:()=>{},location:{reload:()=>reloads++},
+    auth:{},signOut:async()=>{signedOut++;},signOutEmployeeSystem:async()=>{ssoOut++;}}});
   vm.runInContext(logoutSrc,ctx);
-  ctx.logout();
-  assert.equal(reloads,1);
+  await ctx.logout();
+  assert.equal(reloads,1);assert.equal(signedOut,1);assert.equal(ssoOut,1);
   for(const k of [KEY,'hg_cloud_session','hg_current_operator','hg_current_role'])assert.equal(local.getItem(k),null);
   assert.equal(tab.getItem(KEY),null);
   assert.deepEqual([local.getItem('CASE_DATA'),local.getItem('ATTENDANCE'),local.getItem('RECEIPT')],['case','time','receipt']);
 });
-async function mockLogin({correct=true,deviceApproved=true,storageQuota=600}={}){
+async function mockLogin({correct=true,accessActive=true,storageQuota=600}={}){
  const local=new StorageFixture({CASE_DATA:'x'.repeat(580)},storageQuota);
  const tab=new StorageFixture();
- let enters=0, writes=0, msg='';
- const userRecord={password:'original-user-password',authorizedDevices:deviceApproved?['DID-A']:['DID-B']};
- const fields={'login-user':{value:'YATING'},'login-pass':{value:correct?'original-user-password':'wrong'},
- 'keep-login':{checked:true},'login-feedback':{hidden:false}};
- const {ctx,notes}=fixture({local,tab,extra:{
-  initializeErpDeviceIdentity:async()=>true,
-  $:id=>fields[id],myDeviceId:'DID-A',db:{},safeKey:x=>x,ref:(db,path)=>path,
-  resolveLoginIdentity:async()=>({emp:{name:'楊雅婷',isActive:true},account:'YATING',userRecord}),
-  requirePreviouslyApprovedDevice:async()=>{if(!deviceApproved)throw Error('裝置未授權');},
-  get:async()=>({exists:()=>true,val:()=>userRecord}),
-  getEmployee:async()=>({name:'楊雅婷',isActive:true}),
-  update:async()=>writes++,getDeviceType:()=> 'desktop',
-  sessionFromEmployee:()=>subject,showLoading:()=>{},
-  enterDashboard:()=>enters++,showLoginFeedback:e=>msg=e.message,alert:()=>{}
- }});
+ const calls={gets:[],writes:0,signOut:0,enters:0};
+ const fields={'login-user':{value:'YATING'},'login-pass':{value:correct?'right-password':'wrong'},
+ 'keep-login':{checked:true},'login-feedback':{hidden:false,textContent:''}};
+ const {ctx,notes}=fixture({local,tab,extra:firebaseStubs({data:yatingData({active:accessActive,account:'YATING'}),calls,fields})});
  vm.runInContext(loginSrc,ctx);
  await ctx.login();
- return {enters,writes,msg,local,tab,notes};
+ const fb=fields['login-feedback'];
+ return {enters:calls.enters,writes:calls.writes,signOut:calls.signOut,msg:fb.hidden?'':fb.textContent,local,tab,notes};
 }
-test('real portal login function: correct password/device enters dashboard when storage quota is exhausted',async()=>{
+test('real portal login function: correct Firebase credentials enter dashboard when storage quota is exhausted',async()=>{
  const v=await mockLogin();
  assert.equal(v.enters,1);assert.equal(v.writes,1);assert.equal(v.msg,'');
  assert.equal(v.local.getItem('CASE_DATA'),'x'.repeat(580));
@@ -154,13 +166,13 @@ test('real portal login function: wrong password never enters dashboard',async()
  assert.equal(v.enters,0);assert.equal(v.writes,0);
  assert.match(v.msg,/密碼/);
 });
-test('real portal login function: unapproved device remains denied despite quota fallback',async()=>{
- const v=await mockLogin({deviceApproved:false});
- assert.equal(v.enters,0);assert.equal(v.writes,0);
+test('real portal login function: switched-off access remains denied despite quota fallback',async()=>{
+ const v=await mockLogin({accessActive:false});
+ assert.equal(v.enters,0);assert.equal(v.writes,0);assert.equal(v.signOut,1);
  assert.equal(v.tab.getItem(KEY),null);
 });
-test('new-device registration and password reset require a durable device ID',()=>{
- assert.match(source,/async function register\(\) \{\s*await initializeErpDeviceIdentity\(\);\s*if \(!erpDeviceIdIsDurable\(\)\)/);
- assert.match(source,/async function resetPasswordWithCode\(\) \{\s*await initializeErpDeviceIdentity\(\);\s*if \(!erpDeviceIdIsDurable\(\)\)/);
+test('login waits for a durable device identity before checking credentials',()=>{
+ assert.match(source,/async function login\(\) \{\s*await initializeErpDeviceIdentity\(\);/);
+ assert.match(source,/await initializeErpDeviceIdentity\(\);\s*await restoreSession\(\);/);
  assert.match(source,/function erpDeviceIdIsDurable\(\)/);
 });
