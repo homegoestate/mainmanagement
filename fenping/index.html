@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex,nofollow,noarchive">
+<title>分坪計算器｜宏國地政｜易丞地政</title>
+<style>
+*{box-sizing:border-box}html,body{width:100%;height:100%;margin:0}body{background:#f4f7f5;color:#163c34;font:16px/1.6 "Microsoft JhengHei","PingFang TC",sans-serif}
+#gate{min-height:100%;display:grid;place-items:center;padding:24px}.card{background:white;border:1px solid #cedcd6;border-top:4px solid #146254;border-radius:8px;padding:clamp(22px,5vw,40px);width:min(100%,470px)}
+.brand{font-size:14px;font-weight:700;letter-spacing:.08em;color:#45645b}h1{font-size:27px;line-height:1.25;margin:12px 0 8px}
+p{margin:0 0 20px;color:#425a52}a,button{font:inherit;font-weight:700;display:inline-block;padding:6px 13px;border:1px solid #1d6556;border-radius:5px;text-decoration:none;cursor:pointer}a{background:#165948;color:white}button{color:#165948;background:white}
+#instrument{border:0;display:block;width:100%;height:100%;background:white}[hidden]{display:none!important}html.gate-pending dialog{visibility:hidden}
+</style></head><body>
+<main id="gate"><div class="card"><div class="brand">宏國地政｜易丞地政</div><h1>分坪計算器</h1><p id="status" role="status" aria-live="polite">正在確認 ERP 會員權限…</p><a id="home" href="/mainmanagement/" target="_top">回 ERP 首頁</a> <button id="retry" type="button" hidden>重新確認</button></div></main>
+<script type="module">
+const config = {
+  apiKey: "AIzaSyCSOS-36oQ6hTyhtD2vrez3QGvPdvwMOIw",
+  authDomain: "mainmanagement-1f3d2.firebaseapp.com",
+  databaseURL: "https://mainmanagement-1f3d2-default-rtdb.firebaseio.com",
+  projectId: "mainmanagement-1f3d2",
+  storageBucket: "mainmanagement-1f3d2.firebasestorage.app",
+  messagingSenderId: "916729301354",
+  appId: "1:916729301354:web:11d81d965c2127b0a17d13",
+  measurementId: "G-NQ6YKGEJE9"
+};
+const V20Vault=(()=>{
+  const encode=new TextEncoder(), decode=new TextDecoder();
+  let activeDialog=null;
+  const openDb=()=>new Promise((resolve,reject)=>{
+    const req=indexedDB.open('homego-erp-fenping-v20',1);
+    req.onupgradeneeded=()=>req.result.createObjectStore('encrypted');
+    req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
+  });
+  async function open(uid,secret){
+    if(!uid || typeof secret!=='string') throw Error('會員資料保護設定不足');
+    const bytes=Uint8Array.from(atob(secret),ch=>ch.charCodeAt(0));
+    if(bytes.length!==32) throw Error('會員資料保護設定有誤');
+    const key=await crypto.subtle.deriveKey({name:'HKDF',hash:'SHA-256',salt:encode.encode(uid),info:encode.encode('homego-erp/allocation/v20')},
+      await crypto.subtle.importKey('raw',bytes,'HKDF',false,['deriveKey']),{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+    const known=new Map();
+    let queue=Promise.resolve();
+    async function read(name){
+      let db;
+      try{db=await openDb();}catch{return null;}
+      const id=uid+'/'+name;
+      const record=await new Promise((resolve,reject)=>{
+        const read=db.transaction('encrypted').objectStore('encrypted').get(id);
+        read.onsuccess=()=>resolve(read.result);read.onerror=()=>reject(read.error);
+      }).finally(()=>db.close());
+      known.set(name,record?.tag || '');
+      return record ? decode.decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:record.iv,additionalData:encode.encode(id)},key,record.cipher)) : null;
+    }
+    async function store(name,text){
+      if(typeof text!=='string' || text.length>32*1024*1024) throw Error('草稿過大，請匯出案件檔');
+      const db=await openDb(), id=uid+'/'+name, iv=crypto.getRandomValues(new Uint8Array(12)), tag=crypto.randomUUID();
+      try{
+        const cipher=await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:encode.encode(id)},key,encode.encode(text));
+        await new Promise((resolve,reject)=>{
+          const tx=db.transaction('encrypted','readwrite'), table=tx.objectStore('encrypted'), get=table.get(id);
+          get.onsuccess=()=>{
+            if((get.result?.tag||'')!==(known.get(name)||'')){tx.abort();return;}
+            table.put({tag,iv,cipher},id);
+          };
+          tx.oncomplete=resolve;tx.onabort=()=>reject(Error('草稿已被另一個分頁更新'));tx.onerror=()=>reject(tx.error);
+        });
+        known.set(name,tag);
+      }finally{db.close();}
+    }
+    return {uid,read,write(name,value){const next=queue.then(()=>store(name,value));queue=next.catch(()=>{});return next;}};
+  }
+  function close(){
+    if(activeDialog){activeDialog.remove();activeDialog=null;}
+  }
+  async function feedback(port,message,{vault,uid}){
+    if(message.type!=='FENPING_FEEDBACK_OPEN' || !vault || !uid) return;
+    if(activeDialog?.isConnected) return;
+    const dialog=document.createElement('dialog');
+    activeDialog=dialog;
+    dialog.className='erp-fb-dialog';
+    dialog.innerHTML="<button class=\"erp-fb-close\">回到分坪</button><div id=\"p-feedback\"></div>"; const style=document.createElement("style");style.textContent="#p-feedback .fb-wrap { max-width: 1120px; margin: 0 auto; color: #183c36; }\n#p-feedback .fb-title { margin: 0 0 16px; }\n#p-feedback h1 { margin: 0 0 4px; font-size: clamp(24px, 3vw, 32px); }\n#p-feedback .fb-title p, #p-feedback .fb-collection p { margin: 5px 0 12px; line-height: 1.6; }\n#p-feedback .fb-grid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(260px, 1fr); gap: 14px; align-items: start; }\n#p-feedback .fb-card { border: 1px solid #cedbd4; background: #fff; border-radius: 12px; padding: clamp(15px, 2vw, 23px); min-width: 0; }\n#p-feedback .fb-card h2 { margin: 0 0 12px; font-size: 18px; color: #17463b; }\n#p-feedback .fb-card label { display: grid; gap: 5px; color: #284c41; font-size: 14px; font-weight: 600; }\n#p-feedback .fb-card textarea, #p-feedback .fb-card input:not([type=file]) { box-sizing: border-box; width: 100%; min-width: 0; border: 1px solid #b7c9bf; border-radius: 6px; padding: 9px 10px; background: #fff; color: #152e28; font: inherit; font-weight: 400; }\n#p-feedback textarea { resize: vertical; }\n#p-feedback .fb-extra { margin: 12px 0; }\n#p-feedback .fb-extra summary { color: #155c49; cursor: pointer; font-size: 14px; }\n#p-feedback .fb-extra > div { display: grid; gap: 10px; margin-top: 12px; }\n#p-feedback .fb-note, #p-feedback .fb-meta, #p-feedback small { color: #4c6559; font-size: 13px; font-weight: 400; }\n#p-feedback .fb-tools, #p-feedback .fb-head, #p-feedback .fb-meta, #p-feedback .fb-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }\n#p-feedback .fb-head, #p-feedback .fb-meta { justify-content: space-between; }\n#p-feedback .fb-head { margin-bottom: 12px; }\n#p-feedback .fb-head h2 { margin: 0; }\n#p-feedback .fb-card button { font: inherit; font-size: 14px; border: 1px solid #afc7b9; border-radius: 6px; color: #155c49; background: #f7faf8; padding: 6px 11px; cursor: pointer; }\n#p-feedback .fb-card button:hover { border-color: #24775e; }\n#p-feedback .fb-card button:disabled { opacity: .55; cursor: default; }\n#p-feedback .fb-card .fb-primary { background: #11634e; color: #fff; font-weight: 650; padding: 9px 15px; border-color: #11634e; }\n#p-feedback .fb-card .fb-link { border: 0; background: transparent; font-weight: 600; padding-inline: 1px; text-decoration: underline; text-underline-offset: 3px; }\n#p-feedback .fb-tabs [aria-pressed=true] { color: #134c3d; background: #e5f2e9; border-color: #62947a; font-weight: 650; }\n#p-feedback [hidden] { display: none !important; }\n#p-feedback .fb-status { margin: 12px 0; overflow-wrap: anywhere; }\n#p-feedback .fb-status:not(:empty) { padding: 10px 13px; color: #224a3b; background: #edf4ee; border-left: 3px solid #477d5f; line-height: 1.55; }\n#p-feedback .fb-entry { border-top: 1px solid #dce6de; margin-top: 12px; padding-top: 12px; overflow-wrap: anywhere; }\n#p-feedback .fb-entry p { white-space: pre-wrap; margin: 8px 0; }\n#p-feedback .fb-entry dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; margin: 0 0 6px; font-size: 14px; }\n#p-feedback .fb-entry dd { margin: 0; white-space: pre-wrap; }\n#p-feedback .fb-entry dt { color: #526c5b; }\n#p-feedback .fb-tag { background: #eef3ef; border-radius: 4px; padding: 2px 6px; }\n#p-feedback #fbDir { overflow-wrap: anywhere; }\n@media (max-width: 760px) {\n  #p-feedback .fb-grid { grid-template-columns: minmax(0, 1fr); }\n}\n .erp-fb-dialog{width:min(980px,95vw);max-height:88vh;overflow:auto;border:1px solid #b8cfc7;border-radius:12px;padding:16px;background:#f4f7f4;color:#183b32}.erp-fb-dialog::backdrop{background:#12372cb3}.erp-fb-close{display:block;margin-left:auto;font:inherit;cursor:pointer;padding:6px 12px}";dialog.prepend(style);
+    document.body.append(dialog);dialog.showModal();
+    dialog.querySelector('button').onclick=()=>dialog.close();
+    dialog.onclose=()=>{if(activeDialog===dialog)close();};
+    // Scope local feedback and remembered folders to the signed-in staff member.
+    const dbSuffix=uid;
+    let cache;
+    try {cache=new Map(JSON.parse(await vault.read('feedback')||'[]'));}
+    catch {dialog.close();throw Error('此帳號的回饋紀錄無法讀取');}
+    if(activeDialog!==dialog)return;
+    const feedbackStorage={
+      get length(){return cache.size;},
+      key(i){return Array.from(cache.keys())[i];},
+      getItem(k){return cache.get(k) || null;},
+      async setItem(k,v){
+        const next=new Map(cache);next.set(k,v);
+        await vault.write('feedback',JSON.stringify([...next]));
+        cache=next;
+      }
+    };
+    const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    /* 回饋與案件各自儲存。這個分頁只讀取回饋表單及使用者選定的回饋檔案。 */
+const feedbackPage = (() => {
+  const schema = 'fenping.feedback/1', bundleSchema = 'fenping.feedback.bundle/1';
+  const prefix = 'fenping.feedback.v20.'+dbSuffix+'.', filePrefix = 'fenping-feedback-';
+  const fields = { message: 2000, area: 100, expected: 1000, actual: 1000, author: 60 };
+  const seenThisSession = new Map();
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+  let root, directory = null, shared = new Map(), snapshotRead = false, scope = 'local', busy = false;
+  let remembered = null, restoreStarted = false, linkRevision = 0;
+
+  // 儲存瀏覽器核發的目錄控制代碼；案件內容與回饋文字均不會寫入這個資料庫。
+  async function storedFolder(operation, handle) {
+    const db = await new Promise((resolve, reject) => {
+      const open = indexedDB.open('fenping-feedback-folders-v20-'+dbSuffix, 1);
+      open.onupgradeneeded = () => open.result.createObjectStore('settings');
+      open.onerror = () => reject(open.error);
+      open.onsuccess = () => resolve(open.result);
+    });
+    try {
+      return await new Promise((resolve, reject) => {
+        const tx = db.transaction('settings', operation === 'get' ? 'readonly' : 'readwrite');
+        const s = tx.objectStore('settings');
+        const req = operation === 'get' ? s.get('folder') : operation === 'put' ? s.put(handle, 'folder') : s.delete('folder');
+        tx.oncomplete = () => resolve(req.result);
+        tx.onabort = () => reject(tx.error || Error('folder storage unavailable'));
+        tx.onerror = () => reject(tx.error || req.error);
+      });
+    } finally { db.close(); }
+  }
+
+  async function restoreFolder() {
+    const revision = linkRevision;
+    try {
+      const handle = await storedFolder('get');
+      if (!handle || typeof handle.queryPermission !== 'function' || revision !== linkRevision) return;
+      const permission = await handle.queryPermission({mode:'readwrite'});
+      if (revision !== linkRevision) return;
+      remembered = handle;
+      if (permission === 'granted') directory = handle;
+      update();
+    } catch (_) { /* 瀏覽器不保存控制代碼時，仍可按鈕手選。 */ }
+  }
+
+  function newId() {
+    if (crypto.randomUUID) return crypto.randomUUID();
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    bytes[6] = (bytes[6] & 15) | 64;
+    bytes[8] = (bytes[8] & 63) | 128;
+    const s = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+    return [s.slice(0,8), s.slice(8,12), s.slice(12,16), s.slice(16,20), s.slice(20)].join('-');
+  }
+
+  function validate(raw) {
+    if (!raw || raw.schema !== schema || typeof raw.id !== 'string' || !uuidPattern.test(raw.id) ||
+        typeof raw.createdAt !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(raw.createdAt) ||
+        !Number.isFinite(Date.parse(raw.createdAt))) throw Error('格式不符');
+    const record = { schema, id: raw.id, createdAt: raw.createdAt };
+    for (const [key, max] of Object.entries(fields)) {
+      if (typeof raw[key] !== 'string' || raw[key].length > max) throw Error('欄位格式不符');
+      record[key] = raw[key];
+    }
+    if (!record.message.trim()) throw Error('缺少回饋內容');
+    return record;
+  }
+
+  function same(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
+  function filename(record) { return filePrefix + record.id + '.json'; }
+  function localEntries() {
+    const entries = new Map();
+    try {
+      for (let i = 0; i < feedbackStorage.length; i++) {
+        const key = feedbackStorage.key(i);
+        if (!key || !key.startsWith(prefix)) continue;
+        try {
+          const item = JSON.parse(feedbackStorage.getItem(key));
+          const record = validate(item.record);
+          if (key === prefix + record.id) entries.set(record.id, { ...item, record, saved: true });
+        } catch (_) { /* 只有通過格式檢查的回饋能列入。 */ }
+      }
+    } catch (_) { /* 停用瀏覽器儲存時仍可在此頁匯出。 */ }
+    for (const [id, item] of seenThisSession) entries.set(id, item);
+    return entries;
+  }
+
+  async function keep(item) {
+    const value = { record: item.record, receipt: item.receipt || '', imported: !!item.imported };
+    let saved = false;
+    try {
+      const key = prefix + item.record.id, json = JSON.stringify(value);
+      await feedbackStorage.setItem(key, json);
+      saved = feedbackStorage.getItem(key) === json;
+    } catch (_) { /* 在清單上標示僅保留於本次開啟，並提供匯出。 */ }
+    const result = { ...value, saved };
+    if (saved) seenThisSession.delete(item.record.id);
+    else seenThisSession.set(item.record.id, result);
+    return result;
+  }
+
+  async function readOne(handle) {
+    const file = await handle.getFile();
+    if (!file.size) return null;
+    if (file.size > 65536) throw Error('回饋檔太大');
+    return validate(JSON.parse((await file.text()).replace(/^\uFEFF/, '')));
+  }
+
+  async function writeOne(record) {
+    const handle = await directory.getFileHandle(filename(record), { create: true });
+    let previous = await readOne(handle);
+    if (!previous) {
+      const stream = await handle.createWritable({ mode: 'exclusive' });
+      try {
+        // 取得寫入鎖之後再次比對，補交不會覆寫已存在的完整回饋。
+        previous = await readOne(handle);
+        if (previous) await stream.abort();
+        else {
+          await stream.write(JSON.stringify(record, null, 2));
+          await stream.close();
+        }
+      } catch (err) {
+        try { await stream.abort(); } catch (_) {}
+        throw err;
+      }
+    }
+    const verified = previous || await readOne(handle);
+    if (!same(verified, record)) throw Error('同編號檔案的內容不同，已保留原檔');
+    shared.set(record.id, record);
+  }
+
+  function status(text) { root.querySelector('#fbStatus').textContent = text; }
+  function stamp(time) { return new Date(time).toLocaleString('zh-TW', { hour12: false }); }
+
+  function entryHtml(record, item) {
+    const badge = !item ? '共用資料夾' : shared.has(record.id) && same(shared.get(record.id), record)
+      ? '已在目前資料夾核對' : item.receipt ? '曾寫入「' + item.receipt + '」'
+      : item.imported ? '由檔案匯入' : item.saved ? '僅存本機' : '僅保留於本次開啟';
+    const details = [['畫面或欄位', record.area], ['期待結果', record.expected], ['實際結果', record.actual]]
+      .filter(([, value]) => value).map(([label, value]) => '<dt>' + label + '</dt><dd>' + esc(value) + '</dd>').join('');
+    return `<article class="fb-entry" data-fb-item="${record.id}"><div class="fb-meta"><span>${esc(stamp(record.createdAt))}${record.author ? ' · ' + esc(record.author) : ''}</span><span class="fb-tag">${esc(badge)}</span></div>
+      <p>${esc(record.message)}</p>${details ? '<dl>' + details + '</dl>' : ''}<div class="fb-tools">
+      <button class="fb-link" type="button" data-fb-one="${record.id}">匯出這則</button>
+      ${item && directory && !same(shared.get(record.id), record) ? '<button class="fb-link" type="button" data-fb-resend="' + record.id + '">送至目前資料夾</button>' : ''}</div></article>`;
+  }
+
+  function update() {
+    const local = localEntries();
+    const picker = typeof window.showDirectoryPicker === 'function';
+    root.querySelector('#fbDir').textContent = directory ? '已連結「' + directory.name + '」' : remembered ? '已記住「' + remembered.name + '」，需重新授權' :
+      picker ? '尚未連結共用資料夾' : '這個瀏覽器可用回饋檔交換';
+    root.querySelector('#fbConnect').hidden = !picker;
+    root.querySelector('#fbConnect').textContent = directory || remembered ? '更換回饋資料夾' : '連結回饋資料夾';
+    root.querySelector('#fbReauthorize').hidden = !!directory || !remembered || typeof remembered.requestPermission !== 'function';
+    root.querySelector('#fbDisconnect').hidden = !directory && !remembered;
+    root.querySelector('#fbRefresh').hidden = !directory;
+    root.querySelector('#fbShared').hidden = !directory;
+    root.querySelector('#fbSend').textContent = directory ? '儲存並送到回饋資料夾' : '儲存在這台電腦';
+    root.querySelector('#fbLocal').setAttribute('aria-pressed', String(scope === 'local'));
+    root.querySelector('#fbShared').setAttribute('aria-pressed', String(scope === 'shared'));
+    const records = scope === 'shared' ? [...shared.values()] : [...local.values()].map(item => item.record);
+    records.sort((a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id));
+    root.querySelector('#fbCount').textContent = scope === 'shared' && !snapshotRead ? '尚未讀取完整清單' : records.length + ' 則';
+    root.querySelector('#fbList').innerHTML = records.map(r => entryHtml(r, scope === 'local' ? local.get(r.id) : null)).join('') ||
+      '<p class="fb-note">' + (scope === 'local' ? '這台電腦還沒有回饋。' : snapshotRead ? '資料夾中尚無可讀取的回饋。' : '按「讀取共用回饋」查看資料夾內的紀錄。') + '</p>';
+    root.querySelector('#fbExport').disabled = !records.length || (scope === 'shared' && !snapshotRead);
+    root.querySelectorAll('button').forEach(b => {
+      if (b.id !== 'fbExport') b.disabled = busy;
+      else if (busy) b.disabled = true;
+    });
+  }
+
+  function download(name, data) {
+    const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' }));
+    const a = document.createElement('a');
+    a.href = url; a.download = name; document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+  }
+
+  async function deliver(item) {
+    try {
+      await writeOne(item.record);
+      const checked = await keep({ ...item, receipt: directory.name });
+      status('已寫入並讀回「' + directory.name + '」的回饋檔。' + (checked.saved ? '' : '本機副本僅保留於本次開啟。'));
+    } catch (err) {
+      const hint = err.message === '同編號檔案的內容不同，已保留原檔' ? '同編號檔案的內容不同，已保留原檔。' : '請確認資料夾可存取且已授權寫入。';
+      status((item.saved ? '本機已儲存。' : '本機儲存失敗，請先匯出這則。') + '共用收件未確認。' + hint + '可從本機紀錄補交。');
+    }
+  }
+
+  async function submit(form) {
+    const record = { schema, id: newId(), createdAt: new Date().toISOString() };
+    for (const key of Object.keys(fields)) record[key] = form.elements.namedItem(key).value.trim();
+    if (!record.message) { status('請先輸入一則心得或建議。'); form.elements.namedItem('message').focus(); return; }
+    const item = await keep({ record: validate(record) });
+    form.reset(); scope = 'local';
+    if (directory) await deliver(item);
+    else status(item.saved ? '已存在這台電腦。可連結資料夾補交，或匯出這則給彙整人。' : '本機儲存失敗，回饋僅保留於本次開啟。請先匯出這則。');
+  }
+
+  async function connect() {
+    const handle = await window.showDirectoryPicker({ id: 'fenping-feedback', mode: 'readwrite' });
+    ++linkRevision;
+    directory = handle; remembered = null; shared = new Map(); snapshotRead = false; scope = 'local';
+    try {
+      await storedFolder('put', handle);
+      remembered = handle;
+    } catch (_) { try { await storedFolder('delete'); } catch (_) {} }
+    status('已連結「' + handle.name + '」。新回饋會寫到這裡，既有回饋可在本機紀錄逐則補交。' +
+      (remembered ? '' : '這個瀏覽器無法記住資料夾，下次開啟請再選一次。'));
+  }
+
+  async function reauthorize() {
+    ++linkRevision;
+    if (await remembered.requestPermission({mode:'readwrite'}) === 'granted') {
+      directory = remembered;
+      status('已恢復「' + directory.name + '」的使用權限。既有回饋可在本機紀錄逐則補交。');
+    } else status('目前未取得寫入權限。可以更換資料夾，或先將回饋存於本機。');
+  }
+
+  async function disconnect() {
+    ++linkRevision;
+    directory = null; remembered = null; shared.clear(); snapshotRead = false; scope = 'local';
+    try {
+      await storedFolder('delete');
+      status('已中斷連結，並清除記住的資料夾。新回饋會存在這台電腦。');
+    } catch (_) { status('本次已中斷連結。瀏覽器未確認已清除記住的資料夾。'); }
+  }
+
+  async function readShared() {
+    const found = new Map(), conflicts = new Set();
+    let skipped = 0;
+    for await (const [name, handle] of directory.entries()) {
+      if (handle.kind !== 'file' || !name.startsWith(filePrefix) || !name.endsWith('.json')) continue;
+      try {
+        const record = await readOne(handle);
+        if (!record || name !== filename(record)) { skipped++; continue; }
+        if (found.has(record.id) && !same(found.get(record.id), record)) conflicts.add(record.id);
+        else found.set(record.id, record);
+      } catch (_) { skipped++; }
+    }
+    conflicts.forEach(id => found.delete(id));
+    shared = found; snapshotRead = true; scope = 'shared';
+    status('已讀取「' + directory.name + '」共 ' + found.size + ' 則回饋。' +
+      (skipped + conflicts.size ? '另有 ' + (skipped + conflicts.size) + ' 筆檔案未通過核對。' : ''));
+  }
+
+  async function importFiles(files) {
+    const entries = localEntries();
+    let added = 0, duplicate = 0, invalid = 0, conflict = 0, volatile = 0;
+    for (const file of files) {
+      try {
+        if (file.size > 16 * 1024 * 1024) throw Error('檔案太大');
+        const raw = JSON.parse((await file.text()).replace(/^\uFEFF/, ''));
+        const rows = raw?.schema === bundleSchema ? raw.records : [raw];
+        if (!Array.isArray(rows)) throw Error('格式不符');
+        for (const row of rows) {
+          let record;
+          try { record = validate(row); } catch (_) { invalid++; continue; }
+          const existing = entries.get(record.id);
+          if (existing) { if (same(existing.record, record)) duplicate++; else conflict++; continue; }
+          const item = await keep({ record, imported: true });
+          entries.set(record.id, item);
+          added++; if (!item.saved) volatile++;
+        }
+      } catch (_) { invalid++; }
+    }
+    scope = 'local';
+    status(`已匯入 ${added} 則，重複 ${duplicate} 則。` +
+      (invalid ? `格式或大小不符 ${invalid} 筆。` : '') + (conflict ? `同編號內容不同 ${conflict} 則，已保留原紀錄。` : '') +
+      (volatile ? `本機空間無法保存 ${volatile} 則，請在關閉前匯出。` : ''));
+  }
+
+  async function run(action) {
+    if (busy) return;
+    busy = true; update();
+    try { await action(); }
+    catch (err) {
+      if (err.name === 'AbortError') status('已取消選擇資料夾。');
+      else status('操作未完成。請確認權限及資料夾是否可用，也可以匯出回饋檔。');
+    } finally { busy = false; update(); }
+  }
+
+  function click(event) {
+    const btn = event.target.closest('button');
+    if (!btn || btn.type === 'submit' || busy) return;
+    if (btn.id === 'fbConnect') return run(connect);
+    if (btn.id === 'fbReauthorize') return run(reauthorize);
+    if (btn.id === 'fbDisconnect') return run(disconnect);
+    if (btn.id === 'fbRefresh' || (btn.id === 'fbShared' && !snapshotRead)) {
+      return run(async () => {
+        scope = 'shared'; snapshotRead = false; shared.clear();
+        await readShared();
+      });
+    } else if (btn.id === 'fbLocal') scope = 'local';
+    else if (btn.id === 'fbShared') scope = 'shared';
+    else if (btn.id === 'fbImport') return root.querySelector('#fbFile').click();
+    else if (btn.dataset.fbResend) {
+      const item = localEntries().get(btn.dataset.fbResend);
+      if (item && directory) return run(() => deliver(item));
+    } else if (btn.dataset.fbOne) {
+      const record = scope === 'shared' ? shared.get(btn.dataset.fbOne) : localEntries().get(btn.dataset.fbOne)?.record;
+      if (record) download(filename(record), record);
+    } else if (btn.id === 'fbExport') {
+      const records = scope === 'shared' ? [...shared.values()] : [...localEntries().values()].map(it => it.record);
+      records.sort((a,b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
+      download('分坪工具_回饋彙整_' + (scope === 'shared' ? '共用' : '本機') + '_' + new Date().toISOString().slice(0,10) + '.json', { schema: bundleSchema, records });
+    }
+    update();
+  }
+
+  return function render() {
+    const panel = document.getElementById('p-feedback');
+    if (root === panel && panel?.querySelector('#fbForm')) { update(); return; }
+    root = panel;
+    root.innerHTML = `<div class="fb-wrap"><div class="fb-title"><h1>使用回饋</h1><p>哪個欄位卡住了？哪個步驟可以更快？寫一句就能留下。</p></div>
+      <div class="fb-grid"><section class="fb-card"><h2>寫一則回饋</h2><form id="fbForm" autocomplete="off">
+        <label>心得或建議<textarea name="message" required maxlength="2000" rows="4" placeholder="例如：在持分尾差按了＋1，希望可以直接看到還差多少。"></textarea></label>
+        <details class="fb-extra"><summary>補充畫面、期待結果或署名（選填）</summary><div>
+          <label>畫面、欄位或操作<input name="area" maxlength="100" placeholder="例如：各戶面積／貼上坪數"></label>
+          <label>期待結果<textarea name="expected" maxlength="1000" rows="2"></textarea></label>
+          <label>實際結果<textarea name="actual" maxlength="1000" rows="2"></textarea></label>
+          <label>署名<input name="author" maxlength="60" placeholder="可留空"></label>
+        </div></details><p class="fb-note">只收你在這裡填的文字。請省略客戶姓名、地址與案號。</p>
+        <button class="fb-primary" type="submit" id="fbSend"></button></form></section>
+      <section class="fb-card fb-collection"><h2>同仁共用收件</h2><strong id="fbDir"></strong>
+        <p>每位同仁在 Chrome 或 Edge 選取同一個共用資料夾。每則回饋各存一檔，彙整人可隨時讀取。</p>
+        <div class="fb-tools"><button id="fbReauthorize" type="button">授權上次的資料夾</button><button id="fbConnect" type="button"></button><button id="fbRefresh" type="button">讀取共用回饋</button><button id="fbDisconnect" type="button" class="fb-link">中斷連結</button></div>
+        <p class="fb-note">瀏覽器會嘗試記住你選的資料夾。也可以匯出回饋檔交給彙整人，讓對方從下方匯入。</p></section></div>
+      <p id="fbStatus" class="fb-status" role="status" aria-live="polite"></p>
+      <section class="fb-card fb-history"><div class="fb-head"><h2>回饋紀錄 <small id="fbCount"></small></h2>
+        <div class="fb-tools"><button id="fbImport" type="button">匯入回饋檔</button><button id="fbExport" type="button">匯出目前清單</button></div></div>
+        <div class="fb-tabs"><button type="button" id="fbLocal">本機紀錄</button><button type="button" id="fbShared">共用資料夾</button></div>
+        <input type="file" id="fbFile" accept=".json,application/json" multiple hidden><div id="fbList"></div></section></div>`;
+    root.onclick = click;
+    root.querySelector('#fbForm').onsubmit = event => { event.preventDefault(); run(() => submit(event.target)); };
+    root.querySelector('#fbFile').onchange = event => {
+      const files = Array.from(event.target.files); event.target.value = '';
+      if (files.length) run(() => importFiles(files));
+    };
+    update();
+    if (!restoreStarted) { restoreStarted = true; restoreFolder(); }
+  };
+})();
+
+
+    feedbackPage();
+  }
+  return {open,feedback,close};
+})();
+
+const gate=document.getElementById('gate'), status=document.getElementById('status'), retry=document.getElementById('retry');
+const embedded=parent!==window;
+const pending=new Map();
+let auth=null, authUid=null, epoch=0, inflight=null, active=null, reader=null, bootTimer=null, hiddenForCheck=false;
+const notices={
+  login:'請先登入公司 ERP，再從選單開啟分坪計算器。',
+  denied:'目前帳號沒有分坪工具使用權限。請回 ERP 確認登入的公司帳號。',
+  offline:'目前無法連線核對 ERP 會員權限。恢復連線後可重新開啟。',
+  release:'目前無法載入分坪工具。請稍後重新確認。',
+  checking:'正在確認 ERP 會員權限…',
+  loading:'正在開啟分坪工具與核對用原表…'
+};
+class GateError extends Error {}
+function notice(kind,canRetry=true){
+  document.documentElement.classList.add('gate-pending');
+  gate.hidden=false;
+  if(active) active.frame.hidden=true;
+  status.textContent=notices[kind];
+  retry.hidden=!canRetry;
+}
+function clearFrame(){
+  clearTimeout(bootTimer);
+  if(active){active.port.close();active.frame.remove();active=null;V20Vault.close();}
+}
+function cancelChecks(){
+  epoch++;
+  reader?.abort();reader=null;inflight=null;
+  for(const finish of pending.values()) finish(null);
+  pending.clear();
+}
+function lock(kind){
+  cancelChecks();
+  clearFrame();
+  V20Vault.close();
+  notice(kind);
+}
+function parentIdentity(){
+  const id=crypto.randomUUID();
+  return new Promise(resolve=>{
+    const finish=value=>{clearTimeout(timeout);pending.delete(id);resolve(value);};
+    const timeout=setTimeout(()=>finish(null),5000);
+    pending.set(id,finish);
+    parent.postMessage({type:'FENPING_AUTH_REQUEST',requestId:id},location.origin);
+  });
+}
+window.addEventListener('message',event=>{
+  if(!embedded||event.source!==parent||event.origin!==location.origin)return;
+  const msg=event.data;
+  if(msg?.type==='FENPING_LOCK'){lock('login');return;}
+  if(msg?.type!=='FENPING_AUTH_RESPONSE')return;
+  pending.get(msg.requestId)?.(typeof msg.uid==='string'&&typeof msg.token==='string'&&msg.token?{uid:msg.uid,token:msg.token}:null);
+});
+async function identity(){
+  if(embedded)return parentIdentity();
+  const user=auth?.currentUser;
+  if(!user)return null;
+  return {uid:user.uid,token:await user.getIdToken()};
+}
+async function json(url,options,signal){
+  const result=await fetch(url,{cache:'no-store',credentials:'omit',redirect:'error',referrerPolicy:'no-referrer',...options,signal});
+  if(!result.ok)throw new GateError([400,401,403].includes(result.status)?'denied':'release');
+  return result.json();
+}
+function read(path,token,signal){
+  const url=new URL('/fenpingERP/v20/'+path+'.json',config.databaseURL);
+  url.searchParams.set('auth',token);
+  return json(url,{},signal);
+}
+async function verifyAccount(who,signal){
+  const info=await json('https://identitytoolkit.googleapis.com/v1/accounts:lookup?key='+encodeURIComponent(config.apiKey),{
+    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken:who.token})
+  },signal);
+  const account=info?.users?.[0];
+  if(!account||account.localId!==who.uid||account.disabled===true)throw new GateError('denied');
+  // Token authenticity is verified by Google above and independently by RTDB.
+  if(account.validSince){
+    try{
+      const encoded=who.token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+      const claims=JSON.parse(atob(encoded));
+      if(!Number.isFinite(claims.auth_time)||claims.auth_time<Number(account.validSince))throw Error();
+    }catch{throw new GateError('denied');}
+  }
+}
+async function digest(value){
+  const hash=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)));
+  return Array.from(hash,b=>b.toString(16).padStart(2,'0')).join('');
+}
+function reveal(){
+  if(active?.ready&&!document.hidden&&!hiddenForCheck){
+    document.documentElement.classList.remove('gate-pending');
+    active.frame.hidden=false;gate.hidden=true;
+  }
+}
+function attach(who,release,html,seed,draft,vault,generation){
+  clearFrame();
+  const frame=document.createElement('iframe');
+  frame.id='instrument'; frame.title='分坪計算器';frame.hidden=true;frame.referrerPolicy='no-referrer';
+  frame.setAttribute('sandbox','allow-scripts allow-modals allow-downloads allow-forms');
+  const channel=new MessageChannel(),port=channel.port1;
+  const entry={uid:who.uid,release,frame,port,ready:false,vault};
+  active=entry;
+  const live=()=>active===entry;
+  let queue=Promise.resolve();
+  async function getToken(){
+    if(!live())throw new GateError('denied');
+    const now=await identity();
+    if(!live()||now?.uid!==entry.uid)throw new GateError('denied');
+    return now.token;
+  }
+  port.onmessage=event=>{
+    if(!live())return;
+    const msg=event.data;
+    if(msg?.type==='FENPING_READY'){clearTimeout(bootTimer);entry.ready=true;reveal();return;}
+    if(msg?.type==='FENPING_BOOT_ERROR'){lock('release');return;}
+    if(msg?.type==='FENPING_SAVE'&&typeof msg.value==='string'){
+      queue=queue.catch(()=>{}).then(async()=>{
+        if(!live())return;
+        let ok=false;try{await vault.write('cases',msg.value);ok=true;}catch{}
+        if(live())port.postMessage({type:'FENPING_SAVED',id:msg.id,ok});
+      });
+    }else if(typeof msg?.type==='string'&&msg.type.startsWith('FENPING_FEEDBACK')){
+      Promise.resolve(V20Vault.feedback(port,msg,{vault,uid:entry.uid,getToken})).catch(()=>{
+        if(live())port.postMessage({type:'FENPING_FEEDBACK_ERROR',id:msg.id,ok:false});
+      });
+    }
+  };
+  frame.addEventListener('load',()=>{
+    if(!live())return;
+    // Only the empty binding message targets the opaque frame origin. All case
+    // data passes through its dedicated transferable channel, never the window bus.
+    frame.contentWindow.postMessage({type:'FENPING_BIND'},'*',[channel.port2]);
+    port.postMessage({type:'FENPING_BOOT',uid:who.uid,revision:release.revision,seed,draft});
+  },{once:true});
+  frame.srcdoc=html;
+  document.body.append(frame);
+  bootTimer=setTimeout(()=>{if(live()&&!entry.ready)lock('release');},12000);
+}
+async function check(){
+  if(inflight||document.hidden)return;
+  const generation=epoch,current=()=>generation===epoch;
+  const abort=new AbortController();
+  reader=abort;
+  const timeout=setTimeout(()=>abort.abort(),30000);
+  inflight=(async()=>{
+    if(!navigator.onLine)throw new GateError('offline');
+    const who=await identity();
+    if(!current())return;
+    if(!who)throw new GateError('login');
+    if(active&&active.uid!==who.uid){clearFrame();notice('checking',false);}
+    const [release]=await Promise.all([read('release',who.token,abort.signal),verifyAccount(who,abort.signal)]);
+    if(!current())return;
+    if(!release?.enabled||typeof release.revision!=='string'||!release.vaultKey||
+       !/^[0-9a-f]{64}$/i.test(release.appSha256)||!/^[0-9a-f]{64}$/i.test(release.seedSha256))throw new GateError('release');
+    hiddenForCheck=false;
+    if(active?.uid===who.uid&&['revision','appSha256','seedSha256','vaultKey'].every(k=>active.release[k]===release[k])){
+      reveal();return;
+    }
+    clearFrame();notice('loading',false);
+    const [html,raw]=await Promise.all([read('app',who.token,abort.signal),read('seed',who.token,abort.signal)]);
+    if(!current())return;
+    if(typeof html!=='string'||typeof raw!=='string')throw new GateError('release');
+    const [h,s]=await Promise.all([digest(html),digest(raw)]);
+    if(h!==release.appSha256.toLowerCase()||s!==release.seedSha256.toLowerCase())throw new GateError('release');
+    const seed=JSON.parse(raw);
+    const vault=await V20Vault.open(who.uid,release.vaultKey);
+    const draft=await vault.read('cases');
+    if(current())attach(who,release,html,seed,draft,vault,generation);
+  })();
+  try{await inflight;}catch(error){
+    if(current())lock(error instanceof GateError?error.message:'offline');
+  }finally{clearTimeout(timeout);if(current()){inflight=null;reader=null;}}
+}
+retry.onclick=()=>{notice('checking',false);check();};
+window.addEventListener('offline',()=>lock('offline'));
+window.addEventListener('online',check);
+window.addEventListener('pagehide',()=>lock('checking'));
+window.addEventListener('pageshow',event=>{if(event.persisted)check();});
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){cancelChecks();hiddenForCheck=true;notice('checking',false);}
+  else{hiddenForCheck=true;notice('checking',false);check();}
+});
+if(embedded) check();
+else{
+  try{
+    const [{initializeApp},{getAuth,onIdTokenChanged}]=await Promise.all([
+      import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js'),
+      import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js')
+    ]);
+    auth=getAuth(initializeApp(config));
+    onIdTokenChanged(auth,user=>{
+      if(!user){authUid=null;lock('login');return;}
+      if(authUid!==null&&user.uid!==authUid)lock('checking');
+      authUid=user.uid;
+      check();
+    });
+  }catch{lock('offline');}
+}
+setInterval(check,15000);
+</script></body></html>

@@ -254,7 +254,7 @@ const DASHBOARD_ITEMS = [
   { title: "問行情", desc: "實價登錄同棟、同路段比對，產生可轉傳回覆", icon: "fa-magnifying-glass-dollar", url: "https://homegoestate.github.io/market-ask/", module: "ai" },
   { title: "土地效益評估", desc: "土地、容積、效益試算", icon: "fa-chart-pie", url: "https://yangceo-taiwan.github.io/Land-efficiency-assessment/", module: "land" },
   { title: "遺產服務", desc: "繼承、文件、稅務節點", icon: "fa-hand-holding-heart", url: "https://homegoestate.github.io/inherit/", module: "inherit" },
-  { title: "銀行選擇", desc: "貸款條件、銀行策略、客戶分析", icon: "fa-landmark", url: "https://homegoestate.github.io/Bank-choice/", module: "bank" }
+  { title: "分坪計算器", desc: "建物、車位、持分計算與原表核對", icon: "fa-table-cells", url: "https://homegoestate.github.io/mainmanagement/fenping/", module: "fenping" }
 ];
 
 let currentSession = null;
@@ -697,6 +697,7 @@ function setActive(el) {
 function sessionParams(url) {
   const u = new URL(url, window.location.href);
   const s = currentSession || {};
+  if (currentFrameItem?.module === "fenping") return new URL(currentFrameItem.url, location.href).href;
   const isEmployeeModule = currentFrameItem?.module === "employee";
   const moduleName = isEmployeeModule ? (s.loginAccount || s.legacyName || s.name || "") : (s.name || "");
   u.searchParams.set("name", moduleName);
@@ -712,7 +713,35 @@ function sessionParams(url) {
   return u.toString();
 }
 
+// Only the exact allocation launcher loaded in the current ERP content frame
+// may ask for this ERP session's short-lived Firebase identity.
+function allocationFrameIsCurrent(source) {
+  if (!source || !currentSession || currentFrameItem?.module !== 'fenping') return false;
+  const frame = document.getElementById('content-frame');
+  try {
+    return frame?.contentWindow === source && source.location.origin === location.origin &&
+      ['/mainmanagement/fenping/','/mainmanagement/fenping/index.html'].includes(source.location.pathname);
+  } catch { return false; }
+}
+function lockAllocationFrame() {
+  const target=document.getElementById('content-frame')?.contentWindow;
+  if(allocationFrameIsCurrent(target))target.postMessage({type:'FENPING_LOCK'},location.origin);
+}
+window.addEventListener('message',async event=>{
+  if(event.origin!==location.origin || event.data?.type!=='FENPING_AUTH_REQUEST' ||
+    typeof event.data.requestId!=='string' || event.data.requestId.length>120 ||
+    !allocationFrameIsCurrent(event.source))return;
+  const user=auth.currentUser;
+  let token=null;
+  try{if(user)token=await user.getIdToken();} catch{}
+  if(!allocationFrameIsCurrent(event.source))return;
+  if(auth.currentUser!==user)token=null;
+  event.source.postMessage({type:'FENPING_AUTH_RESPONSE',requestId:event.data.requestId,
+    token,uid:token?user.uid:null},location.origin);
+});
+
 function sendSessionToFrame() {
+  if(currentFrameItem?.module === "fenping") return;
   const frame = $("content-frame");
   if (!frame.contentWindow || !currentSession || !currentFrameItem) return;
   const sessionForModule = { ...currentSession };
@@ -1044,6 +1073,7 @@ function escapeHtml(v) { return String(v ?? "").replace(/[&<>'"]/g, ch => ({ "&"
 function escapeAttr(v) { return escapeHtml(v).replace(/\n/g, ""); }
 
 async function logout() {
+  lockAllocationFrame();
   if (!confirm("確定登出？")) return;
   try { await signOut(auth); } catch (err) { console.warn("signOut failed", err); }
   await signOutEmployeeSystem();
