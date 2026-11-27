@@ -1,0 +1,43 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; frame-src 'self'; font-src data:; base-uri 'none'; form-action 'none'">
+<title>銀行條件｜宏國地政 · 易丞地政</title>
+<style>html,body{margin:0;height:100%;font:16px system-ui,sans-serif;color:#193748;background:#f3f6f6}main{margin:0 auto;max-width:42rem;padding:3rem 1.25rem}iframe{width:100%;height:100%;border:0;background:white}a,button{color:#12534f;font:inherit}button{margin-right:1rem;padding:.4rem .75rem}[hidden]{display:none!important}</style>
+</head><body><main><small>宏國地政｜易丞地政 · 同仁專用</small><h1>銀行條件</h1><p role="status" id="status">正在向總控制管理確認權限…</p><button id="retry" type="button">重新確認</button><a href="../index.html" target="_top">回總控制管理</a></main>
+<script>
+'use strict';
+const outer=document.querySelector('main'),statusText=document.querySelector('#status');
+let book=null,digest='',pending='',timer=0,feed=null,feedAt=0,loaded=false;
+function sendFeed(){if(book&&loaded&&feed){book.contentWindow?.postMessage({type:'HOMEGO_BANK_FEED_V1',data:feed.data,status:feed.status},'*');}}
+function lock(s='請從總控制管理登入後，選擇「銀行條件」。'){
+ clearTimeout(timer);pending='';book?.remove();book=null;digest='';loaded=false;feed=null;feedAt=0;outer.hidden=false;statusText.textContent=s;
+}
+function check(){
+ if(window.parent===window){lock();return;}
+ if(document.hidden){lock('切回畫面後會重新確認。');return;}
+ if(!navigator.onLine){lock('目前離線，無法確認同仁權限。');return;}
+ if(pending)return;
+ pending=crypto.randomUUID();timer=setTimeout(()=>lock('無法確認同仁權限，請回總控重新登入。'),12000);
+ parent.postMessage({type:'BANK_READ',id:pending,sha256:digest,wantFeed:!feed||Date.now()-feedAt>90000},location.origin);
+}
+window.addEventListener('message',e=>{
+ if(parent===window||e.source!==parent||e.origin!==location.origin)return;
+ const m=e.data;if(m?.type==='BANK_LOCK'){lock();return;}
+ if(m?.type!=='BANK_RESULT'||!pending||m.id!==pending||document.hidden)return;
+ clearTimeout(timer);pending='';
+ if(m.denied||typeof m.sha256!=='string'||!/^[0-9a-f]{64}$/.test(m.sha256)){lock('此功能限有效的在職同仁帳號，或資料目前無法讀取。');return;}
+ let changedFeed=false;
+ if(m.feed){feed=['ok','empty','unavailable'].includes(m.feed.status)?m.feed:{data:null,status:'unavailable'};feedAt=Date.now();changedFeed=true;}
+ if(m.sha256===digest&&book){if(changedFeed)sendFeed();return;}
+ if(typeof m.html!=='string'){lock('目前無法載入銀行條件。');return;}
+ book?.remove();loaded=false;book=document.createElement('iframe');book.title='銀行條件手冊';
+ const newBook=book;book.addEventListener('load',()=>{if(book===newBook){loaded=true;sendFeed();}},{once:true});
+ book.setAttribute('sandbox','allow-scripts allow-modals');book.referrerPolicy='no-referrer';
+ book.srcdoc=m.html;digest=m.sha256;document.body.appendChild(book);outer.hidden=true;
+});
+document.querySelector('#retry').onclick=()=>{lock('正在確認…');check();};
+window.addEventListener('offline',()=>lock('目前離線，銀行條件已關閉。'));
+window.addEventListener('online',check);window.addEventListener('pagehide',()=>lock());
+window.addEventListener('pageshow',check);document.addEventListener('visibilitychange',()=>{lock('切回畫面後會重新確認。');if(!document.hidden)check();});
+check();setInterval(check,15000);
+</script></body></html>

@@ -248,6 +248,7 @@ const EMPLOYEE_ALIAS_MAP = {
 const DASHBOARD_ITEMS = [
   { title: "員工管理", desc: "打卡、請假、補登、出勤月報", icon: "fa-users-gear", url: "https://homegoestate.github.io/Employee-management/", module: "employee" },
   { title: "案件管理", desc: "案件 SOP、承辦、留痕、結案", icon: "fa-folder-open", url: "https://homegoestate.github.io/case/", module: "case" },
+  { title: "銀行條件", desc: "查詢銀行與分行授信條件、適用範圍及資料日期", icon: "fa-building-columns", url: "https://homegoestate.github.io/mainmanagement/bank-conditions/", module: "bankConditions" },
   { title: "地政士作業台", desc: "選案補標的明細，產生登記申請書與公契", icon: "fa-file-signature", url: "https://homegoestate.github.io/case/desk.html", module: "desk" },
   { title: "收據系統", desc: "代辦費、規費、收據留痕", icon: "fa-file-invoice-dollar", url: "https://homegoestate.github.io/receipts/", module: "receipts" },
   { title: "報價系統", desc: "服務報價、折扣原因、版本紀錄", icon: "fa-calculator", url: "https://homegoestate.github.io/quotation/", module: "quotation" },
@@ -697,7 +698,7 @@ function setActive(el) {
 function sessionParams(url) {
   const u = new URL(url, window.location.href);
   const s = currentSession || {};
-  if (currentFrameItem?.module === "fenping") return new URL(currentFrameItem.url, location.href).href;
+  if (["fenping","bankConditions"].includes(currentFrameItem?.module)) return new URL(currentFrameItem.url, location.href).href;
   const isEmployeeModule = currentFrameItem?.module === "employee";
   const moduleName = isEmployeeModule ? (s.loginAccount || s.legacyName || s.name || "") : (s.name || "");
   u.searchParams.set("name", moduleName);
@@ -715,6 +716,68 @@ function sessionParams(url) {
 
 // Only the exact allocation launcher loaded in the current ERP content frame
 // may ask for this ERP session's short-lived Firebase identity.
+// The public portal contains only a narrow reader, never banking data.
+function bankTarget(source) {
+  const frame=document.getElementById('content-frame');
+  if (!source || !currentSession || currentFrameItem?.module!=='bankConditions' ||
+      frame?.contentWindow!==source || frame.style.display==='none' || document.hidden) return false;
+  try { return source.location.origin===location.origin &&
+    ['/mainmanagement/bank-conditions/','/mainmanagement/bank-conditions/index.html'].includes(source.location.pathname) &&
+    !source.location.search; } catch { return false; }
+}
+function lockBankFrame() {
+  if(currentFrameItem?.module==='bankConditions'){
+    document.getElementById('content-frame')?.contentWindow?.postMessage({type:'BANK_LOCK'},location.origin);
+  }
+}
+window.addEventListener('message',async event=>{
+  const msg=event.data;
+  if(event.origin!==location.origin||msg?.type!=='BANK_READ'||typeof msg.id!=='string'||
+    msg.id.length>64||!bankTarget(event.source))return;
+  const user=auth.currentUser, sess=currentSession, nav=portalNavigationSequence, receiver=event.source;
+  const same=()=>auth.currentUser===user && currentSession===sess && portalNavigationSequence===nav && bankTarget(receiver);
+  const opts={cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer',redirect:'error',signal:AbortSignal.timeout(10000)};
+  try {
+    if(!user||!navigator.onLine)throw Error();
+    const idToken=await user.getIdToken(),base='https://mainmanagement-1f3d2-default-rtdb.firebaseio.com/bankBulletinERP/v1/';
+    const read=async (key,byteCap=0)=>{
+      const u=new URL(key+'.json',base);u.searchParams.set('auth',idToken);
+      const r=await fetch(u,opts);if(!r.ok)throw Error();
+      if(!byteCap)return r.json();
+      if(Number(r.headers.get('content-length'))>byteCap)throw Error();
+      const reader=r.body.getReader(),decoder=new TextDecoder('utf-8',{fatal:true});
+      let n=0,txt='';while(true){const chunk=await reader.read();if(chunk.done)break;n+=chunk.value.byteLength;
+        if(n>byteCap){await reader.cancel();throw Error();}txt+=decoder.decode(chunk.value,{stream:true});}
+      return JSON.parse(txt+decoder.decode());
+    };
+    const [info,release]=await Promise.all([
+      fetch('https://identitytoolkit.googleapis.com/v1/accounts:lookup?key='+encodeURIComponent(firebaseConfig.apiKey),{
+        ...opts,method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken})
+      }).then(r=>{if(!r.ok)throw Error();return r.json();}),read('release')]);
+    const account=info?.users?.[0];
+    if(account?.localId!==user.uid||account.disabled===true||!same())throw Error();
+    if(account.validSince){
+      const stamp=JSON.parse(atob(idToken.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).auth_time;
+      if(!Number.isFinite(stamp)||stamp<Number(account.validSince))throw Error();
+    }
+    if(release?.enabled!==true||typeof release.revision!=='string'||!/^[0-9a-f]{64}$/.test(release.sha256))throw Error();
+    const reply={type:'BANK_RESULT',id:msg.id,revision:release.revision,sha256:release.sha256};
+    if(msg.sha256!==release.sha256){
+      const html=await read('html');if(typeof html!=='string'||html.length>2500000)throw Error();
+      const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(html))),b=>b.toString(16).padStart(2,'0')).join('');
+      if(digest!==release.sha256)throw Error();
+      reply.html=html;
+    }
+    if(msg.wantFeed===true || reply.html!==undefined){
+      try {
+        const feed=await read('feed',1572864);
+        if(feed!==null&&(!feed||typeof feed!=='object'||Array.isArray(feed)||feed.schemaVersion!==1))throw Error();
+        reply.feed={status:feed===null?'empty':'ok',data:feed};
+      } catch {reply.feed={status:'unavailable',data:null};}
+    }
+    if(same())receiver.postMessage(reply,location.origin);
+  } catch { if(same())receiver.postMessage({type:'BANK_RESULT',id:msg.id,denied:true},location.origin); }
+});
 function allocationFrameIsCurrent(source) {
   if (!source || !currentSession || currentFrameItem?.module !== 'fenping') return false;
   const frame = document.getElementById('content-frame');
@@ -741,7 +804,7 @@ window.addEventListener('message',async event=>{
 });
 
 function sendSessionToFrame() {
-  if(currentFrameItem?.module === "fenping") return;
+  if(["fenping","bankConditions"].includes(currentFrameItem?.module)) return;
   const frame = $("content-frame");
   if (!frame.contentWindow || !currentSession || !currentFrameItem) return;
   const sessionForModule = { ...currentSession };
@@ -756,6 +819,10 @@ function sendSessionToFrame() {
 
 window.loadPage = function(idx, el) {
   $("admin-panel").style.display = "none";
+  lockBankFrame();
+  const isBank = DASHBOARD_ITEMS[idx]?.module === "bankConditions";
+  $("btnOpenExternal").style.display = isBank ? "none" : "";
+  $("btnSendSession").style.display = isBank ? "none" : "";
   const navigationSequence = ++portalNavigationSequence;
   if (portalFrameSendTimer) { clearTimeout(portalFrameSendTimer); portalFrameSendTimer = null; }
   const frame = $("content-frame");
@@ -791,6 +858,7 @@ window.loadPage = function(idx, el) {
 
 window.showAdminPanel = function(el) {
   if (!currentSession?.isCEO && !currentSession?.systemAdmin) return alert("只有楊翊晟可進入人員管理。 ");
+  lockBankFrame();
   $("content-frame").style.display = "none";
   $("dashboard-grid-view").style.display = "none";
   $("iframeToolbar").style.display = "none";
@@ -1075,6 +1143,7 @@ function escapeAttr(v) { return escapeHtml(v).replace(/\n/g, ""); }
 async function logout() {
   lockAllocationFrame();
   if (!confirm("確定登出？")) return;
+  lockBankFrame();
   try { await signOut(auth); } catch (err) { console.warn("signOut failed", err); }
   await signOutEmployeeSystem();
   // Only clear ERP login hints. Never touch another HTML module's saved data.
