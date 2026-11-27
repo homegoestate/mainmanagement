@@ -717,6 +717,85 @@ function sessionParams(url) {
 // Only the exact allocation launcher loaded in the current ERP content frame
 // may ask for this ERP session's short-lived Firebase identity.
 // The public portal contains only a narrow reader, never banking data.
+// Parent-only transport. No OAuth/ID token, employee UID or pasted source leaves this context.
+const bankEditDb='https://mainmanagement-1f3d2-default-rtdb.firebaseio.com/',bankEditPath='bankBulletinERP/correctionsV1/';
+const bankEditFields=new Set('first owned second third nonFirst secondPlus intake queue timing loanYears graceYears lockYears maxLtv debtRatio self shop auction decor combo cash'.split(' '));
+const bankEditUuid=x=>typeof x==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(x);
+const bankEditWin=x=>typeof x==='string'&&/^[a-f0-9]{6}$/.test(x);
+const bankEditDay=x=>typeof x==='string'&&/^20\d\d-\d\d-\d\d$/.test(x)&&Number.isFinite(Date.parse(x+'T00:00:00Z'))&&new Date(x+'T00:00:00Z').toISOString().slice(0,10)===x;
+const bankEditExact=(x,keys)=>x&&typeof x==='object'&&!Array.isArray(x)&&Object.keys(x).length===keys.length&&keys.every(k=>Object.hasOwn(x,k));
+const bankEditCommand=c=>c&&['set','cancel'].includes(c.kind)&&bankEditExact(c,['kind','windowKey','fieldKey','sourceDate','correctionDate','basis',c.kind==='set'?'value':'targetId'])&&bankEditWin(c.windowKey)&&bankEditFields.has(c.fieldKey)&&bankEditDay(c.sourceDate)&&bankEditDay(c.correctionDate)&&c.sourceDate<=c.correctionDate&&c.correctionDate<=new Date(Date.now()+28800000).toISOString().slice(0,10)&&['phone','line','written'].includes(c.basis)&&(c.kind==='set'?typeof c.value==='string'&&c.value.length>0&&c.value.length<=80&&!/[\x00-\x1f<>=@#]|https?:|www\.|(?:\d[ -]?){7,}|姓名|電話|身分證|地址|門牌|地號|帳號|案號|客戶/i.test(c.value):bankEditUuid(c.targetId));
+const bankEditOptions=()=>({cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer',redirect:'error',signal:AbortSignal.timeout(6000)});
+async function bankEditDB(key,token,opt={}){
+ const url=new URL(key+'.json',bankEditDb);url.searchParams.set('auth',token);
+ return fetch(url,{...bankEditOptions(),...opt});
+}
+async function bankEditJSON(r,limit){
+ if(!r.ok||Number(r.headers.get('content-length'))>limit)throw Error('unavailable');
+ const reader=r.body.getReader(),decoder=new TextDecoder('utf-8',{fatal:true});let len=0,txt='';
+ while(true){const v=await reader.read();if(v.done)break;len+=v.value.byteLength;if(len>limit){await reader.cancel();throw Error('size');}txt+=decoder.decode(v.value,{stream:true});}
+ return JSON.parse(txt+decoder.decode());
+}
+function bankEditFlatten(tree){
+ const entries=[];if(tree===null)return {entries};
+ const object=x=>!!x&&typeof x==='object'&&!Array.isArray(x);
+ if(!object(tree)||Object.keys(tree).length>500)throw Error('shape');
+ for(const [w,fields] of Object.entries(tree)){
+  if(!bankEditWin(w)||!object(fields)||Object.keys(fields).length>bankEditFields.size)throw Error('shape');
+  for(const [k,b] of Object.entries(fields)){
+   if(!bankEditFields.has(k)||!object(b)||Object.keys(b).length>2000)throw Error('shape');
+   let active='';for(let i=1;i<=Object.keys(b).length;i++){const x=b['r'+i];if(!x||x.rev!==i||!bankEditUuid(x.id))throw Error('shape');
+    const toDay=ms=>{if(!Number.isSafeInteger(ms)||ms%86400000!==0)throw Error('date');return new Date(ms).toISOString().slice(0,10);};
+    const c={windowKey:w,fieldKey:k,kind:x.kind,basis:x.basis,sourceDate:toDay(x.sourceMs),correctionDate:toDay(x.correctionMs),...(x.kind==='set'?{value:x.value}:{targetId:x.targetId})};
+    if(!bankEditCommand(c)||x.kind==='cancel'&&x.targetId!==active)throw Error('shape');active=x.kind==='set'?x.id:'';
+    entries.push({id:x.id,...c});if(entries.length>12000)throw Error('size');
+   }
+  }
+ }
+ return {entries};
+}
+async function bankEditCanWrite(user,token){
+ if(!user||currentSession?.isAdmin!==true)return false;
+ const access=await bankEditJSON(await bankEditDB('access/'+encodeURIComponent(user.uid),token),8192);
+ if(access?.active!==true||access.admin!==true||typeof access.account!=='string'||!access.account||typeof access.employee!=='string'||!access.employee||/[.#$\[\]\/]/.test(access.employee))return false;
+ const emp=await bankEditJSON(await bankEditDB('employees/'+encodeURIComponent(access.employee)+'/isActive',token),512);
+ return emp===true;
+}
+async function bankEditState(user,token){
+ const [ledger,canWrite]=await Promise.all([bankEditDB(bankEditPath.slice(0,-1),token).then(r=>bankEditJSON(r,2097152)).then(bankEditFlatten),bankEditCanWrite(user,token).catch(()=>false)]);
+ return {ledger,canWrite};
+}
+const bankEditBusy=new WeakSet();
+window.addEventListener('message',async e=>{
+ const m=e.data;if(e.origin!==location.origin||m?.type!=='BANK_EDIT_WRITE_V1'||!bankTarget(e.source)||!bankEditUuid(m.id)||!bankEditCommand(m.command)||!Number.isSafeInteger(m.expectedRevision)||m.expectedRevision<0||m.expectedRevision>=2000)return;
+ const dest=e.source,user=auth.currentUser,sess=currentSession,nav=portalNavigationSequence,alive=()=>auth.currentUser===user&&currentSession===sess&&portalNavigationSequence===nav&&bankTarget(dest);
+ const send=x=>{if(alive())dest.postMessage({type:'BANK_EDIT_RESULT_V1',id:m.id,...x},location.origin);};
+ if(bankEditBusy.has(dest)){send({ok:false,code:'busy'});return;}bankEditBusy.add(dest);
+ try{
+  if(!navigator.onLine||!user||sess?.isAdmin!==true)throw Error('denied');
+  const token=await user.getIdToken(),opts=bankEditOptions();
+  const [identity,allowed,release,feedWindows]=await Promise.all([
+   fetch('https://identitytoolkit.googleapis.com/v1/accounts:lookup?key='+encodeURIComponent(firebaseConfig.apiKey),{...opts,method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken:token})}).then(r=>bankEditJSON(r,65536)),
+   bankEditCanWrite(user,token),bankEditDB('bankBulletinERP/v1/release/enabled',token).then(r=>bankEditJSON(r,512)),
+   bankEditDB('bankBulletinERP/v1/feed/windows',token).then(r=>bankEditJSON(r,1572864))]);
+  const acc=identity?.users?.[0];if(!alive()||!allowed||release!==true||acc?.localId!==user.uid||acc.disabled===true)throw Error('denied');
+  if(acc.validSince){const s=JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).auth_time;if(!Number.isFinite(s)||s<Number(acc.validSince))throw Error('denied');}
+  const c=m.command,rev=m.expectedRevision+1,lookup=Array.isArray(feedWindows)?feedWindows:[],matching=lookup.filter(x=>x?.windowKey===c.windowKey);
+  if(matching.length>1)throw Error('scope');const windowIndex=lookup.findIndex(x=>x?.windowKey===c.windowKey);
+  const rec={id:m.id,kind:c.kind,basis:c.basis,actorUid:user.uid,rev,windowIndex,sourceMs:Date.parse(c.sourceDate+'T00:00:00Z'),correctionMs:Date.parse(c.correctionDate+'T00:00:00Z'),recordedAt:{'.sv':'timestamp'},...(c.kind==='set'?{value:c.value}:{targetId:c.targetId})};
+  // The immutable create-only server rule, plus a null ETag, reject raced same-field writes.
+  const rowPath=bankEditPath+c.windowKey+'/'+c.fieldKey+'/r'+rev;
+  const write=await bankEditDB(rowPath,token,{method:'PUT',headers:{'Content-Type':'application/json','if-match':'null_etag'},body:JSON.stringify(rec)});
+  if(!write.ok){
+   const state=await bankEditState(user,token),existing=state.ledger.entries.filter(x=>x.windowKey===c.windowKey&&x.fieldKey===c.fieldKey)[rev-1];
+   if(existing?.id===m.id&&Object.keys(c).every(k=>existing[k]===c[k])){send({ok:true,...state});return;}
+   if(existing){send({ok:false,code:'conflict',...state});return;}throw Error('denied');
+  }
+  const state=await bankEditState(user,token),actual=state.ledger.entries.filter(x=>x.windowKey===c.windowKey&&x.fieldKey===c.fieldKey)[rev-1];
+  if(actual?.id!==m.id||Object.keys(c).some(k=>actual[k]!==c[k]))throw Error('readback');
+  send({ok:true,...state});
+ }catch{send({ok:false,code:'unconfirmed'});}finally{bankEditBusy.delete(dest);}
+});
 function bankTarget(source) {
   const frame=document.getElementById('content-frame');
   if (!source || !currentSession || currentFrameItem?.module!=='bankConditions' ||
@@ -770,11 +849,14 @@ window.addEventListener('message',async event=>{
     }
     if(msg.wantFeed===true || reply.html!==undefined){
       try {
+        const remoteStamp=await read('feed/generatedAt');
+        if(reply.html===undefined&&typeof msg.knownFeedAt==='string'&&typeof remoteStamp==='string'&&remoteStamp===msg.knownFeedAt&&/^20[0-9]{2}-[0-9]{2}-[0-9]{2}T/.test(remoteStamp)&&Number.isFinite(Date.parse(remoteStamp))){reply.feedUnchanged=true;}else{
         const feed=await read('feed',1572864);
         if(feed!==null&&(!feed||typeof feed!=='object'||Array.isArray(feed)||feed.schemaVersion!==1))throw Error();
-        reply.feed={status:feed===null?'empty':'ok',data:feed};
+        reply.feed={status:feed===null?'empty':'ok',data:feed};}
       } catch {reply.feed={status:'unavailable',data:null};}
     }
+    if(msg.wantFeed===true||reply.html!==undefined){try{reply.editState=await bankEditState(user,idToken);}catch{reply.editState={unavailable:true};}}
     if(same())receiver.postMessage(reply,location.origin);
   } catch { if(same())receiver.postMessage({type:'BANK_RESULT',id:msg.id,denied:true},location.origin); }
 });

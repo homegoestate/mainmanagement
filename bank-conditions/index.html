@@ -8,9 +8,26 @@
 'use strict';
 const outer=document.querySelector('main'),statusText=document.querySelector('#status');
 let book=null,digest='',pending='',timer=0,feed=null,feedAt=0,loaded=false;
+// The private book is an opaque sandbox. Send only to its exact live WindowProxy.
+let bankEditStateCache=null,bankEditPending='',bankEditTimeout=0;
+function bankEditReset(){bankEditStateCache=null;bankEditPending='';clearTimeout(bankEditTimeout);}
+function bankEditRelayState(){if(loaded&&book&&bankEditStateCache)book.contentWindow.postMessage({type:'HOMEGO_BANK_EDITS_STATE_V1',...bankEditStateCache},'*');}
+window.addEventListener('message',e=>{
+ const m=e.data;if(!m||document.hidden||parent===window||!navigator.onLine)return;
+ if(e.source===parent&&e.origin===location.origin&&m.type==='BANK_EDIT_RESULT_V1'){
+  if(!bankEditPending||m.id!==bankEditPending||!book||!loaded)return;clearTimeout(bankEditTimeout);bankEditPending='';
+  if(m.ledger)bankEditStateCache={ledger:m.ledger,canWrite:m.canWrite===true};else if(!m.ok)bankEditStateCache={unavailable:true};
+  book.contentWindow.postMessage({type:'HOMEGO_BANK_EDIT_RESULT_V1',id:m.id,code:m.code,ok:m.ok===true,ledger:m.ledger,canWrite:m.canWrite===true},'*');
+  bankEditRelayState();return;
+ }
+ if(!book||!loaded||e.source!==book.contentWindow||e.origin!=='null'||m.type!=='HOMEGO_BANK_EDIT_REQUEST_V1'||bankEditPending||bankEditStateCache?.canWrite!==true||typeof m.id!=='string'||m.id.length!==36||!m.command||!Number.isSafeInteger(m.expectedRevision))return;
+ bankEditPending=m.id;
+ bankEditTimeout=setTimeout(()=>{if(m.id!==bankEditPending)return;bankEditPending='';bankEditStateCache={unavailable:true};bankEditRelayState();},14500);
+ parent.postMessage({type:'BANK_EDIT_WRITE_V1',id:m.id,expectedRevision:m.expectedRevision,command:m.command},location.origin);
+});
 function sendFeed(){if(book&&loaded&&feed){book.contentWindow?.postMessage({type:'HOMEGO_BANK_FEED_V1',data:feed.data,status:feed.status},'*');}}
 function lock(s='請從總控制管理登入後，選擇「銀行條件」。'){
- clearTimeout(timer);pending='';book?.remove();book=null;digest='';loaded=false;feed=null;feedAt=0;outer.hidden=false;statusText.textContent=s;
+ bankEditReset();clearTimeout(timer);pending='';book?.remove();book=null;digest='';loaded=false;feed=null;feedAt=0;outer.hidden=false;statusText.textContent=s;
 }
 function check(){
  if(window.parent===window){lock();return;}
@@ -18,7 +35,7 @@ function check(){
  if(!navigator.onLine){lock('目前離線，無法確認同仁權限。');return;}
  if(pending)return;
  pending=crypto.randomUUID();timer=setTimeout(()=>lock('無法確認同仁權限，請回總控重新登入。'),12000);
- parent.postMessage({type:'BANK_READ',id:pending,sha256:digest,wantFeed:!feed||Date.now()-feedAt>90000},location.origin);
+ parent.postMessage({type:'BANK_READ',id:pending,sha256:digest,knownFeedAt:feed?.status==='ok'&&typeof feed.data?.generatedAt==='string'?feed.data.generatedAt:'',wantFeed:!feed||Date.now()-feedAt>90000},location.origin);
 }
 window.addEventListener('message',e=>{
  if(parent===window||e.source!==parent||e.origin!==location.origin)return;
@@ -26,12 +43,12 @@ window.addEventListener('message',e=>{
  if(m?.type!=='BANK_RESULT'||!pending||m.id!==pending||document.hidden)return;
  clearTimeout(timer);pending='';
  if(m.denied||typeof m.sha256!=='string'||!/^[0-9a-f]{64}$/.test(m.sha256)){lock('此功能限有效的在職同仁帳號，或資料目前無法讀取。');return;}
- let changedFeed=false;
+ if(m.editState){bankEditStateCache=m.editState;bankEditRelayState();}if(m.feedUnchanged===true&&feed?.status==='ok')feedAt=Date.now();let changedFeed=false;
  if(m.feed){feed=['ok','empty','unavailable'].includes(m.feed.status)?m.feed:{data:null,status:'unavailable'};feedAt=Date.now();changedFeed=true;}
  if(m.sha256===digest&&book){if(changedFeed)sendFeed();return;}
  if(typeof m.html!=='string'){lock('目前無法載入銀行條件。');return;}
  book?.remove();loaded=false;book=document.createElement('iframe');book.title='銀行條件手冊';
- const newBook=book;book.addEventListener('load',()=>{if(book===newBook){loaded=true;sendFeed();}},{once:true});
+ const newBook=book;book.addEventListener('load',()=>{if(book===newBook){loaded=true;sendFeed();bankEditRelayState();}},{once:true});
  book.setAttribute('sandbox','allow-scripts allow-modals');book.referrerPolicy='no-referrer';
  book.srcdoc=m.html;digest=m.sha256;document.body.appendChild(book);outer.hidden=true;
 });
